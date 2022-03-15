@@ -9,7 +9,7 @@ comes with `git` pre-installed):
 
 Open CEA console and enter the following command to install the plugin to CEA:
 
-```pip install -e PATH_OF_PLUGIN_FOLDER```
+```pip install -e /Users/your_name/Documents/GitHub/cea-plugin-bia```
 
 (NOTE: PATH_OF_PLUGIN_FOLDER would be the DESIRED_PATH + 'cea-plugin-bia')
 
