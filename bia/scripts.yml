@@ -1,0 +1,15 @@
+Urban agriculture:
+
+  - name: bia-dli
+    label: BIA Daily Light Integral (DLI)
+    description: Calculates the Daily Light Integral (DLI) in [mol/m2/day] for each building envelope surface.
+    interfaces: [cli, dashboard]
+    module: bia.bia_dli
+    parameters: ['general:scenario', 'general:multiprocessing',
+                 'general:number-of-cpus-to-keep-free',
+                 'agriculture:annual-radiation-threshold-bia',
+                 'agriculture:crop-on-roof', 'agriculture:crop-on-wall']
+    input-files:
+      - [get_radiation_metadata, building_name]
+      - [get_zone_geometry]
+      - [get_radiation_building, building_name]

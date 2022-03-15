@@ -1,0 +1,2286 @@
+get_dli_building:
+  created_by:
+  - bia-dli
+  file_path: outputs/data/potentials/agriculture/{building}_DLI_daily.csv
+  file_type: csv
+  schema:
+    columns:
+      AREA_m2:
+        description: Surface area.
+        type: float
+        unit: '[m2]'
+        values: '{0.0...n}'
+        min: 0.0
+      BUILDING:
+        description: Unique building ID. It must start with a letter.
+        type: string
+        unit: 'NA'
+        values: alphanumeric
+      SURFACE:
+        description: Unique surface ID for each building exterior surface.
+        type: string
+        unit: 'NA'
+        values: '{srf0...srfn}'
+      TYPE:
+        description: Surface typology.
+        type: string
+        unit: 'NA'
+        values: '{"walls","windows","roofs"}'
+      Xcoor:
+        description: Describes the position of the x vector.
+        type: float
+        unit: '[-]'
+        values: '{0.0...n}'
+        min: 0.0
+      Xdir:
+        description: Directional scalar of the x vector.
+        type: float
+        unit: '[-]'
+        values: '{-1...1}'
+        min: -1.0
+        max: 1.0
+      Ycoor:
+        description: Describes the position of the y vector.
+        type: float
+        unit: '[-]'
+        values: '{0.0...n}'
+        min: 0.0
+      Ydir:
+        description: Directional scalar of the y vector.
+        type: float
+        unit: '[-]'
+        values: '{-1...1}'
+        min: -1.0
+        max: 1.0
+      Zcoor:
+        description: Describes the position of the z vector.
+        type: float
+        unit: '[-]'
+        values: '{0.0...n}'
+        min: 0.0
+      Zdir:
+        description: Directional scalar of the z vector.
+        type: float
+        unit: '[-]'
+        values: '{-1...1}'
+        min: -1.0
+        max: 1.0
+      intersection:
+        description: 'flag to indicate whether this surface is intersecting with another
+            surface (0: no intersection, 1: intersected)'
+        type: float
+        unit: '[-]'
+        values: '{0,1}'
+      orientation:
+        description: Orientation of the surface (north/east/south/west/top)
+        type: string
+        unit: 'NA'
+        values: '{"north","east","west","south","top"}'
+      total_rad_Whm2:
+        description: Total radiatiative potential of a given surfaces area.
+        type: float
+        unit: '[Wh/m2]'
+        values: '{0.0...n}'
+        min: 0.0
+      n_floor:
+        description: The floor number that surface belongs.
+        type: float
+        unit: 'NA'
+        values: '{0.0...n}'
+        min: 0.0
+      wall_type:
+        description: The location of the wall surfaces in relation to the window.
+        type: string
+        unit: 'NA'
+        values: '{"lower","upper","side","non_wall"}'
+      0:
+        description: The DLI on the surfaces for Day 0 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      1:
+        description: The DLI on the surfaces for Day 1 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      2:
+        description: The DLI on the surfaces for Day 2 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      3:
+        description: The DLI on the surfaces for Day 3 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      4:
+        description: The DLI on the surfaces for Day 4 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      5:
+        description: The DLI on the surfaces for Day 5 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      6:
+        description: The DLI on the surfaces for Day 6 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      7:
+        description: The DLI on the surfaces for Day 7 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      8:
+        description: The DLI on the surfaces for Day 8 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      9:
+        description: The DLI on the surfaces for Day 9 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      10:
+        description: The DLI on the surfaces for Day 10 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      11:
+        description: The DLI on the surfaces for Day 11 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      12:
+        description: The DLI on the surfaces for Day 12 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      13:
+        description: The DLI on the surfaces for Day 13 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      14:
+        description: The DLI on the surfaces for Day 14 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      15:
+        description: The DLI on the surfaces for Day 15 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      16:
+        description: The DLI on the surfaces for Day 16 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      17:
+        description: The DLI on the surfaces for Day 17 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      18:
+        description: The DLI on the surfaces for Day 18 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      19:
+        description: The DLI on the surfaces for Day 19 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      20:
+        description: The DLI on the surfaces for Day 20 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      21:
+        description: The DLI on the surfaces for Day 21 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      22:
+        description: The DLI on the surfaces for Day 22 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      23:
+        description: The DLI on the surfaces for Day 23 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      24:
+        description: The DLI on the surfaces for Day 24 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      25:
+        description: The DLI on the surfaces for Day 25 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      26:
+        description: The DLI on the surfaces for Day 26 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      27:
+        description: The DLI on the surfaces for Day 27 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      28:
+        description: The DLI on the surfaces for Day 28 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      29:
+        description: The DLI on the surfaces for Day 29 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      30:
+        description: The DLI on the surfaces for Day 30 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      31:
+        description: The DLI on the surfaces for Day 31 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      32:
+        description: The DLI on the surfaces for Day 32 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      33:
+        description: The DLI on the surfaces for Day 33 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      34:
+        description: The DLI on the surfaces for Day 34 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      35:
+        description: The DLI on the surfaces for Day 35 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      36:
+        description: The DLI on the surfaces for Day 36 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      37:
+        description: The DLI on the surfaces for Day 37 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      38:
+        description: The DLI on the surfaces for Day 38 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      39:
+        description: The DLI on the surfaces for Day 39 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      40:
+        description: The DLI on the surfaces for Day 40 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      41:
+        description: The DLI on the surfaces for Day 41 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      42:
+        description: The DLI on the surfaces for Day 42 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      43:
+        description: The DLI on the surfaces for Day 43 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      44:
+        description: The DLI on the surfaces for Day 44 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      45:
+        description: The DLI on the surfaces for Day 45 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      46:
+        description: The DLI on the surfaces for Day 46 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      47:
+        description: The DLI on the surfaces for Day 47 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      48:
+        description: The DLI on the surfaces for Day 48 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      49:
+        description: The DLI on the surfaces for Day 49 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      50:
+        description: The DLI on the surfaces for Day 50 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      51:
+        description: The DLI on the surfaces for Day 51 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      52:
+        description: The DLI on the surfaces for Day 52 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      53:
+        description: The DLI on the surfaces for Day 53 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      54:
+        description: The DLI on the surfaces for Day 54 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      55:
+        description: The DLI on the surfaces for Day 55 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      56:
+        description: The DLI on the surfaces for Day 56 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      57:
+        description: The DLI on the surfaces for Day 57 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      58:
+        description: The DLI on the surfaces for Day 58 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      59:
+        description: The DLI on the surfaces for Day 59 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      60:
+        description: The DLI on the surfaces for Day 60 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      61:
+        description: The DLI on the surfaces for Day 61 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      62:
+        description: The DLI on the surfaces for Day 62 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      63:
+        description: The DLI on the surfaces for Day 63 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      64:
+        description: The DLI on the surfaces for Day 64 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      65:
+        description: The DLI on the surfaces for Day 65 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      66:
+        description: The DLI on the surfaces for Day 66 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      67:
+        description: The DLI on the surfaces for Day 67 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      68:
+        description: The DLI on the surfaces for Day 68 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      69:
+        description: The DLI on the surfaces for Day 69 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      70:
+        description: The DLI on the surfaces for Day 70 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      71:
+        description: The DLI on the surfaces for Day 71 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      72:
+        description: The DLI on the surfaces for Day 72 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      73:
+        description: The DLI on the surfaces for Day 73 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      74:
+        description: The DLI on the surfaces for Day 74 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      75:
+        description: The DLI on the surfaces for Day 75 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      76:
+        description: The DLI on the surfaces for Day 76 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      77:
+        description: The DLI on the surfaces for Day 77 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      78:
+        description: The DLI on the surfaces for Day 78 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      79:
+        description: The DLI on the surfaces for Day 79 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      80:
+        description: The DLI on the surfaces for Day 80 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      81:
+        description: The DLI on the surfaces for Day 81 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      82:
+        description: The DLI on the surfaces for Day 82 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      83:
+        description: The DLI on the surfaces for Day 83 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      84:
+        description: The DLI on the surfaces for Day 84 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      85:
+        description: The DLI on the surfaces for Day 85 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      86:
+        description: The DLI on the surfaces for Day 86 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      87:
+        description: The DLI on the surfaces for Day 87 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      88:
+        description: The DLI on the surfaces for Day 88 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      89:
+        description: The DLI on the surfaces for Day 89 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      90:
+        description: The DLI on the surfaces for Day 90 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      91:
+        description: The DLI on the surfaces for Day 91 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      92:
+        description: The DLI on the surfaces for Day 92 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      93:
+        description: The DLI on the surfaces for Day 93 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      94:
+        description: The DLI on the surfaces for Day 94 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      95:
+        description: The DLI on the surfaces for Day 95 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      96:
+        description: The DLI on the surfaces for Day 96 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      97:
+        description: The DLI on the surfaces for Day 97 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      98:
+        description: The DLI on the surfaces for Day 98 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      99:
+        description: The DLI on the surfaces for Day 99 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      100:
+        description: The DLI on the surfaces for Day 100 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      101:
+        description: The DLI on the surfaces for Day 101 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      102:
+        description: The DLI on the surfaces for Day 102 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      103:
+        description: The DLI on the surfaces for Day 103 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      104:
+        description: The DLI on the surfaces for Day 104 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      105:
+        description: The DLI on the surfaces for Day 105 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      106:
+        description: The DLI on the surfaces for Day 106 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      107:
+        description: The DLI on the surfaces for Day 107 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      108:
+        description: The DLI on the surfaces for Day 108 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      109:
+        description: The DLI on the surfaces for Day 109 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      110:
+        description: The DLI on the surfaces for Day 110 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      111:
+        description: The DLI on the surfaces for Day 111 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      112:
+        description: The DLI on the surfaces for Day 112 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      113:
+        description: The DLI on the surfaces for Day 113 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      114:
+        description: The DLI on the surfaces for Day 114 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      115:
+        description: The DLI on the surfaces for Day 115 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      116:
+        description: The DLI on the surfaces for Day 116 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      117:
+        description: The DLI on the surfaces for Day 117 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      118:
+        description: The DLI on the surfaces for Day 118 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      119:
+        description: The DLI on the surfaces for Day 119 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      120:
+        description: The DLI on the surfaces for Day 120 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      121:
+        description: The DLI on the surfaces for Day 121 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      122:
+        description: The DLI on the surfaces for Day 122 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      123:
+        description: The DLI on the surfaces for Day 123 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      124:
+        description: The DLI on the surfaces for Day 124 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      125:
+        description: The DLI on the surfaces for Day 125 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      126:
+        description: The DLI on the surfaces for Day 126 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      127:
+        description: The DLI on the surfaces for Day 127 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      128:
+        description: The DLI on the surfaces for Day 128 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      129:
+        description: The DLI on the surfaces for Day 129 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      130:
+        description: The DLI on the surfaces for Day 130 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      131:
+        description: The DLI on the surfaces for Day 131 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      132:
+        description: The DLI on the surfaces for Day 132 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      133:
+        description: The DLI on the surfaces for Day 133 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      134:
+        description: The DLI on the surfaces for Day 134 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      135:
+        description: The DLI on the surfaces for Day 135 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      136:
+        description: The DLI on the surfaces for Day 136 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      137:
+        description: The DLI on the surfaces for Day 137 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      138:
+        description: The DLI on the surfaces for Day 138 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      139:
+        description: The DLI on the surfaces for Day 139 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      140:
+        description: The DLI on the surfaces for Day 140 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      141:
+        description: The DLI on the surfaces for Day 141 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      142:
+        description: The DLI on the surfaces for Day 142 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      143:
+        description: The DLI on the surfaces for Day 143 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      144:
+        description: The DLI on the surfaces for Day 144 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      145:
+        description: The DLI on the surfaces for Day 145 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      146:
+        description: The DLI on the surfaces for Day 146 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      147:
+        description: The DLI on the surfaces for Day 147 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      148:
+        description: The DLI on the surfaces for Day 148 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      149:
+        description: The DLI on the surfaces for Day 149 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      150:
+        description: The DLI on the surfaces for Day 150 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      151:
+        description: The DLI on the surfaces for Day 151 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      152:
+        description: The DLI on the surfaces for Day 152 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      153:
+        description: The DLI on the surfaces for Day 153 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      154:
+        description: The DLI on the surfaces for Day 154 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      155:
+        description: The DLI on the surfaces for Day 155 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      156:
+        description: The DLI on the surfaces for Day 156 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      157:
+        description: The DLI on the surfaces for Day 157 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      158:
+        description: The DLI on the surfaces for Day 158 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      159:
+        description: The DLI on the surfaces for Day 159 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      160:
+        description: The DLI on the surfaces for Day 160 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      161:
+        description: The DLI on the surfaces for Day 161 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      162:
+        description: The DLI on the surfaces for Day 162 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      163:
+        description: The DLI on the surfaces for Day 163 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      164:
+        description: The DLI on the surfaces for Day 164 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      165:
+        description: The DLI on the surfaces for Day 165 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      166:
+        description: The DLI on the surfaces for Day 166 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      167:
+        description: The DLI on the surfaces for Day 167 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      168:
+        description: The DLI on the surfaces for Day 168 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      169:
+        description: The DLI on the surfaces for Day 169 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      170:
+        description: The DLI on the surfaces for Day 170 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      171:
+        description: The DLI on the surfaces for Day 171 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      172:
+        description: The DLI on the surfaces for Day 172 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      173:
+        description: The DLI on the surfaces for Day 173 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      174:
+        description: The DLI on the surfaces for Day 174 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      175:
+        description: The DLI on the surfaces for Day 175 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      176:
+        description: The DLI on the surfaces for Day 176 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      177:
+        description: The DLI on the surfaces for Day 177 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      178:
+        description: The DLI on the surfaces for Day 178 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      179:
+        description: The DLI on the surfaces for Day 179 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      180:
+        description: The DLI on the surfaces for Day 180 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      181:
+        description: The DLI on the surfaces for Day 181 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      182:
+        description: The DLI on the surfaces for Day 182 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      183:
+        description: The DLI on the surfaces for Day 183 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      184:
+        description: The DLI on the surfaces for Day 184 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      185:
+        description: The DLI on the surfaces for Day 185 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      186:
+        description: The DLI on the surfaces for Day 186 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      187:
+        description: The DLI on the surfaces for Day 187 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      188:
+        description: The DLI on the surfaces for Day 188 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      189:
+        description: The DLI on the surfaces for Day 189 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      190:
+        description: The DLI on the surfaces for Day 190 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      191:
+        description: The DLI on the surfaces for Day 191 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      192:
+        description: The DLI on the surfaces for Day 192 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      193:
+        description: The DLI on the surfaces for Day 193 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      194:
+        description: The DLI on the surfaces for Day 194 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      195:
+        description: The DLI on the surfaces for Day 195 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      196:
+        description: The DLI on the surfaces for Day 196 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      197:
+        description: The DLI on the surfaces for Day 197 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      198:
+        description: The DLI on the surfaces for Day 198 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      199:
+        description: The DLI on the surfaces for Day 199 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      200:
+        description: The DLI on the surfaces for Day 200 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      201:
+        description: The DLI on the surfaces for Day 201 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      202:
+        description: The DLI on the surfaces for Day 202 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      203:
+        description: The DLI on the surfaces for Day 203 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      204:
+        description: The DLI on the surfaces for Day 204 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      205:
+        description: The DLI on the surfaces for Day 205 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      206:
+        description: The DLI on the surfaces for Day 206 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      207:
+        description: The DLI on the surfaces for Day 207 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      208:
+        description: The DLI on the surfaces for Day 208 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      209:
+        description: The DLI on the surfaces for Day 209 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      210:
+        description: The DLI on the surfaces for Day 210 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      211:
+        description: The DLI on the surfaces for Day 211 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      212:
+        description: The DLI on the surfaces for Day 212 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      213:
+        description: The DLI on the surfaces for Day 213 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      214:
+        description: The DLI on the surfaces for Day 214 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      215:
+        description: The DLI on the surfaces for Day 215 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      216:
+        description: The DLI on the surfaces for Day 216 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      217:
+        description: The DLI on the surfaces for Day 217 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      218:
+        description: The DLI on the surfaces for Day 218 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      219:
+        description: The DLI on the surfaces for Day 219 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      220:
+        description: The DLI on the surfaces for Day 220 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      221:
+        description: The DLI on the surfaces for Day 221 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      222:
+        description: The DLI on the surfaces for Day 222 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      223:
+        description: The DLI on the surfaces for Day 223 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      224:
+        description: The DLI on the surfaces for Day 224 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      225:
+        description: The DLI on the surfaces for Day 225 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      226:
+        description: The DLI on the surfaces for Day 226 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      227:
+        description: The DLI on the surfaces for Day 227 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      228:
+        description: The DLI on the surfaces for Day 228 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      229:
+        description: The DLI on the surfaces for Day 229 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      230:
+        description: The DLI on the surfaces for Day 230 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      231:
+        description: The DLI on the surfaces for Day 231 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      232:
+        description: The DLI on the surfaces for Day 232 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      233:
+        description: The DLI on the surfaces for Day 233 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      234:
+        description: The DLI on the surfaces for Day 234 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      235:
+        description: The DLI on the surfaces for Day 235 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      236:
+        description: The DLI on the surfaces for Day 236 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      237:
+        description: The DLI on the surfaces for Day 237 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      238:
+        description: The DLI on the surfaces for Day 238 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      239:
+        description: The DLI on the surfaces for Day 239 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      240:
+        description: The DLI on the surfaces for Day 240 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      241:
+        description: The DLI on the surfaces for Day 241 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      242:
+        description: The DLI on the surfaces for Day 242 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      243:
+        description: The DLI on the surfaces for Day 243 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      244:
+        description: The DLI on the surfaces for Day 244 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      245:
+        description: The DLI on the surfaces for Day 245 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      246:
+        description: The DLI on the surfaces for Day 246 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      247:
+        description: The DLI on the surfaces for Day 247 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      248:
+        description: The DLI on the surfaces for Day 248 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      249:
+        description: The DLI on the surfaces for Day 249 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      250:
+        description: The DLI on the surfaces for Day 250 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      251:
+        description: The DLI on the surfaces for Day 251 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      252:
+        description: The DLI on the surfaces for Day 252 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      253:
+        description: The DLI on the surfaces for Day 253 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      254:
+        description: The DLI on the surfaces for Day 254 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      255:
+        description: The DLI on the surfaces for Day 255 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      256:
+        description: The DLI on the surfaces for Day 256 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      257:
+        description: The DLI on the surfaces for Day 257 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      258:
+        description: The DLI on the surfaces for Day 258 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      259:
+        description: The DLI on the surfaces for Day 259 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      260:
+        description: The DLI on the surfaces for Day 260 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      261:
+        description: The DLI on the surfaces for Day 261 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      262:
+        description: The DLI on the surfaces for Day 262 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      263:
+        description: The DLI on the surfaces for Day 263 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      264:
+        description: The DLI on the surfaces for Day 264 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      265:
+        description: The DLI on the surfaces for Day 265 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      266:
+        description: The DLI on the surfaces for Day 266 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      267:
+        description: The DLI on the surfaces for Day 267 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      268:
+        description: The DLI on the surfaces for Day 268 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      269:
+        description: The DLI on the surfaces for Day 269 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      270:
+        description: The DLI on the surfaces for Day 270 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      271:
+        description: The DLI on the surfaces for Day 271 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      272:
+        description: The DLI on the surfaces for Day 272 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      273:
+        description: The DLI on the surfaces for Day 273 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      274:
+        description: The DLI on the surfaces for Day 274 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      275:
+        description: The DLI on the surfaces for Day 275 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      276:
+        description: The DLI on the surfaces for Day 276 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      277:
+        description: The DLI on the surfaces for Day 277 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      278:
+        description: The DLI on the surfaces for Day 278 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      279:
+        description: The DLI on the surfaces for Day 279 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      280:
+        description: The DLI on the surfaces for Day 280 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      281:
+        description: The DLI on the surfaces for Day 281 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      282:
+        description: The DLI on the surfaces for Day 282 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      283:
+        description: The DLI on the surfaces for Day 283 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      284:
+        description: The DLI on the surfaces for Day 284 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      285:
+        description: The DLI on the surfaces for Day 285 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      286:
+        description: The DLI on the surfaces for Day 286 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      287:
+        description: The DLI on the surfaces for Day 287 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      288:
+        description: The DLI on the surfaces for Day 288 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      289:
+        description: The DLI on the surfaces for Day 289 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      290:
+        description: The DLI on the surfaces for Day 290 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      291:
+        description: The DLI on the surfaces for Day 291 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      292:
+        description: The DLI on the surfaces for Day 292 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      293:
+        description: The DLI on the surfaces for Day 293 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      294:
+        description: The DLI on the surfaces for Day 294 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      295:
+        description: The DLI on the surfaces for Day 295 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      296:
+        description: The DLI on the surfaces for Day 296 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      297:
+        description: The DLI on the surfaces for Day 297 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      298:
+        description: The DLI on the surfaces for Day 298 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      299:
+        description: The DLI on the surfaces for Day 299 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      300:
+        description: The DLI on the surfaces for Day 300 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      301:
+        description: The DLI on the surfaces for Day 301 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      302:
+        description: The DLI on the surfaces for Day 302 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      303:
+        description: The DLI on the surfaces for Day 303 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      304:
+        description: The DLI on the surfaces for Day 304 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      305:
+        description: The DLI on the surfaces for Day 305 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      306:
+        description: The DLI on the surfaces for Day 306 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      307:
+        description: The DLI on the surfaces for Day 307 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      308:
+        description: The DLI on the surfaces for Day 308 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      309:
+        description: The DLI on the surfaces for Day 309 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      310:
+        description: The DLI on the surfaces for Day 310 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      311:
+        description: The DLI on the surfaces for Day 311 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      312:
+        description: The DLI on the surfaces for Day 312 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      313:
+        description: The DLI on the surfaces for Day 313 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      314:
+        description: The DLI on the surfaces for Day 314 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      315:
+        description: The DLI on the surfaces for Day 315 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      316:
+        description: The DLI on the surfaces for Day 316 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      317:
+        description: The DLI on the surfaces for Day 317 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      318:
+        description: The DLI on the surfaces for Day 318 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      319:
+        description: The DLI on the surfaces for Day 319 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      320:
+        description: The DLI on the surfaces for Day 320 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      321:
+        description: The DLI on the surfaces for Day 321 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      322:
+        description: The DLI on the surfaces for Day 322 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      323:
+        description: The DLI on the surfaces for Day 323 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      324:
+        description: The DLI on the surfaces for Day 324 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      325:
+        description: The DLI on the surfaces for Day 325 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      326:
+        description: The DLI on the surfaces for Day 326 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      327:
+        description: The DLI on the surfaces for Day 327 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      328:
+        description: The DLI on the surfaces for Day 328 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      329:
+        description: The DLI on the surfaces for Day 329 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      330:
+        description: The DLI on the surfaces for Day 330 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      331:
+        description: The DLI on the surfaces for Day 331 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      332:
+        description: The DLI on the surfaces for Day 332 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      333:
+        description: The DLI on the surfaces for Day 333 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      334:
+        description: The DLI on the surfaces for Day 334 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      335:
+        description: The DLI on the surfaces for Day 335 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      336:
+        description: The DLI on the surfaces for Day 336 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      337:
+        description: The DLI on the surfaces for Day 337 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      338:
+        description: The DLI on the surfaces for Day 338 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      339:
+        description: The DLI on the surfaces for Day 339 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      340:
+        description: The DLI on the surfaces for Day 340 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      341:
+        description: The DLI on the surfaces for Day 341 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      342:
+        description: The DLI on the surfaces for Day 342 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      343:
+        description: The DLI on the surfaces for Day 343 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      344:
+        description: The DLI on the surfaces for Day 344 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      345:
+        description: The DLI on the surfaces for Day 345 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      346:
+        description: The DLI on the surfaces for Day 346 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      347:
+        description: The DLI on the surfaces for Day 347 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      348:
+        description: The DLI on the surfaces for Day 348 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      349:
+        description: The DLI on the surfaces for Day 349 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      350:
+        description: The DLI on the surfaces for Day 350 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      351:
+        description: The DLI on the surfaces for Day 351 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      352:
+        description: The DLI on the surfaces for Day 352 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      353:
+        description: The DLI on the surfaces for Day 353 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      354:
+        description: The DLI on the surfaces for Day 354 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      355:
+        description: The DLI on the surfaces for Day 355 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      356:
+        description: The DLI on the surfaces for Day 356 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      357:
+        description: The DLI on the surfaces for Day 357 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      358:
+        description: The DLI on the surfaces for Day 358 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      359:
+        description: The DLI on the surfaces for Day 359 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      360:
+        description: The DLI on the surfaces for Day 360 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      361:
+        description: The DLI on the surfaces for Day 361 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      362:
+        description: The DLI on the surfaces for Day 362 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      363:
+        description: The DLI on the surfaces for Day 363 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+      364:
+        description: The DLI on the surfaces for Day 364 of a year.
+        type: float
+        unit: '[mol/m2/day]'
+        values: '{0.0...n}'
+        min: 0.0
+  used_by: []
