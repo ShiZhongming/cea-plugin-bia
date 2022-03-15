@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3279e6b5-837e-41d0-9b62-934285543542" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/cea-plugin-template.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cea_plugin_template/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cea_plugin_template/demand_summary.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cea_plugin_template/plots.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cea_plugin_template/plugin.config" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cea_plugin_template/schemas.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cea_plugin_template/scripts.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -185,7 +176,7 @@
       <option name="presentableId" value="Default" />
       <updated>1647294460718</updated>
       <workItem from="1647294462807" duration="7967000" />
-      <workItem from="1647318063912" duration="7776000" />
+      <workItem from="1647318063912" duration="8648000" />
     </task>
     <servers />
   </component>
