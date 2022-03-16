@@ -80,7 +80,7 @@ def calc_crop(locator, config, building_name):
 
     # spot the suitable surfaces for the selected crop type
     # this function calculates the surfaces and days for crop-growing 1 or 0, how many cycles per year on each surface
-    xxx =
+
     cycle_total_annual = xxx['cycle'].sum()
 
     if not cycle_total_annual == 0:
