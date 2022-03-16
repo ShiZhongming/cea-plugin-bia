@@ -29,7 +29,7 @@ __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
 __maintainer__ = "Zhongming Shi"
-__email__ = "shi@arch.ethz.ch"
+__email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
