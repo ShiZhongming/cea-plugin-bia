@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3279e6b5-837e-41d0-9b62-934285543542" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/bia/bia_crop.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_crop.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/bia_dli.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_dli.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/plugin.config" beforeDir="false" afterPath="$PROJECT_DIR$/bia/plugin.config" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
