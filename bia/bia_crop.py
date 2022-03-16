@@ -74,9 +74,11 @@ def calc_crop(locator, config, building_name):
     crop_type = config.agriculture.crop_type
 
     # read crop properties in the BIA database for the selected crop type
-    bia_database_path = r"bia/bia_database.xlsx"
+    bia_database_path = r"bia/bia_datab.xlsx"
     crop_properties= calc_properties_crop_db(bia_database_path, config)
     print("gathering the properties of {crop_type}.".format(crop_type=crop_type))
+
+
 
     # spot the suitable surfaces for the selected crop type
     # this function calculates the surfaces and days for crop-growing 1 or 0, how many cycles per year on each surface
@@ -122,6 +124,8 @@ def calc_properties_crop_db(database_path, config):
     crop_type = config.agriculture.crop_type
     data = pd.read_excel(database_path, sheet_name="crop")
     crop_properties = data[data['crop_type'] == crop_type].reset_index().T.to_dict()[0]
+
+    print(crop_properties)
 
     return crop_properties
 
