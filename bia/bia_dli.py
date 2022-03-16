@@ -53,16 +53,9 @@ def calc_DLI(locator, config, building_name):
     :type radiation_path: String
     :param metadata_csv: data of sensor points measuring solar insulation of each building
     :type metadata_csv: .csv
-    :param latitude: latitude of the case study location
-    :type latitude: float
-    :param longitude: longitude of the case study location
-    :type longitude: float
-    :param weather_path: path to the weather data file of the case study location
-    :type weather_path: .epw
     :param building_name: list of building names in the case study
     :type building_name: Series
-    :return: Building_PV.csv with PV generation potential of each building, Building_sensors.csv with sensor data of
-        each PV panel.
+    :return: Building_DLI.csv with DLI for 365 days for each building envelope surface.
 
     """
 
@@ -80,7 +73,7 @@ def calc_DLI(locator, config, building_name):
     if not sensors_metadata_clean.empty:
         # convert solar radiation to DLI
         sensors_DLI_daily = calc_Whperm2_molperm2(sensors_rad_clean).T
-        #print('calculating (daily) DLI for each sensor')
+        #print('calculating DLI for each sensor')
 
         # label the sensors by their #floor and wall type (lower, upper, and sideX2)
         sensors_wall_type = calc_sensor_wall_type(locator, sensors_metadata_clean, building_name)
@@ -90,11 +83,11 @@ def calc_DLI(locator, config, building_name):
         sensors_metadata_clean_DLI_daily = pd.merge(sensors_metadata_clean, sensors_DLI_daily, left_index=True,
                                                     right_index=True, how="left")
 
-        # write the daily DLI results
+        # write the DLI results
         dir = config.scenario + "/outputs/data/potentials/agriculture/"
         if not os.path.exists(dir):
             os.mkdir(dir)
-        output_path = dir + "{building}_DLI_daily.csv".format(building=building_name)
+        output_path = dir + "{building}_DLI.csv".format(building=building_name)
         sensors_metadata_clean_DLI_daily.to_csv(output_path, index=True,
                                     float_format='%.2f',
                                     na_rep=0)  # print sensors metadata and daily DLI
