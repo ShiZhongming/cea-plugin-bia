@@ -13,3 +13,17 @@ Urban agriculture:
       - [get_radiation_metadata, building_name]
       - [get_zone_geometry]
       - [get_radiation_building, building_name]
+
+  - name: bia-crop
+    label: BIA assessment
+    description: Calculates the crop yields (kg), carbon emission reduction (CO2-equivalent), cost (CAPEX and OPEX in USD)
+      for the selected crop type on each building envelope surface.
+    interfaces: [cli, dashboard]
+    module: bia.bia_crop
+    parameters: ['general:scenario', 'general:multiprocessing',
+                 'general:number-of-cpus-to-keep-free',
+                 'agriculture:crop-on-roof', 'agriculture:crop-on-wall', 'agriculture:crop-type']
+    input-files:
+      - [get_radiation_metadata, building_name]
+      - [get_zone_geometry]
+      - [get_radiation_building, building_name]
