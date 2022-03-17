@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3279e6b5-837e-41d0-9b62-934285543542" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/equation/bia_dli.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_dli.py" afterDir="false" />
-    </list>
+    <list default="true" id="cc86ad22-f659-415d-9878-c666a6b5746e" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -38,13 +35,13 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/cea_plugin_bia" />
-      <recent name="$PROJECT_DIR$/cea_plugin_template" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/bia/equation" />
       <recent name="$PROJECT_DIR$/cea_plugin_bia" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cea_plugin_bia" />
+      <recent name="$PROJECT_DIR$/cea_plugin_template" />
     </key>
   </component>
   <component name="SvnConfiguration">
