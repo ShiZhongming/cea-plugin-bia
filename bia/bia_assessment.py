@@ -49,25 +49,25 @@ def main(config):
     assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
     locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
 
-    # DLI calculations
-    print('Running Day Light Integral calculations with scenario = %s' % config.scenario)
-    print('Running Day Light Integral calculations with annual-radiation-threshold-kWh/m2 = %s'
-          % config.agriculture.annual_radiation_threshold_BIA)
-    print('Running Day Light Integral calculations with crop-on-roof = %s' % config.agriculture.crop_on_roof)
-    print('Running Day Light Integral calculations with crop-on-wall = %s' % config.agriculture.crop_on_wall)
-
-    building_names = locator.get_zone_building_names()
-    num_process = config.get_number_of_processes()
-    n = len(building_names)
-    cea.utilities.parallel.vectorize(calc_DLI, num_process)(repeat(locator, n), repeat(config, n), building_names)
-
-    # # BIA assessment
-    # print('Running BIA assessment for the selected crop of {crop_type}'.format(crop_type=config.agriculture.crop_type))
+    # # DLI calculations
+    # print('Running Day Light Integral calculations with scenario = %s' % config.scenario)
+    # print('Running Day Light Integral calculations with annual-radiation-threshold-kWh/m2 = %s'
+    #       % config.agriculture.annual_radiation_threshold_BIA)
+    # print('Running Day Light Integral calculations with crop-on-roof = %s' % config.agriculture.crop_on_roof)
+    # print('Running Day Light Integral calculations with crop-on-wall = %s' % config.agriculture.crop_on_wall)
     #
     # building_names = locator.get_zone_building_names()
     # num_process = config.get_number_of_processes()
     # n = len(building_names)
-    # cea.utilities.parallel.vectorize(calc_crop, num_process)(repeat(locator, n), repeat(config, n), building_names)
+    # cea.utilities.parallel.vectorize(calc_DLI, num_process)(repeat(locator, n), repeat(config, n), building_names)
+
+    # BIA assessment
+    print('Running BIA assessment for the selected crop of {crop_type}'.format(crop_type=config.agriculture.crop_type))
+
+    building_names = locator.get_zone_building_names()
+    num_process = config.get_number_of_processes()
+    n = len(building_names)
+    cea.utilities.parallel.vectorize(calc_crop, num_process)(repeat(locator, n), repeat(config, n), building_names)
 
 
 if __name__ == '__main__':

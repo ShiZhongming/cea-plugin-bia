@@ -24,6 +24,7 @@ from cea.constants import HOURS_IN_YEAR
 from cea.resources.radiation_daysim import daysim_main, geometry_generator
 
 
+
 __author__ = "Zhongming Shi"
 __copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich"
 __credits__ = ["Zhongming Shi"]
@@ -55,8 +56,6 @@ def calc_crop(locator, config, building_name):
     # path to the results of DLI calculations using script: bia_dli.py
     dli_path = config.scenario + \
           "/outputs/data/potentials/agriculture/{building}_DLI.csv".format(building=building_name)
-    if not os.path.exists(dli_path):
-        raise ValueError("Consider execute Command bia-dli first!")
 
     # read the results of DLI calculations
     dli_results = pd.read_csv(dli_path)
@@ -66,9 +65,31 @@ def calc_crop(locator, config, building_name):
     crop_type = config.agriculture.crop_type
 
     # read crop properties in the BIA database for the selected crop type
-    bia_database_path = r"bia/bia_data.xlsx"
-    crop_properties= calc_properties_crop_db(bia_database_path, config)
-    print("gathering the properties of {crop_type}.".format(crop_type=crop_type))
+    dir = os.path.dirname(__file__)
+    bia_database_path = os.path.join(dir, "bia_data.xlsx")
+
+    crop_properties = calc_properties_crop_db(bia_database_path, config)
+    # print("gathering the properties of {crop_type}.".format(crop_type=crop_type))
+
+    # unpack the properties of the selected crop type
+    dscp = crop_properties.get('description')   # description of the selected crop type
+    temp_opt_ger_l_c = crop_properties.get('temp_opt_ger_l_c')  # optimal germination Celsius temperature: lower bound
+    temp_opt_ger_u_c = crop_properties.get('temp_opt_ger_u_c')  # optimal germination Celsius temperature: upper bound
+    temp_opt_gro_l_c = crop_properties.get('temp_opt_gro_l_c')  # optimal growth Celsius temperature: lower bound
+    temp_opt_gro_l_c = crop_properties.get('temp_opt_gro_l_c')  # optimal germination Celsius temperature: upper bound
+    temp_por_l_c = crop_properties.get('temp_por_l_c')  # poor plant growth Celsius temperature: lower bound
+    temp_por_u_c = crop_properties.get('temp_por_u_c')  # poor plant growth Celsiustemperature: upper bound
+    cycl_l_day = crop_properties.get('cycl_l_day')  # growth cycle in days: lower bound
+    cycl_u_day = crop_properties.get('cycl_u_day')  # growth cycle in days: upper bound
+    humd_l = crop_properties.get('humd_l')  # suitable humidity: lower bound
+    humd_u = crop_properties.get('humd_u')  # suitable humidity: upper bound
+    dli_l = crop_properties.get('dli_l')    # DLI requirement: lower bound
+    dli_u = crop_properties.get('dli_u')    # DLI requirement: upper bound
+    yld_grd_l_kg_sqm = crop_properties.get('yld_grd_l_kg_sqm')  # yield on ground in kilograms: lower bound
+    yld_grd_u_kg_sqm = crop_properties.get('yld_grd_u_kg_sqm')  # yield on ground in kilograms: upper bound
+    yld_bia_l_kg_sqm = crop_properties.get('yld_bia_l_kg_sqm')  # BIA yield in kilograms: lower bound
+    yld_bia_u_kg_sqm = crop_properties.get('yld_bia_u_kg_sqm')  # BIA yield in kilograms: upper bound
+    mkt_sg_sgd_kg = crop_properties.get('mkt_sg_sgd_kg')    # market price in Singapore: SGD 14.75/kg on 12 Dec 2021 at Lazada
 
     # spot the suitable surfaces for the selected crop type
     # this function calculates the surfaces and days for crop-growing 1 or 0, how many cycles per year on each surface
@@ -117,22 +138,6 @@ def calc_properties_crop_db(database_path, config):
 
     return crop_properties
 
+def calc_surface_crop_cycle(dli_results, crop_properties, config):
 
-def main(config):
-    assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
-    locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
-
-    print('Running BIA assessment with scenario = %s' % config.scenario)
-    print('Running BIA assessment for the crop of {crop_type}'.format(crop_type=config.agriculture.crop_type))
-    print('Running BIA assessment with crop-on-roof = %s' % config.agriculture.crop_on_roof)
-    print('Running BIA assessment with crop-on-wall = %s' % config.agriculture.crop_on_wall)
-
-    building_names = locator.get_zone_building_names()
-    num_process = config.get_number_of_processes()
-    n = len(building_names)
-    cea.utilities.parallel.vectorize(calc_crop, num_process)(repeat(locator, n), repeat(config, n), building_names)
-
-
-if __name__ == '__main__':
-    main(cea.config.Configuration())
-
+    return crop_surface

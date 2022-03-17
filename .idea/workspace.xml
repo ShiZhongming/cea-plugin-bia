@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="54c3c3e4-b8f4-40fd-a904-b8d4128dd947" name="Default Changelist" comment="" />
+    <list default="true" id="54c3c3e4-b8f4-40fd-a904-b8d4128dd947" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_assessment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_assessment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_data.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_data.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/plugin.config" beforeDir="false" afterPath="$PROJECT_DIR$/bia/plugin.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/scripts.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bia/scripts.yml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
