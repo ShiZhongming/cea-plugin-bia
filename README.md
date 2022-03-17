@@ -16,11 +16,11 @@ Open CEA console and enter the following command to install the plugin to CEA:
 
 In the CEA console, enter the following command to enable the plugin in CEA:
 
-```cea-config write --general:plugins bia.bia_dli.BiaDliPlugin```
+```cea-config write --general:plugins bia.bia_assessment.BiaAssessmentPlugin```
 
 Now you should be able to enter the following command to run the plugin:
 
-```cea bia-dli```
+```cea bia-assessment```
 
 NOTE: When creating your own plugin based on this template, you'll have to adjust the installation instructions above to match.
 NOTE: When installing multiple plugins, add them as a comma separated list in the `cea-config write --general:plugins ...` command.
