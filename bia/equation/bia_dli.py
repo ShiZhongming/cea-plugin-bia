@@ -33,13 +33,6 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-# class BiaDliPlugin(cea.plugin.CeaPlugin):
-#     """
-#     Define the plugin class - unless you want to customize the behavior, you only really need to declare the class. The
-#     rest of the information will be picked up from ``default.config``, ``schemas.yml`` and ``scripts.yml`` by default.
-#     """
-#     pass
-
 
 def calc_DLI(locator, config, building_name):
     """

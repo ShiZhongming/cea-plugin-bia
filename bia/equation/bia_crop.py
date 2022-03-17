@@ -34,14 +34,6 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-class BiaCropPlugin(cea.plugin.CeaPlugin):
-    """
-    Define the plugin class - unless you want to customize the behavior, you only really need to declare the class. The
-    rest of the information will be picked up from ``default.config``, ``schemas.yml`` and ``scripts.yml`` by default.
-    """
-    pass
-
-
 def calc_crop(locator, config, building_name):
     """
     This function calculates the series of metrics for the selected crop type.

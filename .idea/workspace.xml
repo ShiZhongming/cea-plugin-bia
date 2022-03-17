@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3279e6b5-837e-41d0-9b62-934285543542" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/bia_dli.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_dli.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/scripts.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bia/scripts.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_dli.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_dli.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +59,7 @@
       <updated>1647294460718</updated>
       <workItem from="1647294462807" duration="7967000" />
       <workItem from="1647318063912" duration="8648000" />
-      <workItem from="1647462326946" duration="5422000" />
+      <workItem from="1647462326946" duration="5758000" />
     </task>
     <servers />
   </component>
