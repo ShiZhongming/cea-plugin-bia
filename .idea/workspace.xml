@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3279e6b5-837e-41d0-9b62-934285543542" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/bia/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_crop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_dli.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_dli.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/scripts.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bia/scripts.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +23,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1bRqNTXthWghAIoWnVOL8NnSSbT" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -35,12 +40,13 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/cea_plugin_bia" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cea_plugin_bia" />
       <recent name="$PROJECT_DIR$/cea_plugin_template" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/bia/equation" />
+      <recent name="$PROJECT_DIR$/cea_plugin_bia" />
     </key>
   </component>
   <component name="SvnConfiguration">
@@ -55,7 +61,7 @@
       <updated>1647294460718</updated>
       <workItem from="1647294462807" duration="7967000" />
       <workItem from="1647318063912" duration="8648000" />
-      <workItem from="1647462326946" duration="439000" />
+      <workItem from="1647462326946" duration="5422000" />
     </task>
     <servers />
   </component>

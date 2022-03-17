@@ -33,12 +33,12 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-class BiaDliPlugin(cea.plugin.CeaPlugin):
-    """
-    Define the plugin class - unless you want to customize the behavior, you only really need to declare the class. The
-    rest of the information will be picked up from ``default.config``, ``schemas.yml`` and ``scripts.yml`` by default.
-    """
-    pass
+# class BiaDliPlugin(cea.plugin.CeaPlugin):
+#     """
+#     Define the plugin class - unless you want to customize the behavior, you only really need to declare the class. The
+#     rest of the information will be picked up from ``default.config``, ``schemas.yml`` and ``scripts.yml`` by default.
+#     """
+#     pass
 
 
 def calc_DLI(locator, config, building_name):
@@ -267,7 +267,7 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
 
     return sensors_wall_type
 
-# filter sensor points with low solar potential
+
 def filter_low_potential(radiation_json_path, metadata_csv_path, config):
     """
     To filter the sensor points/hours with low radiation potential.
@@ -323,20 +323,3 @@ def filter_low_potential(radiation_json_path, metadata_csv_path, config):
     return max_annual_radiation, annual_radiation_threshold_Whperm2, sensors_rad_clean, sensors_metadata_clean
 
 
-def main(config):
-    assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
-    locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
-
-    print('Running Day Light Integral with scenario = %s' % config.scenario)
-    print('Running Day Light Integral with annual-radiation-threshold-kWh/m2 = %s' % config.agriculture.annual_radiation_threshold_BIA)
-    print('Running Day Light Integral with crop-on-roof = %s' % config.agriculture.crop_on_roof)
-    print('Running Day Light Integral with crop-on-wall = %s' % config.agriculture.crop_on_wall)
-
-    building_names = locator.get_zone_building_names()
-    num_process = config.get_number_of_processes()
-    n = len(building_names)
-    cea.utilities.parallel.vectorize(calc_DLI, num_process)(repeat(locator, n), repeat(config, n), building_names)
-
-
-if __name__ == '__main__':
-    main(cea.config.Configuration())

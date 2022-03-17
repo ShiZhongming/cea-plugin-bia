@@ -74,7 +74,7 @@ def calc_crop(locator, config, building_name):
     crop_type = config.agriculture.crop_type
 
     # read crop properties in the BIA database for the selected crop type
-    bia_database_path = r"bia/bia_database.xlsx"
+    bia_database_path = r"bia/bia_data.xlsx"
     crop_properties= calc_properties_crop_db(bia_database_path, config)
     print("gathering the properties of {crop_type}.".format(crop_type=crop_type))
 
