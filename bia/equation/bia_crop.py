@@ -62,11 +62,11 @@ def calc_crop(locator, config, building_name):
     print('reading DLI simulation results done')
 
     # the selected crop type
-    crop_type = config.agriculture.crop_type
+    type_crop = config.agriculture.type_crop
 
     # read crop properties in the BIA database for the selected crop type
     crop_properties = calc_properties_crop_db(config)
-    # print("gathering the properties of {crop_type}.".format(crop_type=crop_type))
+    # print("gathering the properties of {type_crop}.".format(type_crop=type_crop))
 
 
     # spot the suitable surfaces for the selected crop type
@@ -97,8 +97,8 @@ def calc_crop(locator, config, building_name):
               'done - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
 
     else:  # No surface meets the minimum DLI requirement of the selected crop type
-        print("Unfortunately, {crop_type} is unlikely to grow on the BIA-permissible surfaces on the roof and facade "
-              "of Building {building_name}".format(crop_type=crop_type, building_name=building_name))
+        print("Unfortunately, {type_crop} is unlikely to grow on the BIA-permissible surfaces on the roof and facade "
+              "of Building {building_name}".format(type_crop=type_crop, building_name=building_name))
         pass
 
 
@@ -115,9 +115,9 @@ def calc_properties_crop_db(config):
     dir = os.path.dirname(__file__)
     database_path = os.path.join(dir, "bia_data.xlsx")
 
-    crop_type = config.agriculture.crop_type
+    type_crop = config.agriculture.type_crop
     data = pd.read_excel(database_path, sheet_name="crop")
-    crop_properties = data[data['crop_type'] == crop_type].reset_index().T.to_dict()[0]
+    crop_properties = data[data['type_crop'] == type_crop].reset_index().T.to_dict()[0]
 
     return crop_properties
 
