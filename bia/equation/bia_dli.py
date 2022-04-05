@@ -84,10 +84,10 @@ def calc_DLI(locator, config, building_name):
                                                     right_index=True, how="left")
 
         # write the daily DLI results
-        dir = config.scenario + "/outputs/data/potentials/agriculture/"
+        dir = config.scenario + "/outputs/data/potentials/agriculture"
         if not os.path.exists(dir):
             os.mkdir(dir)
-        output_path = dir + "{building}_DLI_daily.csv".format(building=building_name)
+        output_path = dir + "/{building}_DLI_daily.csv".format(building=building_name)
         sensors_metadata_clean_DLI_daily.to_csv(output_path, index=True,
                                     float_format='%.2f',
                                     na_rep=0)  # print sensors metadata and daily DLI
@@ -143,22 +143,18 @@ def calc_building_height_info(locator):
 
     """
 
-    column_names = ['BUILDING', 'floor_to_floor_height', 'n_floors']
-    building_height = pd.DataFrame(columns=column_names)
-
     zone_df, surroundings_df, terrain_raster = geometry_generator.standardize_coordinate_systems(locator)
-    zone_buildings_df = zone_df.set_index('Name')
+    print("zzzzzzzz", zone_df)
 
-    height = zone_buildings_df['height_ag'].astype(float)
-    nfloors = zone_buildings_df['floors_ag'].astype(int)
+    height = zone_df['height_ag'].astype(float)
+    nfloors = zone_df['floors_ag'].astype(int)
     floor_to_floor_height = height / nfloors
-    building_names = locator.get_zone_building_names()
 
-    building_height['BUILDING'] = building_names
-    building_height['floor_to_floor_height'] = floor_to_floor_height.reset_index(drop=True)
-    building_height['n_floors'] = nfloors.reset_index(drop=True)
+    zone_df['floor_to_floor_height'] = floor_to_floor_height
 
-    return building_height
+    print("yyyyyyyyyyyyyy", zone_df)
+
+    return zone_df
 
 
 def calc_sensor_floor_number(locator, sensors_metadata_clean, building_name):
@@ -187,7 +183,9 @@ def calc_sensor_floor_number(locator, sensors_metadata_clean, building_name):
 
 
     # get the total floor numbers of the building being calculated
-    n_floors = int(building_height_info['n_floors'][building_height_info['BUILDING'] == building_name])
+    n_floors = int(building_height_info['floors_ag'][building_height_info['Name'] == building_name])
+
+    print(building_name, 'xxxx_floors', n_floors)
 
     # calculate the number of facade sensors on each floor
     # n_sensors_each_floor = int(len(facades) // n_floors)
@@ -195,14 +193,16 @@ def calc_sensor_floor_number(locator, sensors_metadata_clean, building_name):
     # label the sensors with the floor number, which starts from 1
     facades_sorted = facades.sort_values(by=['Zcoor'])
     facades_sorted = pd.cut(facades_sorted['Zcoor'], bins=n_floors, labels=False)+1
+    print(building_name, "xxxxxxxxxxxxxxxxxxxxxxxx", facades_sorted)
     facades_sorted_df = facades_sorted.to_frame().rename(columns={'Zcoor': 'n_floor'})
 
     # reorder the '#floor' column to match the original order in sensors_metadata_clean by 'SURFACE'
     sensors_metadata_clean = pd.merge(sensors_metadata_clean, facades_sorted_df, left_index=True, right_index=True,
                                       how="left")
-    sensors_metadata_clean['n_floor'].fillna(0, inplace=True)    # label the top sensors with 0
+    sensors_metadata_clean['n_floor'].fillna(999, inplace=True)    # label the top sensors with 999
 
     floor_number = sensors_metadata_clean['n_floor']
+
 
     return floor_number
 
@@ -226,6 +226,8 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
     sensors_floor_number = calc_sensor_floor_number(locator, sensors_metadata_clean, building_name)
     sensors_metadata_clean['n_floor'] = sensors_floor_number
 
+    print(sensors_metadata_clean)
+
     # label surface type by the four orientations
     orientation = ['north', 'east', 'south', 'west']
     results = []
@@ -238,20 +240,24 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
 
         # label surface type by the floor numbers
         results_n = []
+
+        print(surfaces[(surfaces['TYPE'] == 'windows')])
         for j in range(1, int(n_floors)+1):
             # separate sensors on the walls and the windows of this floor
             walls = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'walls')]
             windows = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'windows')]
 
-            # get the z-coordinates of window sensors
-            sensors_windows_Zcoor = windows['Zcoor'].median()
+            if not windows.empty:
+                # get the z-coordinates of window sensors
+                sensors_windows_Zcoor = windows['Zcoor'].median()
+                # label wall sensors by comparing their z-coordinates with that of the window sensors
 
-            # label wall sensors by comparing their z-coordinates with that of the window sensors
-            walls.loc[walls['Zcoor'] > sensors_windows_Zcoor, 'wall_type'] = 'upper'
-            walls.loc[walls['Zcoor'] < sensors_windows_Zcoor, 'wall_type'] = 'lower'
-            walls['wall_type'].fillna('side', inplace=True)
+                walls.loc[walls['Zcoor'] > sensors_windows_Zcoor, 'wall_type'] = 'upper'
+                # print(walls)
+                walls.loc[walls['Zcoor'] < sensors_windows_Zcoor, 'wall_type'] = 'lower'
+                walls['wall_type'].fillna('side', inplace=True)
 
-            results_n.append(walls)
+                results_n.append(walls)
 
         merged_results_n_df = pd.concat(results_n)
         results.append(merged_results_n_df)
