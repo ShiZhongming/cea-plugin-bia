@@ -144,15 +144,12 @@ def calc_building_height_info(locator):
     """
 
     zone_df, surroundings_df, terrain_raster = geometry_generator.standardize_coordinate_systems(locator)
-    print("zzzzzzzz", zone_df)
 
     height = zone_df['height_ag'].astype(float)
     nfloors = zone_df['floors_ag'].astype(int)
     floor_to_floor_height = height / nfloors
 
     zone_df['floor_to_floor_height'] = floor_to_floor_height
-
-    print("yyyyyyyyyyyyyy", zone_df)
 
     return zone_df
 
@@ -185,15 +182,12 @@ def calc_sensor_floor_number(locator, sensors_metadata_clean, building_name):
     # get the total floor numbers of the building being calculated
     n_floors = int(building_height_info['floors_ag'][building_height_info['Name'] == building_name])
 
-    print(building_name, 'xxxx_floors', n_floors)
-
     # calculate the number of facade sensors on each floor
     # n_sensors_each_floor = int(len(facades) // n_floors)
 
     # label the sensors with the floor number, which starts from 1
     facades_sorted = facades.sort_values(by=['Zcoor'])
     facades_sorted = pd.cut(facades_sorted['Zcoor'], bins=n_floors, labels=False)+1
-    print(building_name, "xxxxxxxxxxxxxxxxxxxxxxxx", facades_sorted)
     facades_sorted_df = facades_sorted.to_frame().rename(columns={'Zcoor': 'n_floor'})
 
     # reorder the '#floor' column to match the original order in sensors_metadata_clean by 'SURFACE'
@@ -202,7 +196,6 @@ def calc_sensor_floor_number(locator, sensors_metadata_clean, building_name):
     sensors_metadata_clean['n_floor'].fillna(999, inplace=True)    # label the top sensors with 999
 
     floor_number = sensors_metadata_clean['n_floor']
-
 
     return floor_number
 
@@ -226,8 +219,6 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
     sensors_floor_number = calc_sensor_floor_number(locator, sensors_metadata_clean, building_name)
     sensors_metadata_clean['n_floor'] = sensors_floor_number
 
-    print(sensors_metadata_clean)
-
     # label surface type by the four orientations
     orientation = ['north', 'east', 'south', 'west']
     results = []
@@ -241,7 +232,6 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
         # label surface type by the floor numbers
         results_n = []
 
-        print(surfaces[(surfaces['TYPE'] == 'windows')])
         for j in range(1, int(n_floors)+1):
             # separate sensors on the walls and the windows of this floor
             walls = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'walls')]
@@ -253,7 +243,6 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
                 # label wall sensors by comparing their z-coordinates with that of the window sensors
 
                 walls.loc[walls['Zcoor'] > sensors_windows_Zcoor, 'wall_type'] = 'upper'
-                # print(walls)
                 walls.loc[walls['Zcoor'] < sensors_windows_Zcoor, 'wall_type'] = 'lower'
                 walls['wall_type'].fillna('side', inplace=True)
 
