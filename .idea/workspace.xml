@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_assessment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_assessment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_data.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_data.xlsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,9 +73,9 @@
       <screen x="0" y="25" width="1920" height="1055" />
     </state>
     <state x="122" y="274" key="SettingsEditor/-1395.25.1395.875/0.25.1920.1055@0.25.1920.1055" timestamp="1647318932395" />
-    <state x="625" y="259" width="670" height="676" key="search.everywhere.popup" timestamp="1647320477748">
+    <state x="625" y="259" width="670" height="676" key="search.everywhere.popup" timestamp="1649318852994">
       <screen x="0" y="25" width="1920" height="1055" />
     </state>
-    <state x="625" y="259" width="670" height="676" key="search.everywhere.popup/-1395.25.1395.875/0.25.1920.1055@0.25.1920.1055" timestamp="1647320477748" />
+    <state x="625" y="259" width="670" height="676" key="search.everywhere.popup/-1395.25.1395.875/0.25.1920.1055@0.25.1920.1055" timestamp="1649318852994" />
   </component>
 </project>
