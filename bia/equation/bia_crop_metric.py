@@ -34,6 +34,8 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
+# filter by crop on wall/roof/window defined in config.file
+
 def calc_crop(locator, config, building_name):
     """
     This function calculates the series of metrics for the selected crop type.
