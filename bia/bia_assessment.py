@@ -61,13 +61,22 @@ def main(config):
     # n = len(building_names)
     # cea.utilities.parallel.vectorize(calc_DLI, num_process)(repeat(locator, n), repeat(config, n), building_names)
 
-    # Growth cycle
+    # growth cycle
     print('Calculating annual number of growth cycles for {type_crop}'.format(type_crop=config.agriculture.type_crop))
 
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
     cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
+
+
+    # yield
+    print('Calculating annual yield (kg) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
+
+    # building_names = locator.get_zone_building_names()
+    # num_process = config.get_number_of_processes()
+    # n = len(building_names)
+    # cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
 
 
 if __name__ == '__main__':

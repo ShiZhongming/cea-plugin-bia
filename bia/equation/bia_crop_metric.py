@@ -1,6 +1,6 @@
 """
 This script calculates:
-the crop yields (kg)
+the crop yields (kg), carbon reduction (eCO2kg), CAPEX and OPEX (USD)
 for the selected crop type on each building envelope surface.
 """
 

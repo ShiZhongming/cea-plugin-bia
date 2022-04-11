@@ -188,7 +188,7 @@ def calc_crop_cycle(config, building_name):
 
     # Calculate the number of growth cycles for each building surface
     cycl_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
-    # print('n_surface', n_surface)
+    print('cycl_srf', cycl_srf)
 
     return cycl_srf
 
@@ -234,7 +234,5 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
     for m in n_season_srf:
         cycl_srf.append(n_cycl_season[:m])
         n_cycl_season = n_cycl_season[m:]
-    # print(cycl_srf)
-    # print('len(cycl_srf)', len(cycl_srf))
 
     return cycl_srf
