@@ -5,9 +5,10 @@ Urban agriculture:
     interfaces: [cli, dashboard]
     module: bia.bia_assessment
     parameters: ['general:scenario', 'general:multiprocessing',
-                 'general:number-of-cpus-to-keep-free',
+                 'general:number-of-cpus-to-keep-free', 'agriculture:type-crop',
                  'agriculture:annual-radiation-threshold-bia',
-                 'agriculture:crop-on-roof', 'agriculture:crop-on-wall', 'agriculture:type-crop']
+                 'agriculture:crop-on-roof', 'agriculture:crop-on-window',
+                 'agriculture:crop-on-wall-under-window', 'agriculture:crop-on-wall-between-window']
     input-files:
       - [get_radiation_metadata, building_name]
       - [get_zone_geometry]
