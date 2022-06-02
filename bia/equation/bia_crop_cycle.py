@@ -25,8 +25,11 @@ from cea.constants import HOURS_IN_YEAR
 from cea.resources.radiation_daysim import daysim_main, geometry_generator
 
 
+
+
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich"
+__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
+                "University of Calgary, Alberta, Canada"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
@@ -188,7 +191,7 @@ def calc_crop_cycle(config, building_name):
 
     # Calculate the number of growth cycles for each building surface
     cycl_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
-    print('cycl_srf', cycl_srf)
+    # print('cycl_srf', cycl_srf)
 
     return cycl_srf
 
@@ -197,7 +200,7 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
 
     """
      This function calculates the number of growth cycles,
-     including both initial and subsequent ones, for the selected crop.
+     including both initial and subsequent ones, for the selected crop, based on the length of each season.
 
     :param cycl_i_day: the initial cycle of the selected crop in days
     :type cycl_i_day: integer

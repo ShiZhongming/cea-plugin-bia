@@ -24,7 +24,8 @@ from cea.resources.radiation_daysim import daysim_main, geometry_generator
 
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2021, Future Cities Laboratory, Singapore - ETH Zurich"
+__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
+                "University of Calgary, Alberta, Canada"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
