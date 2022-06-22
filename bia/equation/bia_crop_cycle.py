@@ -114,8 +114,18 @@ def calc_crop_cycle(config, building_name):
 
     :param crop_properties: the crop property of the selected crop type
     :type crop_properties: dict
-    :return: dataframe of each building envelope surface, the days to be utilised
-    and the number of growth cycles per year
+
+    :return season_srf: number of cycles, including both initial and subsequent ones,
+    for each building surface in each season of a whole year
+    :type season_srf: list
+
+    :return cycl_srf: number of days in each season (the beginning and the end of each year are looped as one single
+    season and placed at the end of the list)
+    :type cycle_srf: list
+
+    :return date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
+    selected crop type
+    :type date_srf: list
     """
 
     print("Running building", building_name)
@@ -228,7 +238,9 @@ def calc_crop_cycle(config, building_name):
     cycl_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
     #print('cycl_srf', cycl_srf)
 
-    return cycl_srf, date_srf
+    print(cycl_srf)
+
+    return season_srf, cycl_srf, date_srf
 
 
 def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
