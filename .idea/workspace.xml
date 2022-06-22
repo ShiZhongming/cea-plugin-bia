@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/bia_assessment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_assessment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop_metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_metric.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/equation/bia_dli.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_dli.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/plugin.config" beforeDir="false" afterPath="$PROJECT_DIR$/bia/plugin.config" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +52,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="3279e6b5-837e-41d0-9b62-934285543542" name="Default Changelist" comment="" />
+      <changelist id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="" />
       <created>1647294460718</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -64,6 +60,7 @@
       <workItem from="1647294462807" duration="7967000" />
       <workItem from="1647318063912" duration="8648000" />
       <workItem from="1647462326946" duration="5758000" />
+      <workItem from="1654774963679" duration="19883000" />
     </task>
     <servers />
   </component>
@@ -75,6 +72,10 @@
       <screen x="0" y="25" width="1920" height="1055" />
     </state>
     <state x="122" y="274" key="SettingsEditor/-1395.25.1395.875/0.25.1920.1055@0.25.1920.1055" timestamp="1647318932395" />
+    <state x="420" y="471" key="com.intellij.ide.util.TipDialog" timestamp="1655191032796">
+      <screen x="45" y="25" width="2515" height="1055" />
+    </state>
+    <state x="420" y="471" key="com.intellij.ide.util.TipDialog/577.1105.1440.875/45.25.2515.1055@45.25.2515.1055" timestamp="1655191032796" />
     <state x="625" y="259" width="670" height="676" key="search.everywhere.popup" timestamp="1649318852994">
       <screen x="0" y="25" width="1920" height="1055" />
     </state>

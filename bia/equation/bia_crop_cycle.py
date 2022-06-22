@@ -174,26 +174,61 @@ def calc_crop_cycle(config, building_name):
     for j in range(cycl_i_day):
         other_day = [[x + j for x in y] for y in first_day]
         day_crop = [x + y for x, y in zip(day_crop, other_day)]     # with repeated days
-
+    # print('zzzz', day_crop)
     day_crop = [list(set(x)) for x in day_crop]     # remove the repeated days
 
-    # Calculate the length of each season
+    # Calculate the length (in number of days) of each season
     season_srf = []
+    date_srf = []
+
     for surface in range(n_surface):
-        # print("surface", surface)
-        season_crop = calc_chunk_day_crop(day_crop[surface])
-        len_season = [365 if len(x) > 365 else len(x) for x in season_crop]
+        day_srf = day_crop[surface]
+        day_srf.sort()  # sort the days if they are not in an ascending order
+
+        if day_srf:
+            excess_day = day_srf[-1] - 364
+            # this will be greater or equal to 0 if there are day numbers beyond 365 days of a year (non-leap year)
+
+            # when the beginning and the end of a year need to be connected as one season
+            if day_srf[0] == 0 and excess_day >= 0:
+                # update the eligible days at the beginning of the year based on the excessive days
+                day_srf = list(range(excess_day)) + day_srf
+                day_srf = list(set(day_srf))    # remove the repeated days, if any
+                season_crop = calc_chunk_day_crop(day_srf)
+                len_season = [365 if len(x) > 365 else len(x) for x in season_crop]
+
+                if len(len_season) >= 2:
+                # remove the original first and last season: then add the merged season at the end of the list
+                    merged_season = len_season[0] + len_season[-1] - excess_day
+                    len_season.pop(-1)  # remove the original last season
+                    len_season.pop(0)   # remove the original first season
+                    len_season.append(merged_season)    # add the newly merged season at the end of the seasons
+
+                # remove the dates that are equal or larger than 365
+                day_srf = day_srf[: len(day_srf) - excess_day]
+
+            else:
+                season_crop = calc_chunk_day_crop(day_srf)
+                len_season = [365 if len(x) > 365 else len(x) for x in season_crop]
+
+        else:
+            len_season = []
+
         season_srf.append(len_season)
+        date_srf.append(day_srf)
 
     # print('season_srf', season_srf)
+    # print('len', len(season_srf))
+    # print('date_srf', date_srf)
+    # print('len_date', len(date_srf))
     # print('len_season_srf', len(season_srf))
     # print('n_surface', n_surface)
 
     # Calculate the number of growth cycles for each building surface
     cycl_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
-    # print('cycl_srf', cycl_srf)
+    #print('cycl_srf', cycl_srf)
 
-    return cycl_srf
+    return cycl_srf, date_srf
 
 
 def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
@@ -216,9 +251,9 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
     :type season_srf: list
     """
 
-    tolerance_cycl = 0.05  # this tolerance allows some of the growth cycles a bit shorter than on the paper
-    crop_life = cycl_i_day + cycl_s_day * (n_cycl - 1) # days of the full life of the selected crop
-    n_season_srf = [len(x) for x in season_srf] # number of seasons on each surface
+    tolerance_cycl = 0.05  # this tolerance allows some of the growth cycles a bit shorter than in the database
+    crop_life = cycl_i_day + cycl_s_day * (n_cycl - 1)  # days of the full life of the selected crop
+    n_season_srf = [len(x) for x in season_srf]     # number of seasons on each surface
     len_season_all = [item for sublist in season_srf for item in sublist]  # length of all seasons in a building
 
     # number of full life of the selected crop in each season
@@ -238,4 +273,5 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
         cycl_srf.append(n_cycl_season[:m])
         n_cycl_season = n_cycl_season[m:]
 
+    # print(cycl_srf)
     return cycl_srf
