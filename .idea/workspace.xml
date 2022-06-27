@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_assessment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_assessment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_metric.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +62,7 @@
       <workItem from="1647294462807" duration="7967000" />
       <workItem from="1647318063912" duration="8648000" />
       <workItem from="1647462326946" duration="5758000" />
-      <workItem from="1654774963679" duration="21238000" />
+      <workItem from="1654774963679" duration="43460000" />
     </task>
     <servers />
   </component>

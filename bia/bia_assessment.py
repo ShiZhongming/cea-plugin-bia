@@ -79,6 +79,12 @@ def main(config):
     # n = len(building_names)
     # cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
 
+    # aggregate the results of all buildings together and write to disk
+
+    # read the BIA results of each building
+    bld_path = config.scenario + \
+                   "/outputs/data/potentials/agriculture/{building}_BIA.csv".format(building=building_name)
+
 
 if __name__ == '__main__':
     main(cea.config.Configuration())

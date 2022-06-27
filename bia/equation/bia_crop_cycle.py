@@ -128,7 +128,7 @@ def calc_crop_cycle(config, building_name):
     :type date_srf: list
     """
 
-    print("Running building", building_name)
+    print("Calculating the number of crop cycles for Building {building}.".format(building=building_name))
 
     # get the properties of the selected crop
     crop_properties = calc_properties_crop_db(config)
@@ -236,9 +236,7 @@ def calc_crop_cycle(config, building_name):
 
     # Calculate the number of growth cycles for each building surface
     cycl_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
-    #print('cycl_srf', cycl_srf)
-
-    print(cycl_srf)
+    print('cycl_srf', cycl_srf)
 
     return season_srf, cycl_srf, date_srf
 
