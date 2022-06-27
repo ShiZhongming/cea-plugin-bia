@@ -115,13 +115,13 @@ def calc_crop_cycle(config, building_name):
     :param crop_properties: the crop property of the selected crop type
     :type crop_properties: dict
 
-    :return season_srf: number of cycles, including both initial and subsequent ones,
+    :return cycl_srf: number of cycles, including both initial and subsequent ones,
     for each building surface in each season of a whole year
-    :type season_srf: list
+    :type cycl_srf: list
 
-    :return cycl_srf: number of days in each season (the beginning and the end of each year are looped as one single
+    :return season_srf: number of days in each season (the beginning and the end of each year are looped as one single
     season and placed at the end of the list)
-    :type cycle_srf: list
+    :type season_srf: list
 
     :return date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
     selected crop type

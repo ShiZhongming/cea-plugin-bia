@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/bia_assessment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_assessment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/equation/bia_metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_metric.py" afterDir="false" />
     </list>
@@ -49,6 +48,35 @@
       <recent name="$PROJECT_DIR$/cea_plugin_template" />
     </key>
   </component>
+  <component name="RunManager">
+    <configuration name="bia_metric" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="cea-plugin-bia" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/bia/equation" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bia/equation/bia_metric.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.bia_metric" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -62,7 +90,7 @@
       <workItem from="1647294462807" duration="7967000" />
       <workItem from="1647318063912" duration="8648000" />
       <workItem from="1647462326946" duration="5758000" />
-      <workItem from="1654774963679" duration="43460000" />
+      <workItem from="1654774963679" duration="58804000" />
     </task>
     <servers />
   </component>
@@ -70,6 +98,10 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="435" y="75" key="#bia_metric" timestamp="1656310446683">
+      <screen x="45" y="25" width="1395" height="875" />
+    </state>
+    <state x="435" y="75" key="#bia_metric/45.25.1395.875@45.25.1395.875" timestamp="1656310446683" />
     <state x="122" y="274" key="SettingsEditor" timestamp="1647318932395">
       <screen x="0" y="25" width="1920" height="1055" />
     </state>
