@@ -56,42 +56,31 @@ def calc_bia_metric(locator, config, building_name):
     """
     t0 = time.perf_counter()
 
-    # the selected crop type
-    type_crop = config.agriculture.type_crop
-
-    # read crop properties in the BIA database for the selected crop type
-    crop_properties = calc_properties_crop_db(config)
-    print("Gathering the properties of {type_crop}.".format(type_crop=type_crop))
-
-    # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
-        .format(building=building_name)
-    cea_dli_results = pd.read_csv(dli_path)
-
-
     # activate the function that calculates
     # the yields [kg/year] for the selected crop type on each building envelope surface.
-    yield_srf = calc_crop_yields(locator, config, building_name, cea_dli_results)
+    yield_srf = calc_crop_yields(locator, config, building_name)
 
 
     # activate the function that calculates
-    # the carbon emission reduction (CO2-equivalent) for the selected crop type on each building envelope surface.
-
+    # the environmental impacts (ghg emissions, energy consumption, water consumption)
+    # for the selected crop type on each building envelope surface.
+    ghg_srf, energy_srf, water_srf = calc_crop_environmental_impact(locator, config, building_name, yield_srf)
 
     # activate the function that calculates
     # the CAPEX and OPEX for the selected crop type on each building envelope surface.
+    capex_srf, opex_srf, mkt_srf = calc_crop_cost(locator, config, building_name, yield_srf)
 
 
     # merge the results as a DataFrame
 
 
+
     # write the BIA results
     output_path = config.scenario + \
-                  "/outputs/data/potentials/agriculture/{building}_BIA.csv".format(building=building_name)
+                  "/outputs/data/potentials/agriculture/{building}_BIA_assessment.csv".format(building=building_name)
     sensors_metadata_clean_DLI_daily.to_csv(output_path, index=True,
                                             float_format='%.2f',
                                             na_rep=0)
-
 
     print('BIA assessments for each surface on Building', building_name,
           'done - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
@@ -121,6 +110,7 @@ def locate_sce(latitude, longitude):
         zone_sce = 'zone_capricorn'
     if latitude < -23.5:
         zone_sce = 'zone_south'
+
     return zone_sce
 
 # differentiate the cycles as facing and back from the sun for south/north building surfaces
@@ -200,7 +190,7 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
 
 
 # Calculate the crop yields (kg) for the selected crop type on each building envelope surface
-def calc_crop_yields(locator, config, building_name, crop_properties, cea_dli_results):
+def calc_crop_yields(locator, config, building_name):
 
     """
     This function calculates crop yield in kg for each building envelope surface.
@@ -212,8 +202,20 @@ def calc_crop_yields(locator, config, building_name, crop_properties, cea_dli_re
     :param building_name: list of building names in the case study
     :type building_name: Series
 
-    :return: Dataframe with crop_yields in kg for each building envelope surface.
+    :return: a list with crop_yields in kilograms for each building envelope surface.
     """
+
+    # the selected crop type
+    type_crop = config.agriculture.type_crop
+
+    # read crop properties in the BIA database for the selected crop type
+    crop_properties = calc_properties_crop_db(config)
+    print("Gathering the properties of {type_crop}.".format(type_crop=type_crop))
+
+    # read the daily DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
+        .format(building=building_name)
+    cea_dli_results = pd.read_csv(dli_path)
 
     # activate the function that calculates
     # the eligible dates, seasons, and cycles for the selected crop type on each building surface
@@ -256,7 +258,6 @@ def calc_crop_yields(locator, config, building_name, crop_properties, cea_dli_re
         for surface in range(n_surface):
 
             cycl = cycl_srf[surface]
-            date = date_srf[surface]
             orie = orie_srf[surface]
             area = area_srf[surface]
             cycl_i = cycl_i_srf[surface]
@@ -308,7 +309,7 @@ def calc_crop_yields(locator, config, building_name, crop_properties, cea_dli_re
                 if orie == 'north':
                     yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
 
-            yield_srf.append(yield_g)
+            yield_srf.append(yield_g/1000)  # record the results and convert to kilograms
 
     # no surface is eligible to grow the selected crop type
     else:  # No surface meets the minimum DLI requirement of the selected crop type
@@ -319,11 +320,22 @@ def calc_crop_yields(locator, config, building_name, crop_properties, cea_dli_re
     return yield_srf
 
 # calculate ghg emissions for each surface, crop as a produce
-def calc_crop_ghg(locator, config, yield_srf, building_name):
+def calc_crop_environmental_impact(locator, config, building_name, yield_srf):
 
     """
-    This function calculates the GHG emissions (eCO2kg) for each surface.
-    Two categories of GHG emissions are considered: transport and carbon fixation.
+    This function calculates the GHG Emissions (kg CO2-eq per kg of food) for each building surface.
+    Three categories stages related to 'farm-to-table' are considered: production, processing and transport.
+    BIA saves this.
+
+    See Page 11 of the Deloitte report.
+    See Page 12 for details on GHG Emissions.
+
+    This function also calculates the energy consumption (kWh per kg) in the three stages.
+    BIA save this.
+
+    This function also calculates the water consumption (litres per kg) in the three stages.
+    BIA wastes this in Singapore.
+
 
     :param locator: An InputLocator to locate input files
     :type locator: cea.inputlocator.InputLocator
@@ -335,30 +347,19 @@ def calc_crop_ghg(locator, config, yield_srf, building_name):
 
     """
 
-    return crop_ghg
+    ghg_leafy_vegetables_kg_co2_per_kg_leafy_veg = 0.4
+    energy_kWh_per_kg_leafy_veg = 1.8
+    water_litres_per_kg_leafy_veg = 43
+
+    ghg_srf = [srf * ghg_leafy_vegetables_kg_co2_per_kg_leafy_veg for srf in yield_sr]
+    energy_srf = [srf * energy_kWh_per_kg_leafy_veg for srf in yield_sr]
+    water_srf = [srf * water_litres_per_kg_leafy_veg for srf in yield_sr]
+
+    return ghg_srf, energy_srf, water_srf
 
 
-# calculate hourly carbon fixation for each surface, crop as a plant
-def calc_carbon_fixation(locator, config, building_name):
-    """
-    This function calculates the hourly carbon fixation (eCO2kg) for each surface.
-    This fuction is dependent on Zhang Qianning and Huang Zhaolu's work. To be confirmed with NUS.
-
-    :param locator: An InputLocator to locate input files
-    :type locator: cea.inputlocator.InputLocator
-
-    :param building_name: list of building names in the case study
-    :type building_name: Series
-
-    :return: Dataframe with hourly carbon fixation in eCO2kg for each building envelope surface.
-
-    """
-
-    return carbon_fixation
-
-
-# calculate CAPEX for each surface
-def calc_crop_capex(locator, config, building_name):
+# calculate the costs (CAPEX, OPEX, market price of the yields) for each surface
+def calc_crop_cost(locator, config, building_name, yield_srf):
     """
     This function calculates the CAPEX in USD (infrastructure) for each surface.
 
@@ -372,28 +373,13 @@ def calc_crop_capex(locator, config, building_name):
 
     """
 
-    return crop_capex
 
 
-# calculate OPEX for each surface
-def calc_crop_opex(locator, config, building_name):
-    """
-    This function calculates the OPEX in USD (seed, pesticide, and maintenance) for each surface.
+    return capex_srf, opex_srf, mkt_srf
 
-    :param locator: An InputLocator to locate input files
-    :type locator: cea.inputlocator.InputLocator
-
-    :param building_name: list of building names in the case study
-    :type building_name: Series
-
-    :return: DataFrame with OPEXes (seed and pesticide) for each building envelope surface.
-
-    """
-
-    return crop_opex
 
 # filter by crop on wall/roof/window user-defined in config.file
-def filter_crop_srf(locator, config, building_name):
+def filter_crop_srf(locator, config, building_name, yield_srf):
 
     """
     This function filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
