@@ -77,6 +77,28 @@ def calc_properties_crop_db(config):
     return crop_properties
 
 
+def calc_properties_env_db(config):
+    """
+    To retrieve the environmental impacts of the selected crop type stored in the BIA database.
+
+    :param database_path: the selected crop type
+    :type database_path: string
+
+    :return: DataFrame with properties of the environmental impact of the selected crop type retrieved form the database
+    """
+
+    # path to the bia database
+    dir = os.path.dirname(__file__)
+    database_path = os.path.join(dir, "bia_data.xlsx")
+
+    type_crop = config.agriculture.type_crop
+    data = pd.read_excel(database_path, sheet_name="env")
+    env_properties = data[data['type_crop'] == type_crop]
+    print(env_properties)
+
+    return env_properties
+
+
 def calc_chunk_day_crop(data):
 
     """

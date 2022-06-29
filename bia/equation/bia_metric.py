@@ -24,8 +24,11 @@ import cea.utilities.parallel
 from cea.constants import HOURS_IN_YEAR
 from cea.resources.radiation_daysim import daysim_main, geometry_generator
 from cea.utilities.standardize_coordinates import get_lat_lon_projected_shapefile
+from cea.analysis.costs.equations import calc_capex_annualized, calc_opex_annualized
 
-from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, calc_crop_cycle
+from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
+    calc_crop_cycle, calc_properties_env_db
+
 
 
 __author__ = "Zhongming Shi"
@@ -57,17 +60,19 @@ def calc_bia_metric(locator, config, building_name):
     t0 = time.perf_counter()
 
     # activate the function that calculates
-    # the yields [kg/year] for the selected crop type on each building envelope surface.
-    yield_srf = calc_crop_yields(locator, config, building_name)
+    # the yields [kg/year] for the selected crop type on each building envelope surface
+    # plus yields per square metre [kg/sqm/year] building surface area
+    yield_srf, yield_srf_per_sqm = calc_crop_yields(locator, config, building_name)
 
 
     # activate the function that calculates
     # the environmental impacts (ghg emissions, energy consumption, water consumption)
-    # for the selected crop type on each building envelope surface.
-    ghg_srf, energy_srf, water_srf = calc_crop_environmental_impact(locator, config, building_name, yield_srf)
+    # for the selected crop type on each building envelope surface
+    ghg_srf, energy_srf, water_srf= calc_crop_environmental_impact(locator, config, building_name, yield_srf)
 
     # activate the function that calculates
-    # the CAPEX and OPEX for the selected crop type on each building envelope surface.
+    # the CAPEX (USD per kg vegetable), OPEX (USD per kg vegetable),
+    # market price (USD) in for the selected crop type on each building envelope surface
     capex_srf, opex_srf, mkt_srf = calc_crop_cost(locator, config, building_name, yield_srf)
 
 
@@ -251,6 +256,7 @@ def calc_crop_yields(locator, config, building_name):
     cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(locator, config, building_name)
 
     yield_srf = []
+    yield_srf_per_sqm = []
     # at least 1 surface is eligible to grow the selected crop type
     if not cycl_bld_annual == 0:
 
@@ -347,13 +353,38 @@ def calc_crop_environmental_impact(locator, config, building_name, yield_srf):
 
     """
 
-    ghg_leafy_vegetables_kg_co2_per_kg_leafy_veg = 0.4
-    energy_kWh_per_kg_leafy_veg = 1.8
-    water_litres_per_kg_leafy_veg = 43
+    # the selected crop type
+    type_crop = config.agriculture.type_crop
 
-    ghg_srf = [srf * ghg_leafy_vegetables_kg_co2_per_kg_leafy_veg for srf in yield_sr]
-    energy_srf = [srf * energy_kWh_per_kg_leafy_veg for srf in yield_sr]
-    water_srf = [srf * water_litres_per_kg_leafy_veg for srf in yield_sr]
+    # read crop properties in the BIA database for the selected crop type
+    env_properties = calc_properties_env_db(config)
+    print("Gathering the environmental impacts data of {type_crop}.".format(type_crop=type_crop))
+
+    # get the list of scenario names (mys, idn, sgp X 4)
+    crop_grow_sce = env_properties['scenario'].tolist()
+
+    for sce in crop_grow_sce:
+        ghg_kg_co2_per_kg_sce = env_properties[env_properties['scenario'] == crop_grow_sce]['ghg_total']
+        energy_kWh_per_kg_sce = env_properties[env_properties['scenario'] == crop_grow_sce]['energy_total']
+        water_litres_per_kg_sce = env_properties[env_properties['scenario'] == crop_grow_sce]['water_total']
+
+
+        # GHG-related calculations
+        ghg_srf_sce = [srf * ghg_kg_co2_per_kg_sce for srf in yield_sr]     #scenarios in the database
+        ghg_kg_co2_per_kg_bia = 0.271572        # assumption: we use the Singapore soil-cultivated non-greenhouse's
+                                                # GHG emissions in the production stage to represent BIA's GHG emissions
+                                                # Deloitte/TEMASEK/A-star report: source
+        ghg_srf_bia = [srf * ghg_kg_co2_per_kg_bia for srf in yield_sr]
+
+        # energy-related calculations
+        energy_srf_sce = [srf * energy_kWh_per_kg_sce for srf in yield_sr]      #scenarios in the database
+        energy_kg_co2_per_kg_bia = 0               # assumption: no energy (electricity) required
+        energy_srf_bia = [srf * energy_kg_co2_per_kg_bia for srf in yield_sr]
+
+        # water-related calculations
+        water_srf_sce = [srf * water_litres_per_kg_sce for srf in yield_sr]     #scenarios in the database
+        energy_kg_co2_per_kg_bia = 0               # based on T2 lab experiments
+        water_srf_bia = [srf * water_kg_co2_per_kg_bia for srf in yield_sr]
 
     return ghg_srf, energy_srf, water_srf
 
@@ -373,7 +404,28 @@ def calc_crop_cost(locator, config, building_name, yield_srf):
 
     """
 
+    # the selected crop type
+    type_crop = config.agriculture.type_crop
 
+    # read the daily DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+        .format(building=building_name)
+    cea_dli_results = pd.read_csv(dli_path)
+
+    # gather the orientation information for each building surface
+    area_srf = cea_dli_results['AREA_m2'].tolist()
+
+
+
+    Inv_IR = PVT_cost_data.iloc[0]['IR_%']
+    Inv_LT = PVT_cost_data.iloc[0]['LT_yr']
+    Inv_OM = PVT_cost_data.iloc[0]['O&M_%'] / 100
+
+    InvC = Inv_a + Inv_b * (PVT_peak_W) ** Inv_c + (Inv_d + Inv_e * PVT_peak_W) * log(PVT_peak_W)
+
+    Capex_a = calc_capex_annualized(InvC, Inv_IR, Inv_LT)
+    Opex_fixed = InvC * Inv_OM
+    Capex = InvC
 
     return capex_srf, opex_srf, mkt_srf
 
