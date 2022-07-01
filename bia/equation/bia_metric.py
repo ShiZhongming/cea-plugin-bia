@@ -194,6 +194,71 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
     return cycl_i_srf, cycl_o_srf
 
 
+
+
+# differentiate the eligible dates as in wet and dry seasons
+def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
+
+    """
+    This function determines the location of the scenario in the four zones.
+    The four zones: North, Tropic of Cancer, Tropic of Cancer, and South
+
+    :param latitude: the latitude of the scenario
+    :type latitude: float
+    :param longitude: the longitude of the scenario
+    :type longitude: float
+
+    :return: zone_sce: one of the four zones on earth
+    :type zone_sce: string
+
+    """
+    n_day_wet_srf = []
+    n_day_dry_srf = []
+
+    # if the scenario is not located in the tropics
+    if not -5 <= latitude <= 5 and 100 <= longitude <= 105:
+        pass        # do nothing if the scenario is not near Singapore
+
+    # if the scenario is located near Singapore
+    # count the days of wet/dry periods for each building surface
+    else:
+        # the four tipping dates (non-leap year) for changing the seasons (wet/dry)
+        # reference: meteorological service singapore, SGP gov http://www.weather.gov.sg/climate-climate-of-singapore/
+
+        date_d_w_dec = 334  # december 1
+        date_w_d_jan = 14   # January 15
+        date_d_w_may = 150  # May 31
+        date_w_d_sep = 272  # September 30
+
+        n_day_wet_srf = []
+        n_day_dry_srf = []
+
+        for surface in range(len(date_srf)):
+            date_to_split = date_srf[surface]
+            # January 1 to January 15, wet
+            list_1 = [x for x in date_to_split if 0 < x < date_w_d_jan].sort()
+            # January 16 to May 31, dry
+            list_2 = [x for x in date_to_split if date_w_d_jan <= x < date_d_w_may]
+            # June 1 to September 30, wet
+            list_3 = [x for x in date_to_split if date_d_w_may <= x < date_w_d_sep]
+            # October 1 to November 30, dry
+            list_4 = [x for x in date_to_split if date_w_d_sep <= x < date_d_w_dec]
+            # December 1 to December 31, wet
+            list_5 = [x for x in date_to_split if date_d_w_dec <= x < 364]
+
+
+
+            # calculate the number of days in wet and dry periods
+            n_day_wet = len(list_1) + len(list_3) + len(list_5)
+            n_day_dry = len(list_2) + len(list_4)
+
+            # record the two numbers for each surface
+            n_day_wet_srf.append(n_day_wet)
+            n_day_dry_srf.append(n_day_dry)
+
+    return n_day_wet_srf, n_day_dry_srf
+
+
 # Calculate the crop yields (kg) for the selected crop type on each building envelope surface
 def calc_crop_yields(locator, config, building_name):
 
@@ -360,33 +425,101 @@ def calc_crop_environmental_impact(locator, config, building_name, yield_srf):
     env_properties = calc_properties_env_db(config)
     print("Gathering the environmental impacts data of {type_crop}.".format(type_crop=type_crop))
 
+    # read the daily DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+        .format(building=building_name)
+    cea_dli_results = pd.read_csv(dli_path)
+
+    # gather the orientation information [e(ast), w(est), s(outh), n(orth)] for each building surface
+    orie_srf = cea_dli_results['orientation'].tolist()  # west, east, north, south
+    area_srf = cea_dli_results['AREA_m2'].tolist()
+
+    # activate the function that calculates
+    # the eligible dates, seasons, and cycles for the selected crop type on each building surface
+    season_srf, cycl_srf, date_srf = calc_crop_cycle(config, building_name)
+
+
     # get the list of scenario names (mys, idn, sgp X 4)
     crop_grow_sce = env_properties['scenario'].tolist()
 
+    # the three metrics for Deloitte/TEMASEK/A-star report
     for sce in crop_grow_sce:
-        ghg_kg_co2_per_kg_sce = env_properties[env_properties['scenario'] == crop_grow_sce]['ghg_total']
-        energy_kWh_per_kg_sce = env_properties[env_properties['scenario'] == crop_grow_sce]['energy_total']
-        water_litres_per_kg_sce = env_properties[env_properties['scenario'] == crop_grow_sce]['water_total']
+        ghg_kg_co2_per_kg_sce = env_properties[env_properties['scenario'] == sce]['ghg_total']
+        energy_kWh_per_kg_sce = env_properties[env_properties['scenario'] == sce]['energy_total']
+        water_litres_per_kg_sce = env_properties[env_properties['scenario'] == sce]['water_total']
 
+        ghg_srf_sce_all = []
+        energy_srf_sce_all = []
+        water_srf_sce_all = []
 
         # GHG-related calculations
         ghg_srf_sce = [srf * ghg_kg_co2_per_kg_sce for srf in yield_sr]     #scenarios in the database
-        ghg_kg_co2_per_kg_bia = 0.271572        # assumption: we use the Singapore soil-cultivated non-greenhouse's
-                                                # GHG emissions in the production stage to represent BIA's GHG emissions
-                                                # Deloitte/TEMASEK/A-star report: source
-        ghg_srf_bia = [srf * ghg_kg_co2_per_kg_bia for srf in yield_sr]
 
         # energy-related calculations
         energy_srf_sce = [srf * energy_kWh_per_kg_sce for srf in yield_sr]      #scenarios in the database
-        energy_kg_co2_per_kg_bia = 0               # assumption: no energy (electricity) required
-        energy_srf_bia = [srf * energy_kg_co2_per_kg_bia for srf in yield_sr]
 
         # water-related calculations
         water_srf_sce = [srf * water_litres_per_kg_sce for srf in yield_sr]     #scenarios in the database
-        energy_kg_co2_per_kg_bia = 0               # based on T2 lab experiments
-        water_srf_bia = [srf * water_kg_co2_per_kg_bia for srf in yield_sr]
 
-    return ghg_srf, energy_srf, water_srf
+        # record the results
+        ghg_srf_sce_all.append(ghg_srf_sce)
+        energy_srf_sce_all.append(energy_srf_sce)
+        water_srf_sce_all.append(water_srf_sce)
+
+    # the three metrics for BIA scenarios
+    # GHG-related calculations
+    ghg_kg_co2_per_kg_bia = 0.271572    # assumption: we use the Singapore soil-cultivated non-greenhouse's
+                                        # GHG emissions in the production stage to represent BIA's GHG emissions
+                                        # Deloitte/TEMASEK/A-star report: source
+    ghg_srf_bia = [srf * ghg_kg_co2_per_kg_bia for srf in yield_sr]
+
+    # energy-related calculations
+    energy_kWh_per_kg_bia = 0  # assumption: no energy (electricity) required in BIA
+    energy_srf_bia = [srf * energy_kWh_per_kg_bia for srf in yield_sr]
+
+    # water-related calculations
+    water_litres_per_sqm_w = 0.2  # based on T2 lab experiments, wet season
+    water_litres_per_sqm_d = 0.1  # based on T2 lab experiments, dry season
+    water_srf_bia = []
+
+    # differentiate the eligible dates as in wet and dry seasons
+    n_day_wet_srf, n_day_dry_srf = day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf)
+
+    for surface in range(len(orie_srf)):
+        orie = orie_srf[surface]
+        area = area_srf[surface]
+
+        if orie == 'east':
+            water_litres = water_litres_per_sqm_w * (n_day_wet_srf + n_day_dry_srf) * area
+
+        if orie == 'west':
+            water_litres = 0
+
+        if orie == 'south' or 'north':
+            water_litres = n_day_dry_srf * water_litres_per_sqm_d * area
+
+        water_srf_bia.append(water_litres)  # record the results and convert to kilograms
+
+    # merged the (6+1) scenarios for each surface in dataframe
+    data = list(chuncks(ghg_srf_sce_all + energy_srf_sce_all + water_srf_sce_all +
+                        ghg_srf_bia + energy_srf_bia + water_srf_bia),
+                len(orie_srf))
+
+    env_impacts_srf_df = pd.DataFrame(data)
+
+    column_name = []
+    for metrics in ['ghg_kg_co2', 'energy_kWh', 'water_l']:
+        head = []
+        for sce in crop_grow_sce:
+            name = metrics + '_' + sce
+            head.append(name)
+        column_name.append(head)  !!!! need to be flattend
+
+
+
+    env_impacts_srf_df.columns = column_name
+
+    return env_impacts_srf_df
 
 
 # calculate the costs (CAPEX, OPEX, market price of the yields) for each surface
