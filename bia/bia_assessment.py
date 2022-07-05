@@ -24,7 +24,7 @@ from cea.constants import HOURS_IN_YEAR
 from cea.resources.radiation_daysim import daysim_main, geometry_generator
 from bia.equation.bia_dli import calc_DLI
 from bia.equation.bia_crop_cycle import calc_crop_cycle
-
+from bia.equation.bia_metric import calc_bia_metric, bia_result_aggregate_write
 
 __author__ = "Zhongming Shi"
 __copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
@@ -38,53 +38,25 @@ __status__ = "Production"
 
 
 class BiaAssessmentPlugin(cea.plugin.CeaPlugin):
-    """
-    Define the plugin class - unless you want to customize the behavior, you only really need to declare the class. The
-    rest of the information will be picked up from ``default.config``, ``schemas.yml`` and ``scripts.yml`` by default.
-    """
-    pass
 
+    pass
 
 
 def main(config):
     assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
     locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
 
-    # DLI calculations
-    # print('Running Day Light Integral calculations with scenario = %s' % config.scenario)
-    # print('Running Day Light Integral calculations with annual-radiation-threshold-kWh/m2 = %s'
-    #       % config.agriculture.annual_radiation_threshold_BIA)
-    # print('Running Day Light Integral calculations with crop-on-roof = %s' % config.agriculture.crop_on_roof)
-    # print('Running Day Light Integral calculations with crop-on-wall = %s' % config.agriculture.crop_on_wall)
-    #
-    # building_names = locator.get_zone_building_names()
-    # num_process = config.get_number_of_processes()
-    # n = len(building_names)
-    # cea.utilities.parallel.vectorize(calc_DLI, num_process)(repeat(locator, n), repeat(config, n), building_names)
-
-    # growth cycle
-    print('Calculating annual number of growth cycles for {type_crop}'.format(type_crop=config.agriculture.type_crop))
-
+    # BIA assessment
+    print('Executing CEA Building-integrated agriculture assessment (BIA) for {type_crop}'
+          .format(type_crop=config.agriculture.type_crop))
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
     cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
+    cea.utilities.parallel.vectorize(calc_bia_metric, num_process)(repeat(config, n), building_names)
 
-
-    # yield
-    print('Calculating annual yield (kg) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
-
-    # building_names = locator.get_zone_building_names()
-    # num_process = config.get_number_of_processes()
-    # n = len(building_names)
-    # cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
-
-    # aggregate the results of all buildings together and write to disk
-
-    # read the BIA results of each building
-    bld_path = config.scenario + \
-                   "/outputs/data/potentials/agriculture/{building}_BIA.csv".format(building=building_name)
-
+    # aggregate the results of each building as a 'total' file and write to disk
+    bia_result_aggregate_write(locator, config, building_name)
 
 if __name__ == '__main__':
     main(cea.config.Configuration())

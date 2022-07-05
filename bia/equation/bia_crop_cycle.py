@@ -94,9 +94,28 @@ def calc_properties_env_db(config):
     type_crop = config.agriculture.type_crop
     data = pd.read_excel(database_path, sheet_name="env")
     env_properties = data[data['type_crop'] == type_crop]
-    print(env_properties)
 
     return env_properties
+
+def calc_properties_cost_db(config):
+    """
+    To retrieve the expenditures related the selected crop type stored in the BIA database.
+
+    :param database_path: the selected crop type
+    :type database_path: string
+
+    :return: DataFrame with properties of expenditures related to the selected crop type retrieved form the database
+    """
+
+    # path to the bia database
+    dir = os.path.dirname(__file__)
+    database_path = os.path.join(dir, "bia_data.xlsx")
+
+    type_crop = config.agriculture.type_crop
+    data = pd.read_excel(database_path, sheet_name="cost")
+    cost_properties = data[data['type_crop'] == type_crop]
+
+    return cost_properties
 
 
 def calc_chunk_day_crop(data):
@@ -148,6 +167,15 @@ def calc_crop_cycle(config, building_name):
     :return date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
     selected crop type
     :type date_srf: list
+
+    :return cycl_i_srf: number of cycles, including initial ones only,
+    for each building surface of a whole year
+    :type cycl_i_srf: list
+
+    :return cycl_s_srf: number of cycles, including subsequent ones only,
+    for each building surface of a whole year
+    :type cycl_s_srf: list
+
     """
 
     print("Calculating the number of crop cycles for Building {building}.".format(building=building_name))
@@ -257,10 +285,10 @@ def calc_crop_cycle(config, building_name):
     # print('n_surface', n_surface)
 
     # Calculate the number of growth cycles for each building surface
-    cycl_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
+    cycl_srf, cycl_i_srf, cycl_s_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
     print('cycl_srf', cycl_srf)
 
-    return season_srf, cycl_srf, date_srf
+    return season_srf, cycl_srf, date_srf, cycl_i_srf, cycl_s_srf
 
 
 def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
@@ -278,9 +306,15 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
     :param season_srf:  lengths of season(s) of the selected crop in days for each building surface of a whole year
     :type season_srf: list
 
-    :return season_srf: number of cycles, including both initial and subsequent ones,
+    :return cycl_srf: number of cycles, including both initial and subsequent ones,
     for each building surface of a whole year
-    :type season_srf: list
+    :type cycl_srf: list
+    :return cycl_i_srf: number of cycles, including initial ones only,
+    for each building surface of a whole year
+    :type cycl_i_srf: list
+    :return cycl_s_srf: number of cycles, including subsequent ones only,
+    for each building surface of a whole year
+    :type cycl_s_srf: list
     """
 
     tolerance_cycl = 0.05  # this tolerance allows some of the growth cycles a bit shorter than in the database
@@ -295,15 +329,20 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
     n_cycl_season = [x * n_cycl for x in n_full_life]
 
     # calculate the cycles of the selected crop in the non-full-life times
+    cycl_srf = []       # number of cycles, including both initial and subsequent ones
+    cycl_i_srf = []     # number of cycles, including initial ones only
+    cycl_s_srf = []     # number of cycles, including subsequent ones only
     for n in range(1, n_cycl):
         for season in range(len(len_season_all)):
             if non_full_life[season] >= (cycl_i_day + (n - 1) * cycl_s_day)/crop_life/(1 + tolerance_cycl) \
                     and non_full_life[season] < (cycl_i_day + n * cycl_s_day)/crop_life/(1 + tolerance_cycl):
                 n_cycl_season[season] = n_cycl_season[season] + n
-    cycl_srf = []
-    for m in n_season_srf:
-        cycl_srf.append(n_cycl_season[:m])
-        n_cycl_season = n_cycl_season[m:]
+
+        for m in n_season_srf:
+            cycl_srf.append(n_cycl_season[:m])
+            cycl_i_srf.append(math.ceil(n_cycl_season[:m] / n_cycl))
+            cycl_s_srf.append(math.ceil(n_cycl_season[:m] - n_cycl_season[:m] / n_cycl))
+            # n_cycl_season = n_cycl_season[m:]
 
     # print(cycl_srf)
-    return cycl_srf
+    return cycl_srf, cycl_i_srf, cycl_s_srf
