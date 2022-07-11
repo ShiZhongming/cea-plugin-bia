@@ -89,21 +89,16 @@ def calc_bia_metric(locator, config, building_name):
                                                       cea_dli_results, cycl_srf, cycl_i_srf, yield_srf)
 
     # merge the results as a DataFrame
-    info_srf_df = cea_dli_results.iloc[:, :15]
-    bia_metric_srf_df = pd.concat([info_srf_df, env_impacts_srf_df], axis=1)
-
+    bia_metric_srf_df = env_impacts_srf_df
     bia_metric_srf_df['yield_kg'] = yield_srf
     bia_metric_srf_df['yield_kg_per_sqm'] = yield_srf_per_sqm
     bia_metric_srf_df['capex_usd'] = capex_srf
     bia_metric_srf_df['capex_a_usd'] = capex_a_srf
     bia_metric_srf_df['opex_usd'] = opex_srf
 
-    # filter by crop on wall/roof/window user-defined in config.file
-    bia_metric_srf_df_filtered = filter_crop_srf(locator, config, building_name, bia_metric_srf_df)
-
-    # write the BIA results
+    # write the BIA results (all non-filtered surface)
     output_path = config.scenario + \
-                  "/outputs/data/potentials/agriculture/{building}_BIA_assessment.csv".format(building=building_name)
+                  "/outputs/data/potentials/agriculture/{building}_BIA_metrics.csv".format(building=building_name)
     bia_metric_srf_df_filtered.to_csv(output_path, index=True,
                                             float_format='%.2f',
                                             na_rep=0)
@@ -541,15 +536,17 @@ def calc_crop_cost(locator, config, building_name, cea_dli_results, cycl_srf, cy
     area_srf = cea_dli_results['AREA_m2'].tolist()
 
     # sgd to usd
-    ex_sgd_usd = 1.40672
+    ex_sgd_usd = 1.40       # July 9, 2022
 
     # read cost properties in the BIA database for the selected crop type
     cost_properties = calc_properties_cost_db(config)
     print("Gathering the expenditure information for {type_crop}.".format(type_crop=type_crop))
-    Inv_IR = cost_properties.get('IR_%')      # interest rate
+    Inv_IR_perc = cost_properties.get('IR_%')      # interest rate
     Inv_LT = cost_properties.get('LT_yr')       # lifetime in years
-    InvC_USD_per_sqm = cost_properties.get(
-        'Inv_sgd_sqm') / ex_sgd_usd     # initial investment per square meter surface area in USD/sqm
+    shelf_USD_per_sqm = cost_properties.get(
+        'shelf_sgd_sqm') / ex_sgd_usd     # initial investment (shelf + soil) per square meter surface area in USD/sqm
+    soil_USD_per_sqm = cost_properties.get(
+        'soil_sgd_sqm') / ex_sgd_usd     # initial investment (shelf + soil) per square meter surface area in USD/sqm
     seed_USD_per_sqm = cost_properties.get(
         'seed_sgd_sqm') / ex_sgd_usd     # seed cost per square meter surface area in USD/sqm
     pesticide_USD_per_sqm = cost_properties.get(
@@ -557,7 +554,7 @@ def calc_crop_cost(locator, config, building_name, cea_dli_results, cycl_srf, cy
     fertilizer_USD_per_sqm = cost_properties.get(
         'fertilizer_sgd_sqm') / ex_sgd_usd   # fertilizer cost per square meter surface area in USD/sqm
     market_price_USD_per_kg = cost_properties.get(
-        'mkt_sg_sgd') / ex_sgd_usd   # fertilizer cost per square meter surface area in USD/sqm
+        'mkt_sg_sgd_kg') / ex_sgd_usd   # fertilizer cost per square meter surface area in USD/sqm
 
     # CAPEX and OPEX of the selected crops in grams for each building surface
     for surface in range(len(area_srf)):
@@ -565,8 +562,8 @@ def calc_crop_cost(locator, config, building_name, cea_dli_results, cycl_srf, cy
         cycl_i = cycl_i_srf[surface]      # number of initial cycles
         area = area_srf[surface]        # area of the surface in sqm
 
-        capex = InvC_USD_per_sqm * area     # initial capital expenditure in USD
-        capex_a = calc_capex_annualized(capex, Inv_IR, Inv_LT)       # annualised capital expenditure in USD/year
+        capex = shelf_USD_per_sqm * area + soil_USD_per_sqm * area   # initial capital expenditure in USD
+        capex_a = calc_capex_annualized(capex, Inv_IR_perc, Inv_LT)       # annualised capital expenditure in USD/year
 
         opex = seed_USD_per_sqm * area * cycl_i + \
                pesticide_USD_per_sqm * area * cycl + \
@@ -580,50 +577,5 @@ def calc_crop_cost(locator, config, building_name, cea_dli_results, cycl_srf, cy
     return capex_srf, capex_a_srf, opex_srf
 
 
-# filter by crop on wall/roof/window user-defined in config.file
-def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
 
-    """
-    This function filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
 
-    :param locator: An InputLocator to locate input files
-    :type locator: cea.inputlocator.InputLocator
-
-    :param building_name: list of building names in the case study
-    :type building_name: Series
-
-    :return: DataFrame with BIA metrics for each surfaces intended to have BIA.
-
-    """
-
-    # get the user inputs
-    bool_roof = config.agriculture.crop_on_roof
-    bool_window = config.agriculture.crop_on_window
-    bool_wall_u = config.agriculture.crop_on_wall_under_window
-    bool_wall_b = config.agriculture.crop_on_wall_between_window
-
-    # create the mask based the user input
-    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window', 'mask_wall_u', 'mask_wall_b', 'mask'])
-    mask_df['mask_roof'] = [bool_roof if x=='roof'
-                                      else not bool_roof for x in bia_metric_srf_df['TYPE']]
-    mask_df['mask_window'] = [bool_window if x == 'window'
-                                        else not bool_window for x in bia_metric_srf_df['TYPE']]
-    mask_df['mask_wall_u'] = [bool_wall_u if x == 'upper' or 'lower'
-                                        else not bool_wall_u for x in bia_metric_srf_df['wall_type']]
-    mask_df['mask_wall_b'] = [bool_wall_b if x == 'side'
-                                        else not bool_wall_b for x in bia_metric_srf_df['wall_type']]
-
-    mask_df['mask'] = [True if a == True and b == True and c == True and d == True else False
-                       for a, b, c, d in zip(mask_df['mask_roof'],
-                                             mask_df['mask_window'],
-                                             mask_df['mask_wall_u'],
-                                             mask_df['mask_wall_b'])
-                       ]
-
-    # remove the unwanted surfaces
-    bia_metric_srf_df = bia_metric_srf_df[mask_df.mask]
-
-    return bia_metric_srf_df
-
-def bia_result_aggregate_write(locator, config, building_names):
-    pass

@@ -16,6 +16,7 @@ import time
 from itertools import repeat
 from math import *
 from multiprocessing import Pool
+from csv import writer
 
 import pandas as pd
 
@@ -40,6 +41,108 @@ __status__ = "Production"
 class BiaAssessmentPlugin(cea.plugin.CeaPlugin):
 
     pass
+
+
+# filter by crop on wall/roof/window user-defined in config.file
+def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
+
+    """
+    This function filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
+
+    :param locator: An InputLocator to locate input files
+    :type locator: cea.inputlocator.InputLocator
+
+    :param building_name: list of building names in the case study
+    :type building_name: Series
+
+    :return: DataFrame with BIA metrics for each surfaces intended to have BIA.
+
+    """
+
+    # get the user inputs
+    bool_roof = config.agriculture.crop_on_roof
+    bool_window = config.agriculture.crop_on_window
+    bool_wall_u = config.agriculture.crop_on_wall_under_window
+    bool_wall_b = config.agriculture.crop_on_wall_between_window
+
+    # create the mask based the user input
+    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window', 'mask_wall_u', 'mask_wall_b', 'mask'])
+    mask_df['mask_roof'] = [bool_roof if x=='roof'
+                                      else not bool_roof for x in bia_metric_srf_df['TYPE']]
+    mask_df['mask_window'] = [bool_window if x == 'window'
+                                        else not bool_window for x in bia_metric_srf_df['TYPE']]
+    mask_df['mask_wall_u'] = [bool_wall_u if x == 'upper' or 'lower'
+                                        else not bool_wall_u for x in bia_metric_srf_df['wall_type']]
+    mask_df['mask_wall_b'] = [bool_wall_b if x == 'side'
+                                        else not bool_wall_b for x in bia_metric_srf_df['wall_type']]
+
+    mask_df['mask'] = [True if a == True and b == True and c == True and d == True else False
+                       for a, b, c, d in zip(mask_df['mask_roof'],
+                                             mask_df['mask_window'],
+                                             mask_df['mask_wall_u'],
+                                             mask_df['mask_wall_b'])
+                       ]
+
+    # remove the unwanted surfaces
+    bia_metric_srf_df = bia_metric_srf_df[mask_df.mask]
+
+    return bia_metric_srf_df
+
+
+def bia_result_aggregate_write(locator, config, building_names):
+    """
+    This function aggregates the results of each building as a 'total' file and write to disk.
+
+    :param locator: An InputLocator to locate input files
+    :type locator: cea.inputlocator.InputLocator
+
+    :param building_name: list of building names in the case study
+    :type building_name: Series
+
+    :return: write to disk: aggregated BIA metrics for each surfaces intended (defined by users) to have BIA.
+
+    """
+
+    # read the daily DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
+        .format(building=building_name)
+    cea_dli_results = pd.read_csv(dli_path)
+
+    # read the calculated BIA metrics results
+    metric_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_BIA_metrics.csv"\
+        .format(building=building_name)
+    cea_metric_results = pd.read_csv(metric_path)
+
+    # merge the two results
+    info_srf_df = cea_dli_results.iloc[:, :15]
+    bia_metric_srf_df_all = pd.concat([info_srf_df, cea_metric_results], axis=1)
+
+    # filter the ones not wanted by the user
+    bia_metric_srf_df_filtered = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)
+
+    # aggregate each metric for the entire building
+    bia_to_write = bia_metric_srf_df_filtered[['AREA_m2',
+                                               'yield_kg',
+                                               'capex_usd', 'capex_a_usd', 'opex_usd']]
+    bia_to_write.insert(loc=0, column='BUILDING', value=[building_names])
+    yield_kg_per_sqm = bia_to_write['yield_kg'] / bia_to_write['AREA_m2']
+    bia_to_write.insert(loc=2, column='yield_kg_per_sqm', value=[yield_kg_per_sqm])
+
+    # write to disk
+    bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total.csv"
+    # when the total file has not been created yet, create the file and export the DataFrame
+    if not os.path.exists(bia_path):
+        bia_to_write.to_csv(bia_path, index=True, float_format='%.2f', na_rep=0)
+
+    # when the total file has already been created, open the file and add one row at the end
+    else:
+        row = bia_to_write.iloc[0].tolist()     # list of content to append
+
+        with open(bia_path, 'a') as f_object:
+
+            writer_object = writer(f_object)
+            writer_object.writerow(row)
+            f_object.close()   # Close the file object
 
 
 def main(config):

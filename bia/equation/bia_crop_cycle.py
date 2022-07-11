@@ -344,5 +344,8 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
             cycl_s_srf.append(math.ceil(n_cycl_season[:m] - n_cycl_season[:m] / n_cycl))
             # n_cycl_season = n_cycl_season[m:]
 
-    # print(cycl_srf)
+    print('cycl_srf', cycl_srf)
+    print('cycl_i_srf', cycl_i_srf)
+    print('cycl_s_srf', cycl_s_srf)
+
     return cycl_srf, cycl_i_srf, cycl_s_srf
