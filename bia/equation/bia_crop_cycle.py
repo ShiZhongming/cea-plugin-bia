@@ -11,6 +11,8 @@ import cea.config
 import cea.inputlocator
 import cea.plugin
 
+
+import math
 import os
 import time
 from itertools import repeat
@@ -76,7 +78,6 @@ def calc_properties_crop_db(config):
 
     return crop_properties
 
-
 def calc_properties_env_db(config):
     """
     To retrieve the environmental impacts of the selected crop type stored in the BIA database.
@@ -117,7 +118,6 @@ def calc_properties_cost_db(config):
 
     return cost_properties
 
-
 def calc_chunk_day_crop(data):
 
     """
@@ -144,7 +144,6 @@ def calc_chunk_day_crop(data):
         except Exception:
             pass
     yield consecutive_list
-
 
 def calc_crop_cycle(config, building_name):
 
@@ -286,10 +285,9 @@ def calc_crop_cycle(config, building_name):
 
     # Calculate the number of growth cycles for each building surface
     cycl_srf, cycl_i_srf, cycl_s_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
-    print('cycl_srf', cycl_srf)
+    # print('cycl_srf', cycl_srf)
 
     return season_srf, cycl_srf, date_srf, cycl_i_srf, cycl_s_srf
-
 
 def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
 
@@ -320,32 +318,39 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
     tolerance_cycl = 0.05  # this tolerance allows some of the growth cycles a bit shorter than in the database
     crop_life = cycl_i_day + cycl_s_day * (n_cycl - 1)  # days of the full life of the selected crop
     n_season_srf = [len(x) for x in season_srf]     # number of seasons on each surface
-    len_season_all = [item for sublist in season_srf for item in sublist]  # length of all seasons in a building
-
-    # number of full life of the selected crop in each season
-    # print('season_srf', len_season_all)
-    n_full_life = [int(x / crop_life) for x in len_season_all]
-    non_full_life = [x / crop_life - y for x, y in zip(len_season_all, n_full_life)]
-    n_cycl_season = [x * n_cycl for x in n_full_life]
+    # len_season_all = [item for sublist in season_srf for item in sublist]  # length of all seasons in a building
 
     # calculate the cycles of the selected crop in the non-full-life times
-    cycl_srf = []       # number of cycles, including both initial and subsequent ones
-    cycl_i_srf = []     # number of cycles, including initial ones only
-    cycl_s_srf = []     # number of cycles, including subsequent ones only
-    for n in range(1, n_cycl):
-        for season in range(len(len_season_all)):
-            if non_full_life[season] >= (cycl_i_day + (n - 1) * cycl_s_day)/crop_life/(1 + tolerance_cycl) \
-                    and non_full_life[season] < (cycl_i_day + n * cycl_s_day)/crop_life/(1 + tolerance_cycl):
-                n_cycl_season[season] = n_cycl_season[season] + n
+    cycl_srf = []  # number of cycles, including both initial and subsequent ones
+    cycl_i_srf = []  # number of cycles, including initial ones only
+    cycl_s_srf = []  # number of cycles, including subsequent ones only
 
-        for m in n_season_srf:
-            cycl_srf.append(n_cycl_season[:m])
-            cycl_i_srf.append(math.ceil(n_cycl_season[:m] / n_cycl))
-            cycl_s_srf.append(math.ceil(n_cycl_season[:m] - n_cycl_season[:m] / n_cycl))
-            # n_cycl_season = n_cycl_season[m:]
+    for surface in range(len(season_srf)):
+        day_season = season_srf[surface]
+        n_season = n_season_srf[surface]
 
-    print('cycl_srf', cycl_srf)
-    print('cycl_i_srf', cycl_i_srf)
-    print('cycl_s_srf', cycl_s_srf)
+        # number of cycles when plant can grow full life
+        n_full_life = [x // crop_life for x in day_season]
+        n_cycl_season = [x * n_cycl for x in n_full_life] # full life
+
+        # remainder days for non-full life
+        day_non_full_life = [x - crop_life * y for x, y in zip(day_season,
+                                                               n_cycl_season)]
+
+        for n in range(1, n_cycl):
+            for season in range(n_season):
+                if day_non_full_life[season] >= (cycl_i_day + (n - 1) * cycl_s_day)/crop_life/(1 + tolerance_cycl) \
+                        and day_non_full_life[season] < (cycl_i_day + n * cycl_s_day)/crop_life/(1 + tolerance_cycl):
+                    n_cycl_season[season] = n_cycl_season[season] + n
+
+        cycl_srf.append(n_cycl_season)
+
+        # number of initial cycles in each season
+        n_i_cycl = [-1 * (x // n_cycl) for x in n_cycl_season]
+        cycl_i_srf.append(n_i_cycl)
+
+        # number of subsequent cycles in each season
+        n_s_cycl = [x - y for x, y in zip(n_cycl_season, n_i_cycl)]
+        cycl_s_srf.append(n_s_cycl)
 
     return cycl_srf, cycl_i_srf, cycl_s_srf

@@ -25,7 +25,7 @@ from cea.constants import HOURS_IN_YEAR
 from cea.resources.radiation_daysim import daysim_main, geometry_generator
 from bia.equation.bia_dli import calc_DLI
 from bia.equation.bia_crop_cycle import calc_crop_cycle
-from bia.equation.bia_metric import calc_bia_metric, bia_result_aggregate_write
+from bia.equation.bia_metric import calc_bia_metric
 
 __author__ = "Zhongming Shi"
 __copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
@@ -88,7 +88,7 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
 
     return bia_metric_srf_df
 
-
+# create aggregated results for each building in one .csv file
 def bia_result_aggregate_write(locator, config, building_names):
     """
     This function aggregates the results of each building as a 'total' file and write to disk.
@@ -155,8 +155,10 @@ def main(config):
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
-    cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
-    cea.utilities.parallel.vectorize(calc_bia_metric, num_process)(repeat(config, n), building_names)
+    # cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
+    cea.utilities.parallel.vectorize(calc_bia_metric, num_process)(repeat(locator, n),
+                                                                   repeat(config, n),
+                                                                   building_names)
 
     # aggregate the results of each building as a 'total' file and write to disk
     bia_result_aggregate_write(locator, config, building_name)

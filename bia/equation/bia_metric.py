@@ -56,6 +56,7 @@ def calc_bia_metric(locator, config, building_name):
     :return: no return
 
     """
+
     t0 = time.perf_counter()
 
     # read the daily DLI results
@@ -71,7 +72,7 @@ def calc_bia_metric(locator, config, building_name):
     # the yields [kg/year] for the selected crop type on each building envelope surface
     # plus yields per square metre [kg/sqm/year] building surface area
     print('Calculating yields (kg) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
-    yield_srf, yield_srf_per_sqm = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf)
+    yield_srf, yield_srf_per_sqm = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf)
 
     # activate the function that calculates
     # the environmental impacts (ghg emissions, energy consumption, water consumption)
@@ -99,7 +100,7 @@ def calc_bia_metric(locator, config, building_name):
     # write the BIA results (all non-filtered surface)
     output_path = config.scenario + \
                   "/outputs/data/potentials/agriculture/{building}_BIA_metrics.csv".format(building=building_name)
-    bia_metric_srf_df_filtered.to_csv(output_path, index=True,
+    bia_metric_srf_df.to_csv(output_path, index=True,
                                             float_format='%.2f',
                                             na_rep=0)
 
@@ -153,8 +154,8 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
 
     """
 
-    cycl_i_srf = []
-    cycl_o_srf = []
+    cycl_i_srf = []     # inside the two tipping days
+    cycl_o_srf = []     # outside the two tipping days
 
     # unpack the properties of the selected crop type: cycle days
     cycl_i_day = int(crop_properties.get('cycl_i_day'))  # growth cycle in days: initial
@@ -171,7 +172,7 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
         # get the two tipping dates (non-leap year) based on the latitude
         summer_solstice = 171
         winter_solstice = 355
-        degree_per_day = 0.25543478 # (23.5+23.5)/(355-171) = 0.25543478
+        degree_per_day = 0.25543478     # (23.5+23.5)/(355-171) = 0.25543478
         tipping_date_1 = int(winter_solstice - (latitude - (-23.5)) / degree_per_day)
         tipping_date_2 = int(summer_solstice - (23.5 - latitude) / degree_per_day)
 
@@ -184,6 +185,10 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
             list_1 = [x for x in date_to_split if tipping_date_2 < x < tipping_date_1].sort()
             # not-between the two dates, south surface are facing the sun
             list_2 = [x for x in date_to_splitif if not tipping_date_2 < x < tipping_date_1].sort()
+
+            # true if between the two dates (north surfaces are facing the sun)
+            # false if not-between the two dates (south surfaces are facing the sun)
+            mask = [True for x in date_to_split if tipping_date_2 < x < tipping_date_1].sort()
 
             # calculate the number of days in each season between the two tipping dates
             season_crop_1 = calc_chunk_day_crop(list_1)
@@ -209,7 +214,6 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
         cycl_o_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf_2)
 
     return cycl_i_srf, cycl_o_srf
-
 
 # differentiate the eligible dates as in wet and dry seasons
 def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
@@ -271,9 +275,8 @@ def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
 
     return n_day_wet_srf, n_day_dry_srf
 
-
 # Calculate the crop yields (kg) for the selected crop type on each building envelope surface
-def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf):
+def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf):
 
     """
     This function calculates crop yield in kg for each building envelope surface.
@@ -315,14 +318,21 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf):
     zone_geometry_df = gdf.from_file(locator.get_zone_geometry())  # filepath to this scenario's zone.shp
     latitude, longitude = get_lat_lon_projected_shapefile(zone_geometry_df)     # get the lat and lon
     zone_sce = locate_sce(latitude, longitude)   # determine the location of the scenario (one of the four zones)
+    print('The scenario is located in {zone_sce}.'.format(zone_sce=zone_sce))
 
     # differentiate the cycles as facing and back from the sun for south/north building surfaces
     # when they are located in the tropics of cancer and capricorn
-    cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(locator, config, building_name)
+    cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties)
 
     yield_srf = []
     yield_srf_per_sqm = []
     # at least 1 surface is eligible to grow the selected crop type
+
+    print('lenxxx', len(cycl_srf))
+    print('lenxxx', len(date_srf))
+    print('lenxxx', len(cycl_i_srf))
+    print('lenxxx', len(cycl_o_srf))
+
     if not cycl_bld_annual == 0:
 
         # annual yield of the selected crops in grams for each building surface
@@ -331,56 +341,58 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf):
             cycl = cycl_srf[surface]
             orie = orie_srf[surface]
             area = area_srf[surface]
-            cycl_i = cycl_i_srf[surface]
-            cycl_o = cycl_o_srf[surface]
 
             # when the surface is located north to the Tropic of Cancer
             if zone_sce == 'zone_north':
                 if orie == 'east':
                     yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
 
-                if orie == 'west':
+                elif orie == 'west':
                     yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
 
-                if orie == 'south':
+                elif orie == 'south':
                     yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
 
-                if orie == 'north':
+                else:
                     yield_g = yld_bia_b_g_sqm_cycl * area * sum(cycl)
 
-            # when the surface is located between the Tropic of Cancer and the Tropic of Capricorn
-            if zone_sce == 'zone_cancer' or 'zone_capricorn':
+            # when the surface is located south to the Tropic of Capricorn
+            elif zone_sce == 'zone_south':
                 if orie == 'east':
                     yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
 
-                if orie == 'west':
+                elif orie == 'west':
                     yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
 
-                if orie == 'south':
+                elif orie == 'south':
+                    yield_g = yld_bia_b_g_sqm_cycl * area * sum(cycl)
+
+                else:
+                    yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
+
+            # when the surface is located between the Tropic of Cancer and the Tropic of Capricorn
+            else:
+                cycl_i = cycl_i_srf[surface]
+                cycl_o = cycl_o_srf[surface]
+
+                if orie == 'east':
+                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'west':
+                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'south':
                     yield_g_f = yld_bia_f_g_sqm_cycl * area * sum(cycl_o)
                     yield_g_b = yld_bia_b_g_sqm_cycl * area * sum(cycl_i)
                     yield_g = yield_g_f + yield_g_b
 
-                if orie == 'north':
+                else:
                     yield_g_f = yld_bia_f_g_sqm_cycl * area * sum(cycl_i)
                     yield_g_b = yld_bia_b_g_sqm_cycl * area * sum(cycl_o)
                     yield_g = yield_g_f + yield_g_b
 
-            # when the surface is located south to the Tropic of Capricorn
-            if zone_sce == 'zone_south':
-                if orie == 'east':
-                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
-
-                if orie == 'west':
-                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
-
-                if orie == 'south':
-                    yield_g = yld_bia_b_g_sqm_cycl * area * sum(cycl)
-
-                if orie == 'north':
-                    yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
-
             yield_srf.append(yield_g/1000)  # record the results and convert to kilograms
+            yield_srf_per_sqm.append(yield_g/1000/area)
 
     # no surface is eligible to grow the selected crop type
     else:  # No surface meets the minimum DLI requirement of the selected crop type
@@ -388,8 +400,7 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf):
               "of Building {building_name}".format(type_crop=type_crop, building_name=building_name))
         pass
 
-    return yield_srf
-
+    return yield_srf, yield_srf_per_sqm
 
 # calculate ghg emissions for each surface, crop as a produce
 def calc_crop_environmental_impact(locator, config, building_name, cea_dli_results, date_srf, yield_srf):
@@ -474,7 +485,9 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     water_litres_per_sqm_d = 0.1  # based on T2 lab experiments, dry season
     water_srf_bia = []
 
-    # differentiate the eligible dates as in wet and dry seasons
+    # differentiate the eligible dates as in wet and dry seasons, if in/near Singapore
+    zone_geometry_df = gdf.from_file(locator.get_zone_geometry())  # filepath to this scenario's zone.shp
+    latitude, longitude = get_lat_lon_projected_shapefile(zone_geometry_df)     # get the lat and lon
     n_day_wet_srf, n_day_dry_srf = day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf)
 
     for surface in range(len(orie_srf)):

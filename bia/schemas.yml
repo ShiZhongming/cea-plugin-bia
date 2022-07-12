@@ -2284,3 +2284,29 @@ get_dli_building:
         values: '{0.0...n}'
         min: 0.0
   used_by: []
+
+
+get_metric_building:
+  created_by:
+  - bia-metric
+  file_path: outputs/data/potentials/agriculture/{building}_BIA_metrics.csv
+  file_type: csv
+  schema:
+    columns:
+      ghg_kg_co2:
+        description: greenhouse gas emission in kilogram CO2 equivalent
+        type: float
+        unit: '[kg CO2-eq]'
+        values: '{0.0...n}'
+        min: 0.0
+      energy_kWh:
+        description: Unique building ID. It must start with a letter.
+        type: string
+        unit: 'NA'
+        values: alphanumeric
+      SURFACE:
+        description: Unique surface ID for each building exterior surface.
+        type: string
+        unit: 'NA'
+        values: '{srf0...srfn}'
+  used_by: []
