@@ -65,18 +65,15 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
     bool_wall_u = config.agriculture.crop_on_wall_under_window
     bool_wall_b = config.agriculture.crop_on_wall_between_window
 
+    print('bool', bool_roof, bool_window, bool_wall_u, bool_wall_b)
+
     # create the mask based the user input
     mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window', 'mask_wall_u', 'mask_wall_b', 'mask'])
-    mask_df['mask_roof'] = [bool_roof if x=='roof'
-                                      else not bool_roof for x in bia_metric_srf_df['TYPE']]
-    mask_df['mask_window'] = [bool_window if x == 'window'
-                                        else not bool_window for x in bia_metric_srf_df['TYPE']]
-    mask_df['mask_wall_u'] = [bool_wall_u if x == 'upper' or 'lower'
-                                        else not bool_wall_u for x in bia_metric_srf_df['wall_type']]
-    mask_df['mask_wall_b'] = [bool_wall_b if x == 'side'
-                                        else not bool_wall_b for x in bia_metric_srf_df['wall_type']]
-
-    mask_df['mask'] = [True if a == True and b == True and c == True and d == True else False
+    mask_df['mask_roof'] = [bool_roof if x == 'roof' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_window'] = [bool_window if x == 'window' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_wall_u'] = [bool_wall_u if x == 'upper' or 'lower' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask_wall_b'] = [bool_wall_b if x == 'side' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask'] = [True if a == True or b == True or c == True or d == True else False
                        for a, b, c, d in zip(mask_df['mask_roof'],
                                              mask_df['mask_window'],
                                              mask_df['mask_wall_u'],
@@ -84,9 +81,9 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
                        ]
 
     # remove the unwanted surfaces
-    bia_metric_srf_df = bia_metric_srf_df[mask_df.mask]
+    bia_metric_srf_df_filterred = bia_metric_srf_df[mask_df['mask']]
 
-    return bia_metric_srf_df
+    return bia_metric_srf_df_filterred
 
 # create aggregated results for each building in one .csv file
 def bia_result_aggregate_write(locator, config, building_name):
@@ -114,20 +111,23 @@ def bia_result_aggregate_write(locator, config, building_name):
     cea_metric_results = pd.read_csv(metric_path)
 
     # merge the two results
-    info_srf_df = cea_dli_results.iloc[:, :15]
+    info_srf_df = cea_dli_results.loc[:, ['AREA_m2', 'total_rad_Whm2', 'TYPE', 'wall_type']]
     bia_metric_srf_df_all = pd.concat([info_srf_df, cea_metric_results], axis=1)
 
     # filter the ones not wanted by the user
-    bia_metric_srf_df_filtered = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)
+    xxx = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)
+    print('wtf', len(xxx), len(bia_metric_srf_df_all), len(cea_metric_results))
+    bia_to_write = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)\
+        .drop(['TYPE', 'wall_type', 'Unnamed: 0'], axis=1).sum(axis=0).to_frame().T
 
     # aggregate each metric for the entire building
-    bia_to_write.insert(loc=0, column='BUILDING', value=[building_name])
+    bia_to_write.insert(loc=0, column='BUILDING', value=building_name)
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total.csv"
     # when the total file has not been created yet, create the file and export the DataFrame
     if not os.path.exists(bia_path):
-        bia_to_write.to_csv(bia_path, index=True, float_format='%.2f', na_rep=0)
+        bia_to_write.to_csv(bia_path, index=False, float_format='%.2f', na_rep=0)
 
     # when the total file has already been created, open the file and add one row at the end
     else:
@@ -150,14 +150,22 @@ def main(config):
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
-    cea.utilities.parallel.vectorize(calc_bia_metric, num_process)(repeat(locator, n),
-                                                                   repeat(config, n),
-                                                                   building_names)
+
+    # # DLI calculations for each surface of each building
+    # cea.utilities.parallel.vectorize(calc_DLI, num_process)\
+    #     (repeat(locator, n), repeat(config, n), building_names)
+    #
+    # # BIA metrics for each surface of each building
+    # cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
+    #     (repeat(locator, n), repeat(config, n), building_names)
 
     # aggregate the results of each building as a 'total' file and write to disk
-    cea.utilities.parallel.vectorize(bia_result_aggregate_write, num_process)(repeat(locator, n),
-                                                                              repeat(config, n),
-                                                                              building_names)
+    # if the file exists, delete it
+    bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total.csv"
+    if os.path.exists(bia_path):
+        os.remove(bia_path)
+    cea.utilities.parallel.vectorize(bia_result_aggregate_write, num_process)\
+        (repeat(locator, n), repeat(config, n), building_names)
 
 if __name__ == '__main__':
     main(cea.config.Configuration())
