@@ -89,7 +89,7 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
     return bia_metric_srf_df
 
 # create aggregated results for each building in one .csv file
-def bia_result_aggregate_write(locator, config, building_names):
+def bia_result_aggregate_write(locator, config, building_name):
     """
     This function aggregates the results of each building as a 'total' file and write to disk.
 
@@ -121,12 +121,7 @@ def bia_result_aggregate_write(locator, config, building_names):
     bia_metric_srf_df_filtered = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)
 
     # aggregate each metric for the entire building
-    bia_to_write = bia_metric_srf_df_filtered[['AREA_m2',
-                                               'yield_kg',
-                                               'capex_usd', 'capex_a_usd', 'opex_usd']]
-    bia_to_write.insert(loc=0, column='BUILDING', value=[building_names])
-    yield_kg_per_sqm = bia_to_write['yield_kg'] / bia_to_write['AREA_m2']
-    bia_to_write.insert(loc=2, column='yield_kg_per_sqm', value=[yield_kg_per_sqm])
+    bia_to_write.insert(loc=0, column='BUILDING', value=[building_name])
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total.csv"
@@ -155,13 +150,14 @@ def main(config):
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
-    # cea.utilities.parallel.vectorize(calc_crop_cycle, num_process)(repeat(config, n), building_names)
     cea.utilities.parallel.vectorize(calc_bia_metric, num_process)(repeat(locator, n),
                                                                    repeat(config, n),
                                                                    building_names)
 
     # aggregate the results of each building as a 'total' file and write to disk
-    bia_result_aggregate_write(locator, config, building_name)
+    cea.utilities.parallel.vectorize(bia_result_aggregate_write, num_process)(repeat(locator, n),
+                                                                              repeat(config, n),
+                                                                              building_names)
 
 if __name__ == '__main__':
     main(cea.config.Configuration())

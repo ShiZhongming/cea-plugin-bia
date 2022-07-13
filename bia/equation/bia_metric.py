@@ -19,6 +19,7 @@ from multiprocessing import Pool
 
 import pandas as pd
 from geopandas import GeoDataFrame as gdf
+import numpy as np
 
 import cea.utilities.parallel
 from cea.constants import HOURS_IN_YEAR
@@ -72,7 +73,7 @@ def calc_bia_metric(locator, config, building_name):
     # the yields [kg/year] for the selected crop type on each building envelope surface
     # plus yields per square metre [kg/sqm/year] building surface area
     print('Calculating yields (kg) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
-    yield_srf, yield_srf_per_sqm = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf)
+    yield_srf_df = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf)
 
     # activate the function that calculates
     # the environmental impacts (ghg emissions, energy consumption, water consumption)
@@ -80,29 +81,22 @@ def calc_bia_metric(locator, config, building_name):
     print('Calculating GHG emissions (kg CO2-equ), energy consumption (kWh), water consumption (L)) for {type_crop}'
           .format(type_crop=config.agriculture.type_crop))
     env_impacts_srf_df = calc_crop_environmental_impact(locator, config, building_name,
-                                                        cea_dli_results, date_srf, yield_srf)
+                                                        cea_dli_results, date_srf, yield_srf_df)
 
     # activate the function that calculates
     # the CAPEX (USD per kg vegetable), OPEX (USD per kg vegetable) in USD
     # for the selected crop type on each building envelope surface
     print('Calculating capital operational costs (USD) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
-    capex_srf, capex_a_srf, opex_srf = calc_crop_cost(locator, config, building_name,
-                                                      cea_dli_results, cycl_srf, cycl_i_srf, yield_srf)
+    costs_srf_df = calc_crop_cost(locator, config, building_name,
+                                  cea_dli_results, cycl_srf, cycl_i_srf, yield_srf_df, env_impacts_srf_df)
 
     # merge the results as a DataFrame
-    bia_metric_srf_df = env_impacts_srf_df
-    bia_metric_srf_df['yield_kg'] = yield_srf
-    bia_metric_srf_df['yield_kg_per_sqm'] = yield_srf_per_sqm
-    bia_metric_srf_df['capex_usd'] = capex_srf
-    bia_metric_srf_df['capex_a_usd'] = capex_a_srf
-    bia_metric_srf_df['opex_usd'] = opex_srf
+    bia_metric_srf_df = pd.concat([yield_srf_df, env_impacts_srf_df, costs_srf_df], axis=1)
 
     # write the BIA results (all non-filtered surface)
     output_path = config.scenario + \
                   "/outputs/data/potentials/agriculture/{building}_BIA_metrics.csv".format(building=building_name)
-    bia_metric_srf_df.to_csv(output_path, index=True,
-                                            float_format='%.2f',
-                                            na_rep=0)
+    bia_metric_srf_df.to_csv(output_path, index=True, float_format='%.2f', na_rep=0)
 
     print('BIA assessments for each surface on Building', building_name,
           'done - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
@@ -127,11 +121,11 @@ def locate_sce(latitude, longitude):
 
     if latitude > 23.5:
         zone_sce = 'zone_north'
-    if 0 <= latitude <= 23.5:
+    elif 0 <= latitude <= 23.5:
         zone_sce = 'zone_cancer'
-    if -23.5 <= latitude < 0:
+    elif -23.5 <= latitude < 0:
         zone_sce = 'zone_capricorn'
-    if latitude < -23.5:
+    else:
         zone_sce = 'zone_south'
 
     return zone_sce
@@ -255,7 +249,7 @@ def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
         for surface in range(len(date_srf)):
             date_to_split = date_srf[surface]
             # January 1 to January 15, wet
-            list_1 = [x for x in date_to_split if 0 < x < date_w_d_jan].sort()
+            list_1 = [x for x in date_to_split if 0 < x < date_w_d_jan]
             # January 16 to May 31, dry
             list_2 = [x for x in date_to_split if date_w_d_jan <= x < date_d_w_may]
             # June 1 to September 30, wet
@@ -328,11 +322,6 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     yield_srf_per_sqm = []
     # at least 1 surface is eligible to grow the selected crop type
 
-    print('lenxxx', len(cycl_srf))
-    print('lenxxx', len(date_srf))
-    print('lenxxx', len(cycl_i_srf))
-    print('lenxxx', len(cycl_o_srf))
-
     if not cycl_bld_annual == 0:
 
         # annual yield of the selected crops in grams for each building surface
@@ -394,16 +383,25 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
             yield_srf.append(yield_g/1000)  # record the results and convert to kilograms
             yield_srf_per_sqm.append(yield_g/1000/area)
 
+        # merged the results for each surface in DataFrame
+        data = np.array_split(yield_srf + yield_srf_per_sqm, 2)
+
+        yield_srf_df = pd.DataFrame(data).T.fillna(0)
+        column_name = ['yield_kg_per_year', 'yield_kg_per_sqm_per_year']
+        yield_srf_df.columns = column_name
+
     # no surface is eligible to grow the selected crop type
     else:  # No surface meets the minimum DLI requirement of the selected crop type
-        print("Unfortunately, {type_crop} is unlikely to grow on the BIA-permissible surfaces on the roof and facade "
+        print("Unfortunately, {type_crop} is unlikely to grow on any of the surfaces "
               "of Building {building_name}".format(type_crop=type_crop, building_name=building_name))
         pass
 
-    return yield_srf, yield_srf_per_sqm
+    # print('yield_srf_df_xxxx', yield_srf_df)
+
+    return yield_srf_df
 
 # calculate ghg emissions for each surface, crop as a produce
-def calc_crop_environmental_impact(locator, config, building_name, cea_dli_results, date_srf, yield_srf):
+def calc_crop_environmental_impact(locator, config, building_name, cea_dli_results, date_srf, yield_srf_df):
 
     """
     This function calculates the GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre)
@@ -436,7 +434,7 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
 
     # read crop properties in the BIA database for the selected crop type
     env_properties = calc_properties_env_db(config)
-    print("Gathering the environmental impacts data of {type_crop}.".format(type_crop=type_crop))
+    # print("Gathering the environmental impacts data of {type_crop}.".format(type_crop=type_crop))
 
     # gather the orientation information [e(ast), w(est), s(outh), n(orth)] for each building surface
     orie_srf = cea_dli_results['orientation'].tolist()  # west, east, north, south
@@ -446,14 +444,18 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     crop_grow_sce = env_properties['scenario'].tolist()
 
     # the three metrics for Deloitte/TEMASEK/A-star report
-    for sce in crop_grow_sce:
-        ghg_kg_co2_per_kg_sce = env_properties[env_properties['scenario'] == sce]['ghg_total']
-        energy_kWh_per_kg_sce = env_properties[env_properties['scenario'] == sce]['energy_total']
-        water_litres_per_kg_sce = env_properties[env_properties['scenario'] == sce]['water_total']
+    ghg_srf_sce_all = []
+    energy_srf_sce_all = []
+    water_srf_sce_all = []
 
-        ghg_srf_sce_all = []
-        energy_srf_sce_all = []
-        water_srf_sce_all = []
+    # get the yield results
+    yield_srf = yield_srf_df['yield_kg_per_year'].tolist()
+
+    # the six baseline scenarios
+    for sce in crop_grow_sce:
+        ghg_kg_co2_per_kg_sce = env_properties[env_properties['scenario'] == sce]['ghg_total'].values[0]
+        energy_kWh_per_kg_sce = env_properties[env_properties['scenario'] == sce]['energy_total'].values[0]
+        water_litres_per_kg_sce = env_properties[env_properties['scenario'] == sce]['water_total'].values[0]
 
         # GHG-related calculations
         ghg_srf_sce = [srf * ghg_kg_co2_per_kg_sce for srf in yield_srf]     #scenarios in the database
@@ -493,26 +495,26 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     for surface in range(len(orie_srf)):
         orie = orie_srf[surface]
         area = area_srf[surface]
+        n_day_wet = n_day_wet_srf[surface]
+        n_day_dry = n_day_dry_srf[surface]
 
         if orie == 'east':
-            water_litres = water_litres_per_sqm_w * (n_day_wet_srf + n_day_dry_srf) * area
+            water_litres = water_litres_per_sqm_w * (n_day_wet + n_day_dry) * area
 
-        if orie == 'west':
+        elif orie == 'west':
             water_litres = 0
 
-        if orie == 'south' or 'north':
-            water_litres = n_day_dry_srf * water_litres_per_sqm_d * area
+        else:
+            water_litres = water_litres_per_sqm_d * n_day_dry * area
 
         water_srf_bia.append(water_litres)  # record the results and convert to kilograms
 
     # merged the (6+1) scenarios for each surface in DataFrame
-    data = list(chuncks(ghg_srf_sce_all + energy_srf_sce_all + water_srf_sce_all +
-                        ghg_srf_bia + energy_srf_bia + water_srf_bia),
-                len(orie_srf))
-
-    env_impacts_srf_df = pd.DataFrame(data)
+    data = ghg_srf_sce_all + [ghg_srf_bia] + energy_srf_sce_all + [energy_srf_bia] + water_srf_sce_all + [water_srf_bia]
+    env_impacts_srf_df = pd.DataFrame(data).T.fillna(0)
 
     # create the column names for the DataFrame
+    crop_grow_sce.append('bia')
     column_name = []
     for metrics in ['ghg_kg_co2', 'energy_kWh', 'water_l']:
         head = []
@@ -524,11 +526,14 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     column_name = [x for xs in column_name for x in xs]
     env_impacts_srf_df.columns = column_name
 
+    print('env_impacts_srf_df_xxxx', env_impacts_srf_df)
+
     return env_impacts_srf_df
 
 
 # calculate the costs (CAPEX, OPEX, market price of the yields) for each surface
-def calc_crop_cost(locator, config, building_name, cea_dli_results, cycl_srf, cycl_i_srf, yield_srf):
+def calc_crop_cost(locator, config, building_name,
+                   cea_dli_results, cycl_srf, cycl_i_srf, yield_srf_df, env_impacts_srf_df):
     """
     This function calculates the CAPEX in USD (infrastructure) for each surface.
 
@@ -538,7 +543,7 @@ def calc_crop_cost(locator, config, building_name, cea_dli_results, cycl_srf, cy
     :param building_name: list of building names in the case study
     :type building_name: Series
 
-    :return: DataFrame with CAPEX (infrastructure) for each building envelope surface.
+    :return: DataFrame with CAPEX (infrastructure + soil) for each building envelope surface.
 
     """
 
@@ -551,43 +556,88 @@ def calc_crop_cost(locator, config, building_name, cea_dli_results, cycl_srf, cy
     # sgd to usd
     ex_sgd_usd = 1.40       # July 9, 2022
 
+    # water price in Singapore, assumption monthly usage above 40 cubic metres
+    water_price_USD_per_l = 3.69 / ex_sgd_usd  # https://www.pub.gov.sg/watersupply/waterprice
+
     # read cost properties in the BIA database for the selected crop type
     cost_properties = calc_properties_cost_db(config)
     print("Gathering the expenditure information for {type_crop}.".format(type_crop=type_crop))
-    Inv_IR_perc = cost_properties.get('IR_%')      # interest rate
-    Inv_LT = cost_properties.get('LT_yr')       # lifetime in years
+    Inv_IR_perc = cost_properties.get('IR_%').values[0]      # interest rate
+    Inv_LT = cost_properties.get('LT_yr').values[0]      # lifetime in years
     shelf_USD_per_sqm = cost_properties.get(
-        'shelf_sgd_sqm') / ex_sgd_usd     # initial investment (shelf + soil) per square meter surface area in USD/sqm
+        'shelf_sgd_sqm').values[0] / ex_sgd_usd     # infrastructure cost per square meter surface area in USD/sqm
     soil_USD_per_sqm = cost_properties.get(
-        'soil_sgd_sqm') / ex_sgd_usd     # initial investment (shelf + soil) per square meter surface area in USD/sqm
+        'soil_sgd_sqm').values[0] / ex_sgd_usd     # soil cost per square meter surface area in USD/sqm
     seed_USD_per_sqm = cost_properties.get(
-        'seed_sgd_sqm') / ex_sgd_usd     # seed cost per square meter surface area in USD/sqm
+        'seed_sgd_sqm').values[0] / ex_sgd_usd     # seed cost per square meter surface area in USD/sqm
     pesticide_USD_per_sqm = cost_properties.get(
-        'pesticide_sgd_sqm') / ex_sgd_usd    # pesticide cost per square meter surface area in USD/sqm
+        'pesticide_sgd_sqm').values[0] / ex_sgd_usd    # pesticide cost per square meter surface area in USD/sqm
     fertilizer_USD_per_sqm = cost_properties.get(
-        'fertilizer_sgd_sqm') / ex_sgd_usd   # fertilizer cost per square meter surface area in USD/sqm
+        'fertilizer_sgd_sqm').values[0] / ex_sgd_usd   # fertilizer cost per square meter surface area in USD/sqm
     market_price_USD_per_kg = cost_properties.get(
-        'mkt_sg_sgd_kg') / ex_sgd_usd   # fertilizer cost per square meter surface area in USD/sqm
+        'mkt_sg_sgd_kg').values[0] / ex_sgd_usd   # fertilizer cost per square meter surface area in USD/sqm
 
-    # CAPEX and OPEX of the selected crops in grams for each building surface
+    # BIA's CAPEX and OPEX for each building surface
+    capex_infrastructure_srf = []
+    capex_soil_srf = []
+    capex_all_srf = []
+    capex_all_a_srf = []
+    opex_seed_a_srf = []
+    opex_pesticide_a_srf = []
+    opex_fertilizer_a_srf = []
+    opex_water_a_srf = []
+    opex_sell_a_srf = []
+    opex_all_a_srf = []
+
     for surface in range(len(area_srf)):
-        cycl = cycl_srf[surface]        # number of total cycles annually
-        cycl_i = cycl_i_srf[surface]      # number of initial cycles
+        cycl = sum(cycl_srf[surface])        # number of total cycles annually
+        cycl_i = sum(cycl_i_srf[surface])     # number of initial cycles
         area = area_srf[surface]        # area of the surface in sqm
+        yield_bia = yield_srf_df['yield_kg_per_year'].tolist()[surface]
+        water_bia = env_impacts_srf_df['water_l_bia'].tolist()[surface]
 
-        capex = shelf_USD_per_sqm * area + soil_USD_per_sqm * area   # initial capital expenditure in USD
-        capex_a = calc_capex_annualized(capex, Inv_IR_perc, Inv_LT)       # annualised capital expenditure in USD/year
+        capex_infrastructure = shelf_USD_per_sqm * area
+        capex_soil = soil_USD_per_sqm * area
+        capex_all = capex_infrastructure + capex_soil   # initial capital cost in USD
+        capex_all_a = calc_capex_annualized(capex_all, Inv_IR_perc, Inv_LT)     # annualised capital cost in USD/year
 
-        opex = seed_USD_per_sqm * area * cycl_i + \
-               pesticide_USD_per_sqm * area * cycl + \
-               fertilizer_USD_per_sqm * area * cycl - \
-               market_price_USD_per_kg * yield_srf
+        opex_seed_a = seed_USD_per_sqm * area * cycl_i
+        opex_pesticide_a = pesticide_USD_per_sqm * area * cycl
+        opex_fertilizer_a = fertilizer_USD_per_sqm * area * cycl
+        opex_water_a = water_price_USD_per_l * water_bia
+        opex_sell_a = -1 * market_price_USD_per_kg * yield_bia
+        opex_all_a = opex_seed_a + opex_pesticide_a + opex_fertilizer_a + \
+                     opex_water_a + opex_sell_a  # annual operational cost in USD/year
 
-        capex_srf.append(capex)
-        capex_a_srf.append(capex_a)
-        opex_srf.append(opex)
+        capex_infrastructure_srf.append(capex_infrastructure)
+        capex_soil_srf.append(capex_soil)
+        capex_all_srf.append(capex_all)
+        capex_all_a_srf.append(capex_all_a)
+        opex_seed_a_srf.append(opex_seed_a)
+        opex_pesticide_a_srf.append(opex_pesticide_a)
+        opex_fertilizer_a_srf.append(opex_fertilizer_a)
+        opex_water_a_srf.append(opex_water_a)
+        opex_sell_a_srf.append(opex_sell_a)
+        opex_all_a_srf.append(opex_all_a)
 
-    return capex_srf, capex_a_srf, opex_srf
+    # merged the results for each surface in DataFrame
+    data = np.array_split(capex_infrastructure_srf + capex_soil_srf +
+                          capex_all_a_srf + capex_all_a_srf +
+                          opex_seed_a_srf + opex_pesticide_a_srf + opex_fertilizer_a_srf + opex_water_a_srf +
+                          opex_sell_a_srf +
+                          opex_all_a_srf,
+                          10)
+    costs_srf_df = pd.DataFrame(data).T.fillna(0)
+    column_name = ['capex_infrastructure_USD', 'capex_soil_USD',
+                   'capex_all_USD', 'capex_all_annualised_USD',
+                   'opex_seed_USD_per_year', 'opex_pesticide_USD_per_year',
+                   'opex_fertilizer_USD_per_year', 'opex_water_USD_per_year',
+                   'opex_sell_USD_per_year',
+                   'opex_all_USD_per_year'
+                   ]
+    costs_srf_df.columns = column_name
+
+    return costs_srf_df
 
 
 

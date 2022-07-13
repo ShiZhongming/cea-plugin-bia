@@ -94,7 +94,8 @@ def calc_properties_env_db(config):
 
     type_crop = config.agriculture.type_crop
     data = pd.read_excel(database_path, sheet_name="env")
-    env_properties = data[data['type_crop'] == type_crop]
+    # baseline scenario now only contains lettuce as an example; more to be added
+    env_properties = data[data['type_crop'] == 'lettuce']
 
     return env_properties
 
@@ -271,7 +272,7 @@ def calc_crop_cycle(config, building_name):
                 len_season = [365 if len(x) > 365 else len(x) for x in season_crop]
 
         else:
-            len_season = []
+            len_season = [0]
 
         season_srf.append(len_season)
         date_srf.append(day_srf)
@@ -331,7 +332,7 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
 
         # number of cycles when plant can grow full life
         n_full_life = [x // crop_life for x in day_season]
-        n_cycl_season = [x * n_cycl for x in n_full_life] # full life
+        n_cycl_season = [x * n_cycl for x in n_full_life]   # full life
 
         # remainder days for non-full life
         day_non_full_life = [x - crop_life * y for x, y in zip(day_season,
@@ -346,7 +347,7 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
         cycl_srf.append(n_cycl_season)
 
         # number of initial cycles in each season
-        n_i_cycl = [-1 * (x // n_cycl) for x in n_cycl_season]
+        n_i_cycl = [abs(-1 * (x // n_cycl)) for x in n_cycl_season]
         cycl_i_srf.append(n_i_cycl)
 
         # number of subsequent cycles in each season

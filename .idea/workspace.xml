@@ -5,9 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/bia_assessment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_assessment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_crop_cycle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/equation/bia_data.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_data.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/equation/bia_metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_metric.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/schemas.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bia/schemas.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +93,7 @@
       <workItem from="1647462326946" duration="5758000" />
       <workItem from="1654774963679" duration="99732000" />
       <workItem from="1657110778054" duration="517000" />
-      <workItem from="1657146375630" duration="22444000" />
+      <workItem from="1657146375630" duration="34911000" />
     </task>
     <servers />
   </component>
