@@ -28,7 +28,7 @@ from cea.utilities.standardize_coordinates import get_lat_lon_projected_shapefil
 from cea.analysis.costs.equations import calc_capex_annualized, calc_opex_annualized
 
 from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
-    calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db
+    calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db, calc_n_cycle_season
 
 
 __author__ = "Zhongming Shi"
@@ -147,7 +147,7 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
     :type zone_sce: string
 
     """
-
+    # print('uiu', date_srf)
     cycl_i_srf = []     # inside the two tipping days
     cycl_o_srf = []     # outside the two tipping days
 
@@ -175,37 +175,48 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
 
         for surface in range(len(date_srf)):
             date_to_split = date_srf[surface]
+
             # between the two dates, north surfaces are facing the sun
-            list_1 = [x for x in date_to_split if tipping_date_2 < x < tipping_date_1].sort()
+            list_1 = [x for x in date_to_split if tipping_date_2 < x < tipping_date_1]
             # not-between the two dates, south surface are facing the sun
-            list_2 = [x for x in date_to_splitif if not tipping_date_2 < x < tipping_date_1].sort()
+            list_2 = [x for x in date_to_split if not tipping_date_2 < x < tipping_date_1]
 
             # true if between the two dates (north surfaces are facing the sun)
             # false if not-between the two dates (south surfaces are facing the sun)
-            mask = [True for x in date_to_split if tipping_date_2 < x < tipping_date_1].sort()
+            # mask = [True for x in date_to_split if tipping_date_2 < x < tipping_date_1].sort()
 
             # calculate the number of days in each season between the two tipping dates
-            season_crop_1 = calc_chunk_day_crop(list_1)
-            len_season_1 = [len(x) for x in season_crop_1]
-            season_srf_1.append(len_season_1)
+            # if such number of days does not equal to zero
+            if list_1:
+                season_crop_1 = calc_chunk_day_crop(list_1)
+                len_season_1 = [len(x) for x in season_crop_1]
+                season_srf_1.append(len_season_1)
+
+            else:
+                season_srf_1.append([0])
 
             # calculate the number of days in each season outside the two tipping dates
-            season_crop_2 = calc_chunk_day_crop(list_2)
-            len_season_2 = [len(x) for x in season_crop_2]
+            # if such number of days does not equal to zero
+            if list_2:
+                season_crop_2 = calc_chunk_day_crop(list_2)
+                len_season_2 = [len(x) for x in season_crop_2]
 
-            # when the beginning and the end of each year are connected as a single season
-            if list_2[0] == 0 and list_2[-1] == 364:
-                # remove the original first and last season: then add the merged season at the end of the list
-                merged_season_2 = len_season_2[0] + len_season_2[-1]
-                len_season_2.pop(-1)  # remove the original last season
-                len_season_2.pop(0)   # remove the original first season
-                len_season_2.append(merged_season_2)    # add the newly merged season at the end of the seasons
+                # when the beginning and the end of each year are connected as a single season
+                if list_2[0] == 0 and list_2[-1] == 364:
+                    # remove the original first and last season: then add the merged season at the end of the list
+                    merged_season_2 = len_season_2[0] + len_season_2[-1]
+                    len_season_2.pop(-1)  # remove the original last season
+                    len_season_2.pop(0)  # remove the original first season
+                    len_season_2.append(merged_season_2)  # add the newly merged season at the end of the seasons
 
-            season_srf_2.append(len_season_2)
+                season_srf_2.append(len_season_2)
+
+            else:
+                season_srf_2.append([0])
 
         # Calculate the number of growth cycles for each building surface
-        cycl_i_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf_1)
-        cycl_o_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf_2)
+        cycl_i_srf, cycl_i_i_srf, cycl_i_s_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf_1)
+        cycl_o_srf, cycl_o_i_srf, cycl_o_s_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf_2)
 
     return cycl_i_srf, cycl_o_srf
 
@@ -229,14 +240,17 @@ def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
     n_day_dry_srf = []
 
     # if the scenario is not located in the tropics
-    if not -5 <= latitude <= 5 and 100 <= longitude <= 105:
-        pass        # do nothing if the scenario is not near Singapore
+    if not ((-5 <= latitude <= 5) and (100 <= longitude <= 105)):
+        print('The building is located far away from Singapore. '
+              'No data available for the water usage in this location.')
+    # do nothing if the scenario is not near Singapore
 
     # if the scenario is located near Singapore
     # count the days of wet/dry periods for each building surface
     else:
         # the four tipping dates (non-leap year) for changing the seasons (wet/dry)
         # reference: meteorological service singapore, SGP gov http://www.weather.gov.sg/climate-climate-of-singapore/
+        print('The building is located near Singapore. Hence, it applies the same dry/wet seasons.')
 
         date_d_w_dec = 334  # december 1
         date_w_d_jan = 14   # January 15
@@ -317,6 +331,8 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     # differentiate the cycles as facing and back from the sun for south/north building surfaces
     # when they are located in the tropics of cancer and capricorn
     cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties)
+    print('cycl_i_srf_ooo', cycl_i_srf)
+    print('cycl_o_srf_ooo', cycl_o_srf)
 
     yield_srf = []
     yield_srf_per_sqm = []
@@ -395,8 +411,6 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
         print("Unfortunately, {type_crop} is unlikely to grow on any of the surfaces "
               "of Building {building_name}".format(type_crop=type_crop, building_name=building_name))
         pass
-
-    # print('yield_srf_df_xxxx', yield_srf_df)
 
     return yield_srf_df
 
@@ -492,22 +506,28 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     latitude, longitude = get_lat_lon_projected_shapefile(zone_geometry_df)     # get the lat and lon
     n_day_wet_srf, n_day_dry_srf = day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf)
 
+
     for surface in range(len(orie_srf)):
-        orie = orie_srf[surface]
-        area = area_srf[surface]
-        n_day_wet = n_day_wet_srf[surface]
-        n_day_dry = n_day_dry_srf[surface]
+        # if near Singapore and we know the dry and wet seasons
+        if n_day_dry_srf and n_day_wet_srf:
+            orie = orie_srf[surface]
+            area = area_srf[surface]
+            n_day_wet = n_day_wet_srf[surface]
+            n_day_dry = n_day_dry_srf[surface]
 
-        if orie == 'east':
-            water_litres = water_litres_per_sqm_w * (n_day_wet + n_day_dry) * area
+            if orie == 'east':
+                water_litres = water_litres_per_sqm_w * (n_day_wet + n_day_dry) * area
 
-        elif orie == 'west':
-            water_litres = 0
+            elif orie == 'west':
+                water_litres = 0
+
+            else:
+                water_litres = water_litres_per_sqm_d * n_day_dry * area
+
+            water_srf_bia.append(water_litres)  # record the results and convert to kilograms
 
         else:
-            water_litres = water_litres_per_sqm_d * n_day_dry * area
-
-        water_srf_bia.append(water_litres)  # record the results and convert to kilograms
+            water_srf_bia.append(0)
 
     # merged the (6+1) scenarios for each surface in DataFrame
     data = ghg_srf_sce_all + [ghg_srf_bia] + energy_srf_sce_all + [energy_srf_bia] + water_srf_sce_all + [water_srf_bia]
@@ -525,8 +545,6 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
 
     column_name = [x for xs in column_name for x in xs]
     env_impacts_srf_df.columns = column_name
-
-    print('env_impacts_srf_df_xxxx', env_impacts_srf_df)
 
     return env_impacts_srf_df
 

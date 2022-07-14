@@ -65,20 +65,19 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
     bool_wall_u = config.agriculture.crop_on_wall_under_window
     bool_wall_b = config.agriculture.crop_on_wall_between_window
 
-    print('bool', bool_roof, bool_window, bool_wall_u, bool_wall_b)
-
     # create the mask based the user input
-    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window', 'mask_wall_u', 'mask_wall_b', 'mask'])
-    mask_df['mask_roof'] = [bool_roof if x == 'roof' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
-    mask_df['mask_window'] = [bool_window if x == 'window' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
-    mask_df['mask_wall_u'] = [bool_wall_u if x == 'upper' or 'lower' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window', 'mask_wall_upper', 'mask_wall_lower', 'mask_wall_b', 'mask'])
+    mask_df['mask_roof'] = [bool_roof if x == 'roofs' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_window'] = [bool_window if x == 'windows' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_wall_upper'] = [bool_wall_u if x == 'upper' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask_wall_lower'] = [bool_wall_u if x == 'lower' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
     mask_df['mask_wall_b'] = [bool_wall_b if x == 'side' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
-    mask_df['mask'] = [True if a == True or b == True or c == True or d == True else False
-                       for a, b, c, d in zip(mask_df['mask_roof'],
+    mask_df['mask'] = [True if a == True or b == True or c == True or d == True or e == True else False
+                       for a, b, c, d, e in zip(mask_df['mask_roof'],
                                              mask_df['mask_window'],
-                                             mask_df['mask_wall_u'],
-                                             mask_df['mask_wall_b'])
-                       ]
+                                             mask_df['mask_wall_upper'],
+                                             mask_df['mask_wall_lower'],
+                                             mask_df['mask_wall_b'])]
 
     # remove the unwanted surfaces
     bia_metric_srf_df_filterred = bia_metric_srf_df[mask_df['mask']]
@@ -115,8 +114,6 @@ def bia_result_aggregate_write(locator, config, building_name):
     bia_metric_srf_df_all = pd.concat([info_srf_df, cea_metric_results], axis=1)
 
     # filter the ones not wanted by the user
-    xxx = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)
-    print('wtf', len(xxx), len(bia_metric_srf_df_all), len(cea_metric_results))
     bia_to_write = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)\
         .drop(['TYPE', 'wall_type', 'Unnamed: 0'], axis=1).sum(axis=0).to_frame().T
 

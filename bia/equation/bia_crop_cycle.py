@@ -234,7 +234,7 @@ def calc_crop_cycle(config, building_name):
     for j in range(cycl_i_day):
         other_day = [[x + j for x in y] for y in first_day]
         day_crop = [x + y for x, y in zip(day_crop, other_day)]     # with repeated days
-    # print('zzzz', day_crop)
+
     day_crop = [list(set(x)) for x in day_crop]     # remove the repeated days
 
     # Calculate the length (in number of days) of each season
@@ -277,16 +277,15 @@ def calc_crop_cycle(config, building_name):
         season_srf.append(len_season)
         date_srf.append(day_srf)
 
-    # print('season_srf', season_srf)
-    # print('len', len(season_srf))
-    # print('date_srf', date_srf)
+    # print('season_srf_iiiu', season_srf)
+    # print('len_iii', len(season_srf))
+    # print('date_srf_iii', date_srf)
     # print('len_date', len(date_srf))
     # print('len_season_srf', len(season_srf))
     # print('n_surface', n_surface)
 
     # Calculate the number of growth cycles for each building surface
     cycl_srf, cycl_i_srf, cycl_s_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
-    # print('cycl_srf', cycl_srf)
 
     return season_srf, cycl_srf, date_srf, cycl_i_srf, cycl_s_srf
 
