@@ -24,7 +24,8 @@ from cea.resources.radiation_daysim import daysim_main, geometry_generator
 
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2021, Future Cities Laboratory, Singapore - ETH Zurich"
+__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
+                "University of Calgary, Alberta, Canada"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
@@ -302,11 +303,13 @@ def filter_low_potential(radiation_json_path, metadata_csv_path, config):
     sensors_metadata.set_index('SURFACE', inplace=True)
     sensors_metadata = sensors_metadata.merge(sensors_rad_sum, left_index=True, right_index=True)  # [Wh/m2]
 
-    # keep sensors if allow pv installation on walls or on roofs
+    # keep sensors if allow bia installation on walls or on roofs
     if config.agriculture.crop_on_roof is False:
         sensors_metadata = sensors_metadata[sensors_metadata.TYPE != 'roofs']
-    if config.agriculture.crop_on_wall is False:
-        sensors_metadata = sensors_metadata[sensors_metadata.TYPE != 'walls']
+    if config.agriculture.crop_on_wall_under_window is False:
+        sensors_metadata = sensors_metadata[sensors_metadata.wall_type != 'upper' or 'lower']
+    if config.agriculture.crop_on_wall_between_window is False:
+        sensors_metadata = sensors_metadata[sensors_metadata.wall_type != 'side']
 
     # set min yearly radiation threshold for sensor selection
     # keep sensors above min production in sensors_rad
