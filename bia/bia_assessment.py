@@ -116,14 +116,17 @@ def bia_result_aggregate_write(locator, config, building_name):
 
     # filter the ones not wanted by the user
     bia_to_write = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)\
-        .drop(['TYPE', 'wall_type', 'Unnamed: 0', 'yield_kg_per_sqm_per_year'], axis=1).sum(axis=0).to_frame().T
+        .drop(['TYPE', 'wall_type', 'Unnamed: 0', 'yield_kg_per_sqm_per_year', 'total_rad_Whm2'], axis=1)\
+        .sum(axis=0)\
+        .to_frame()\
+        .T
 
     # recalculate the yield per square metre
     yield_kg_per_sqm_per_year = bia_to_write['yield_kg_per_year'] / bia_to_write['AREA_m2']
 
     # aggregate each metric for the entire building
     bia_to_write.insert(loc=0, column='BUILDING', value=building_name)
-    bia_to_write.insert(loc=4, column='yield_kg_per_sqm_per_year', value=yield_kg_per_sqm_per_year)
+    bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year', value=yield_kg_per_sqm_per_year)
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total.csv"
@@ -134,11 +137,13 @@ def bia_result_aggregate_write(locator, config, building_name):
     # when the total file has already been created, open the file and add one row at the end
     else:
         row = bia_to_write.iloc[0].tolist()     # list of content to append
+        row_hundredth = [round(float(num), 2) for num in row[1:]]
+        row_hundredth.insert(0, row[0])
 
         with open(bia_path, 'a') as f_object:
 
             writer_object = writer(f_object)
-            writer_object.writerow(row)
+            writer_object.writerow(row_hundredth)
             f_object.close()   # Close the file object
 
 
@@ -153,13 +158,13 @@ def main(config):
     num_process = config.get_number_of_processes()
     n = len(building_names)
 
-    # DLI calculations for each surface of each building
-    cea.utilities.parallel.vectorize(calc_DLI, num_process)\
-        (repeat(locator, n), repeat(config, n), building_names)
-
-    # BIA metrics for each surface of each building
-    cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
-        (repeat(locator, n), repeat(config, n), building_names)
+    # # DLI calculations for each surface of each building
+    # cea.utilities.parallel.vectorize(calc_DLI, num_process)\
+    #     (repeat(locator, n), repeat(config, n), building_names)
+    #
+    # # BIA metrics for each surface of each building
+    # cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
+    #     (repeat(locator, n), repeat(config, n), building_names)
 
     # aggregate the results of each building as a 'total' file and write to disk
     # if the file exists, delete it
