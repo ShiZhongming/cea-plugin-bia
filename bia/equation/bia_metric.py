@@ -72,7 +72,7 @@ def calc_bia_metric(locator, config, building_name):
     # activate the function that calculates
     # the yields [kg/year] for the selected crop type on each building envelope surface
     # plus yields per square metre [kg/sqm/year] building surface area
-    print('Calculating yields (kg) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
+    print('Calculating yields (kg) for {type_crop}.'.format(type_crop=config.agriculture.type_crop))
     yield_srf_df = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf)
 
     # activate the function that calculates
@@ -356,8 +356,6 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     # differentiate the cycles as facing and back from the sun for south/north building surfaces
     # when they are located in the tropics of cancer and capricorn
     cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties)
-    print('cycl_i_srf_ooo', cycl_i_srf)
-    print('cycl_o_srf_ooo', cycl_o_srf)
 
     yield_srf = []
     yield_srf_per_sqm = []
@@ -483,7 +481,6 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
 
     # read crop properties in the BIA database for the selected crop type
     env_properties = calc_properties_env_db(config)
-    # print("Gathering the environmental impacts data of {type_crop}.".format(type_crop=type_crop))
 
     # gather the orientation information [e(ast), w(est), s(outh), n(orth)] for each building surface
     orie_srf = cea_dli_results['orientation'].tolist()  # west, east, north, south
@@ -629,7 +626,6 @@ def calc_crop_cost(locator, config, building_name,
 
     # read cost properties in the BIA database for the selected crop type
     cost_properties = calc_properties_cost_db(config)
-    print("Gathering the expenditure information for {type_crop}.".format(type_crop=type_crop))
     Inv_IR_perc = cost_properties.get('IR_%').values[0]      # interest rate
     Inv_LT = cost_properties.get('LT_yr').values[0]      # lifetime in years
     shelf_USD_per_sqm = cost_properties.get(

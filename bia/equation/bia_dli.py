@@ -63,18 +63,15 @@ def calc_DLI(locator, config, building_name):
     t0 = time.perf_counter()
     radiation_path = locator.get_radiation_building_sensors(building_name)
     metadata_csv_path = locator.get_radiation_metadata(building_name)
-    #print('reading solar radiation simulation results done')
 
     # select sensor point with sufficient solar radiation
     max_annual_radiation, annual_radiation_threshold, sensors_rad_clean, sensors_metadata_clean = \
         filter_low_potential(radiation_path, metadata_csv_path, config)
-    #print('filtering low potential sensor points done')
 
 
     if not sensors_metadata_clean.empty:
         # convert solar radiation to DLI
         sensors_DLI_daily = calc_Whperm2_molperm2(sensors_rad_clean).T
-        #print('calculating (daily) DLI for each sensor')
 
         # label the sensors by their #floor and wall type (lower, upper, and sideX2)
         sensors_wall_type = calc_sensor_wall_type(locator, sensors_metadata_clean, building_name)
@@ -91,7 +88,7 @@ def calc_DLI(locator, config, building_name):
         output_path = dir + "/{building}_DLI_daily.csv".format(building=building_name)
         sensors_metadata_clean_DLI_daily.to_csv(output_path, index=True,
                                     float_format='%.2f',
-                                    na_rep=0)  # print sensors metadata and daily DLI
+                                    na_rep=0)  # write sensors metadata and daily DLI
 
         print('Calculations of DLI for each sensor on Building', building_name, 'done - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
 
