@@ -1,10 +1,11 @@
 from setuptools import setup, find_packages
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich"
+__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
+                "University of Calgary, Alberta, Canada"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
-__version__ = "1.0.1"
+__version__ = "1.1"
 __maintainer__ = "Zhongming Shi"
 __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
@@ -15,11 +16,15 @@ setup(name='cea_plugin_bia',
       description="A plugin for the City Energy Analyst: building-integrated agriculture extensions",
       license='MIT',
       author='Zhongming Shi',
-      author_email='cea@arch.ethz.ch',
+      author_email='zhongming.shi@ucalgary.ca',
       url='https://github.com/shizhongming/cea-plugin-bia',
       long_description="A plugin for the City Energy Analyst: building-integrated agriculture (BIA) extensions."
-                       "As of March 14, 2022, this plug-in calculates the DLI of each building envelope surface"
-                       "Soon-to-come functionality includes BIA crop yield calculation",
+                       "Calculates crop yields (kg), environmental impacts including GHG Emissions (kg CO2-eq), "
+                       "energy (kWh) and water use (litre), costs including capital and operational expenditures (USD) "
+                       "for the selected crop type on the selected building envelope surface. As of July 14, 2022,"
+                       "this plugin works the best for Singapore or its adjacent regions as the planting data have"
+                       "been acquired from the Tropical Technologies (T2) Laboratory affiliated to the National"
+                       "University of Singapore in Clementi, Singapore.",
       py_modules=[''],
       packages=find_packages(),
       package_data={},

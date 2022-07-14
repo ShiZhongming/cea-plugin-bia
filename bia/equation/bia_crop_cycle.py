@@ -10,7 +10,9 @@ from __future__ import print_function
 import cea.config
 import cea.inputlocator
 import cea.plugin
-
+import cea.utilities.parallel
+from cea.constants import HOURS_IN_YEAR
+from cea.resources.radiation_daysim import daysim_main, geometry_generator
 
 import math
 import os
@@ -18,15 +20,8 @@ import time
 from itertools import repeat
 from math import *
 from multiprocessing import Pool
-
 import pandas as pd
 import numpy as np
-
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
-
-
 
 
 __author__ = "Zhongming Shi"
@@ -47,6 +42,7 @@ def calc_properties_crop_db(config):
     :param database_path: the selected crop type
     :type database_path: string
     :return: dict with properties of the selected crop type retrieved form the database
+    :type dict
     """
 
     # path to the bia database
@@ -57,26 +53,8 @@ def calc_properties_crop_db(config):
     data = pd.read_excel(database_path, sheet_name="crop")
     crop_properties = data[data['type_crop'] == type_crop].reset_index().T.to_dict()[0]
 
-    # dscp = crop_properties.get('description')   # description of the selected crop type
-    # temp_opt_ger_l_c = crop_properties.get('temp_opt_ger_l_c')  # optimal germination Celsius temperature: lower bound
-    # temp_opt_ger_u_c = crop_properties.get('temp_opt_ger_u_c')  # optimal germination Celsius temperature: upper bound
-    # temp_opt_gro_l_c = crop_properties.get('temp_opt_gro_l_c')  # optimal growth Celsius temperature: lower bound
-    # temp_opt_gro_l_c = crop_properties.get('temp_opt_gro_l_c')  # optimal germination Celsius temperature: upper bound
-    # temp_por_l_c = crop_properties.get('temp_por_l_c')  # poor plant growth Celsius temperature: lower bound
-    # temp_por_u_c = crop_properties.get('temp_por_u_c')  # poor plant growth Celsius temperature: upper bound
-    # cycl_l_day = crop_properties.get('cycl_l_day')  # growth cycle in days: lower bound
-    # cycl_u_day = crop_properties.get('cycl_u_day')  # growth cycle in days: upper bound
-    # humd_l = crop_properties.get('humd_l')  # suitable humidity: lower bound
-    # humd_u = crop_properties.get('humd_u')  # suitable humidity: upper bound
-    # dli_l = crop_properties.get('dli_l')    # DLI requirement: lower bound
-    # dli_u = crop_properties.get('dli_u')    # DLI requirement: upper bound
-    # yld_grd_l_kg_sqm = crop_properties.get('yld_grd_l_kg_sqm')  # yield on ground in kilograms: lower bound
-    # yld_grd_u_kg_sqm = crop_properties.get('yld_grd_u_kg_sqm')  # yield on ground in kilograms: upper bound
-    # yld_bia_l_kg_sqm = crop_properties.get('yld_bia_l_kg_sqm')  # BIA yield in kilograms: lower bound
-    # yld_bia_u_kg_sqm = crop_properties.get('yld_bia_u_kg_sqm')  # BIA yield in kilograms: upper bound
-    # mkt_sg_sgd_kg = crop_properties.get('mkt_sg_sgd_kg')    # market price in Singapore: SGD 14.75/kg on 12 Dec 2021 at Lazada
-
     return crop_properties
+
 
 def calc_properties_env_db(config):
     """
@@ -99,6 +77,7 @@ def calc_properties_env_db(config):
 
     return env_properties
 
+
 def calc_properties_cost_db(config):
     """
     To retrieve the expenditures related the selected crop type stored in the BIA database.
@@ -119,6 +98,7 @@ def calc_properties_cost_db(config):
 
     return cost_properties
 
+
 def calc_chunk_day_crop(data):
 
     """
@@ -127,8 +107,8 @@ def calc_chunk_day_crop(data):
 
     :param data: the days' DLI meeting the requirement of the selected crop
     :type data: list
-    :return: dataframe of each building envelope surface, the days to be utilised
-    and the number of growth cycles per year
+    :return: a list of chunks of dates (each chunk = one season) for each building surface
+    :type consecutive_list: list
     """
 
     consecutive_list = []
@@ -145,6 +125,7 @@ def calc_chunk_day_crop(data):
         except Exception:
             pass
     yield consecutive_list
+
 
 def calc_crop_cycle(config, building_name):
 
@@ -221,11 +202,7 @@ def calc_crop_cycle(config, building_name):
     day_365 = pd.DataFrame(columns=range(365))
     day_365.loc[0] = range(365)
     surface_day_365 = pd.concat([day_365] * n_surface, ignore_index=True)  # Ignores the index
-    # temp = surface_day_365[bool_df]
-    # out = r'/Users/shi_zhongming/Dropbox/Calgary_U/Winter2022/Arch612/cea/Alberta_solar/BIA_test/outputs/data/
-    # potentials/agriculture/{building}_first_day.csv'.format(building=building_name)
-    # # temp.to_csv(out)
-    # # print(building_name, temp)
+
     first_day = surface_day_365[bool_df].values.tolist()    # using bool_df as a mask; from dataframe to lists of a list
     first_day = [[x for x in y if not np.isnan(x)] for y in first_day]  # remove the nan in each list
 
@@ -277,17 +254,11 @@ def calc_crop_cycle(config, building_name):
         season_srf.append(len_season)
         date_srf.append(day_srf)
 
-    # print('season_srf_iiiu', season_srf)
-    # print('len_iii', len(season_srf))
-    # print('date_srf_iii', date_srf)
-    # print('len_date', len(date_srf))
-    # print('len_season_srf', len(season_srf))
-    # print('n_surface', n_surface)
-
     # Calculate the number of growth cycles for each building surface
     cycl_srf, cycl_i_srf, cycl_s_srf = calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf)
 
     return season_srf, cycl_srf, date_srf, cycl_i_srf, cycl_s_srf
+
 
 def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
 
@@ -318,7 +289,6 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
     tolerance_cycl = 0.05  # this tolerance allows some of the growth cycles a bit shorter than in the database
     crop_life = cycl_i_day + cycl_s_day * (n_cycl - 1)  # days of the full life of the selected crop
     n_season_srf = [len(x) for x in season_srf]     # number of seasons on each surface
-    # len_season_all = [item for sublist in season_srf for item in sublist]  # length of all seasons in a building
 
     # calculate the cycles of the selected crop in the non-full-life times
     cycl_srf = []  # number of cycles, including both initial and subsequent ones

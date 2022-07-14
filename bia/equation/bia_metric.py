@@ -1,6 +1,8 @@
 """
 This script calculates:
-the crop yields (kg), GHG emissions (eCO2kg), CAPEX and OPEX (USD)
+crop yields (kg),
+environmental impacts including GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre),
+costs including capital and oeprational expenditures (USD)
 for the selected crop type on each building envelope surface.
 """
 
@@ -10,22 +12,20 @@ from __future__ import print_function
 import cea.config
 import cea.inputlocator
 import cea.plugin
+import cea.utilities.parallel
+from cea.constants import HOURS_IN_YEAR
+from cea.resources.radiation_daysim import daysim_main, geometry_generator
+from cea.utilities.standardize_coordinates import get_lat_lon_projected_shapefile
+from cea.analysis.costs.equations import calc_capex_annualized, calc_opex_annualized
 
 import os
 import time
 from itertools import repeat
 from math import *
 from multiprocessing import Pool
-
 import pandas as pd
 from geopandas import GeoDataFrame as gdf
 import numpy as np
-
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
-from cea.utilities.standardize_coordinates import get_lat_lon_projected_shapefile
-from cea.analysis.costs.equations import calc_capex_annualized, calc_opex_annualized
 
 from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
     calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db, calc_n_cycle_season
@@ -54,7 +54,7 @@ def calc_bia_metric(locator, config, building_name):
     :param building_name: list of building names in the case study
     :type building_name: Series
 
-    :return: no return
+    :return: no return; write the results to disc
 
     """
 
@@ -72,7 +72,7 @@ def calc_bia_metric(locator, config, building_name):
     # activate the function that calculates
     # the yields [kg/year] for the selected crop type on each building envelope surface
     # plus yields per square metre [kg/sqm/year] building surface area
-    print('Calculating yields (kg) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
+    print('Calculating yields (kg) for {type_crop}.'.format(type_crop=config.agriculture.type_crop))
     yield_srf_df = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf)
 
     # activate the function that calculates
@@ -130,6 +130,7 @@ def locate_sce(latitude, longitude):
 
     return zone_sce
 
+
 # differentiate the cycles as facing and back from the sun for south/north building surfaces
 # when they are located in the tropics of cancer and capricorn
 def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
@@ -142,12 +143,19 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
     :type latitude: float
     :param longitude: the longitude of the scenario
     :type longitude: float
+    :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
+    selected crop type
+    :type date_srf: list
+    :return: dict with properties of the selected crop type retrieved form the database
+    :type dict
 
-    :return: zone_sce: one of the four zones on earth
-    :type zone_sce: string
+    :return: cycl_i_srf: when building located in the tropics, crop cycles between the two tipping dates
+    :type cycl_i_srf: list
+    :return: cycl_o_srf: when building located in the tropics, crop cycles before or after the two tipping dates
+    :type cycl_o_srf: list
 
     """
-    # print('uiu', date_srf)
+
     cycl_i_srf = []     # inside the two tipping days
     cycl_o_srf = []     # outside the two tipping days
 
@@ -220,6 +228,7 @@ def differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties):
 
     return cycl_i_srf, cycl_o_srf
 
+
 # differentiate the eligible dates as in wet and dry seasons
 def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
 
@@ -231,9 +240,14 @@ def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
     :type latitude: float
     :param longitude: the longitude of the scenario
     :type longitude: float
+    :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
+    selected crop type
+    :type date_srf: list
 
-    :return: zone_sce: one of the four zones on earth
-    :type zone_sce: string
+    :return: n_day_wet_srf: number of days in the wet season for each building surface
+    :type n_day_wet_srf: list
+    :return: n_day_dry_srf: number of days in the dry season for each building surface
+    :type n_day_dry_srf: list
 
     """
     n_day_wet_srf = []
@@ -283,6 +297,7 @@ def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
 
     return n_day_wet_srf, n_day_dry_srf
 
+
 # Calculate the crop yields (kg) for the selected crop type on each building envelope surface
 def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf):
 
@@ -292,11 +307,21 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
 
     :param locator: An InputLocator to locate input files
     :type locator: cea.inputlocator.InputLocator
-
     :param building_name: list of building names in the case study
     :type building_name: Series
+    :param cea_dli_results: dli results stored in the csv file via
+    "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"
+    :type cea_dli_results: DataFrame
+    :param cycl_srf: number of cycles, including both initial and subsequent ones,
+    for each building surface of a whole year
+    :type cycl_srf: list
+    :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
+    selected crop type
+    :type date_srf: list
 
-    :return: a list with crop_yields in kilograms for each building envelope surface.
+    :return: yield_srf_df: each building surface's annual yield (kg/year)
+    and yield per square metre surface area (kg/sqm/year)
+    :type yield_srf_df: DataFrame
     """
 
     # the selected crop type
@@ -331,8 +356,6 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     # differentiate the cycles as facing and back from the sun for south/north building surfaces
     # when they are located in the tropics of cancer and capricorn
     cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties)
-    print('cycl_i_srf_ooo', cycl_i_srf)
-    print('cycl_o_srf_ooo', cycl_o_srf)
 
     yield_srf = []
     yield_srf_per_sqm = []
@@ -414,7 +437,7 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
 
     return yield_srf_df
 
-# calculate ghg emissions for each surface, crop as a produce
+# calculate the three environmental impacts
 def calc_crop_environmental_impact(locator, config, building_name, cea_dli_results, date_srf, yield_srf_df):
 
     """
@@ -435,11 +458,21 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
 
     :param locator: An InputLocator to locate input files
     :type locator: cea.inputlocator.InputLocator
-
     :param building_name: list of building names in the case study
     :type building_name: Series
+    :param cea_dli_results: dli results stored in the csv file via
+    "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"
+    :type cea_dli_results: DataFrame
+    :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
+    selected crop type
+    :type date_srf: list
+    :param: yield_srf_df: each building surface's annual yield (kg/year)
+    and yield per square metre surface area (kg/sqm/year)
+    :type yield_srf_df: DataFrame
 
-    :return: DataFrame with the three environmental impacts for the 6 Deloitte scenarios + BIA scenario.
+    :return env_impacts_srf_df: DataFrame with the three environmental impacts for
+    the 6 Deloitte scenarios + BIA scenario.
+    :type env_impacts_srf_df: DataFrame
 
     """
 
@@ -448,7 +481,6 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
 
     # read crop properties in the BIA database for the selected crop type
     env_properties = calc_properties_env_db(config)
-    # print("Gathering the environmental impacts data of {type_crop}.".format(type_crop=type_crop))
 
     # gather the orientation information [e(ast), w(est), s(outh), n(orth)] for each building surface
     orie_srf = cea_dli_results['orientation'].tolist()  # west, east, north, south
@@ -497,8 +529,8 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     energy_srf_bia = [srf * energy_kWh_per_kg_bia for srf in yield_srf]
 
     # water-related calculations
-    water_litres_per_sqm_w = 0.2  # based on T2 lab experiments, wet season
-    water_litres_per_sqm_d = 0.1  # based on T2 lab experiments, dry season
+    water_litres_per_sqm_w = 0.1  # based on T2 lab experiments, wet season
+    water_litres_per_sqm_d = 0.2  # based on T2 lab experiments, dry season
     water_srf_bia = []
 
     # differentiate the eligible dates as in wet and dry seasons, if in/near Singapore
@@ -557,11 +589,26 @@ def calc_crop_cost(locator, config, building_name,
 
     :param locator: An InputLocator to locate input files
     :type locator: cea.inputlocator.InputLocator
-
     :param building_name: list of building names in the case study
     :type building_name: Series
+    :param cea_dli_results: dli results stored in the csv file via
+    "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"
+    :type cea_dli_results: DataFrame
+    :param cycl_srf: number of cycles, including both initial and subsequent ones,
+    for each building surface of a whole year
+    :type cycl_srf: list
+    :param cycl_i_srf:  number of cycles, including initial ones only for each building surface of a whole year
+    :type cycl_i_srf: list
+    :param: yield_srf_df: each building surface's annual yield (kg/year)
+    and yield per square metre surface area (kg/sqm/year)
+    :type yield_srf_df: DataFrame
+    :param env_impacts_srf_df: DataFrame with the three environmental impacts for
+    the 6 Deloitte scenarios + BIA scenario.
+    :type env_impacts_srf_df: DataFrame
 
-    :return: DataFrame with CAPEX (infrastructure + soil) for each building envelope surface.
+    :return: DataFrame with CAPEX (infrastructure + soil)
+    and OPEX (seed, pesticide, fertilizer, water, -market price) for each building envelope surface.
+    :type env_impacts_srf_df: DataFrame
 
     """
 
@@ -575,11 +622,10 @@ def calc_crop_cost(locator, config, building_name,
     ex_sgd_usd = 1.40       # July 9, 2022
 
     # water price in Singapore, assumption monthly usage above 40 cubic metres
-    water_price_USD_per_l = 3.69 / ex_sgd_usd  # https://www.pub.gov.sg/watersupply/waterprice
+    water_price_USD_per_l = (3.69 / 1000) / ex_sgd_usd  # https://www.pub.gov.sg/watersupply/waterprice
 
     # read cost properties in the BIA database for the selected crop type
     cost_properties = calc_properties_cost_db(config)
-    print("Gathering the expenditure information for {type_crop}.".format(type_crop=type_crop))
     Inv_IR_perc = cost_properties.get('IR_%').values[0]      # interest rate
     Inv_LT = cost_properties.get('LT_yr').values[0]      # lifetime in years
     shelf_USD_per_sqm = cost_properties.get(

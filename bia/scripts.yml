@@ -1,14 +1,16 @@
 Urban agriculture:
   - name: bia-assessment
     label: BIA Assessment
-    description: Calculates the Daily Light Integral (DLI) in [mol/m2/day], the crop yields [kg], carbon emission reduction [kg CO2-equivalent], cost (CAPEX and OPEX) [USD] for the selected crop type on each building envelope surface.for each building envelope surface.
+    description: Calculates crop yields (kg), environmental impacts including GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre), costs including capital and operational expenditures (USD) for the selected crop type on the selected building envelope surface.
     interfaces: [cli, dashboard]
     module: bia.bia_assessment
     parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free', 'agriculture:type-crop',
                  'agriculture:annual-radiation-threshold-bia',
-                 'agriculture:crop-on-roof', 'agriculture:crop-on-window',
-                 'agriculture:crop-on-wall-under-window', 'agriculture:crop-on-wall-between-window']
+                 'agriculture:crop-on-roof',
+                 'agriculture:crop-on-window',
+                 'agriculture:crop-on-wall-under-window', 'agriculture:crop-on-wall-between-window'
+                ]
     input-files:
       - [get_radiation_metadata, building_name]
       - [get_zone_geometry]

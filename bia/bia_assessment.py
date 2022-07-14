@@ -1,7 +1,6 @@
 """
 This script calculates:
-the Daily Light Integral (DLI) in [mol/m2/day], the crop yields (kg), carbon emission reduction (CO2-equivalent),
-cost (CAPEX and OPEX in USD) for the selected crop type on each building envelope surface.
+the main script to activate all BIA-related assessments.
 """
 
 from __future__ import division
@@ -66,7 +65,9 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
     bool_wall_b = config.agriculture.crop_on_wall_between_window
 
     # create the mask based the user input
-    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window', 'mask_wall_upper', 'mask_wall_lower', 'mask_wall_b', 'mask'])
+    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window',
+                                    'mask_wall_upper', 'mask_wall_lower',
+                                    'mask_wall_b', 'mask'])
     mask_df['mask_roof'] = [bool_roof if x == 'roofs' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
     mask_df['mask_window'] = [bool_window if x == 'windows' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
     mask_df['mask_wall_upper'] = [bool_wall_u if x == 'upper' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
@@ -115,10 +116,17 @@ def bia_result_aggregate_write(locator, config, building_name):
 
     # filter the ones not wanted by the user
     bia_to_write = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all)\
-        .drop(['TYPE', 'wall_type', 'Unnamed: 0'], axis=1).sum(axis=0).to_frame().T
+        .drop(['TYPE', 'wall_type', 'Unnamed: 0', 'yield_kg_per_sqm_per_year', 'total_rad_Whm2'], axis=1)\
+        .sum(axis=0)\
+        .to_frame()\
+        .T
+
+    # recalculate the yield per square metre
+    yield_kg_per_sqm_per_year = bia_to_write['yield_kg_per_year'] / bia_to_write['AREA_m2']
 
     # aggregate each metric for the entire building
     bia_to_write.insert(loc=0, column='BUILDING', value=building_name)
+    bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year', value=yield_kg_per_sqm_per_year)
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total.csv"
@@ -129,11 +137,13 @@ def bia_result_aggregate_write(locator, config, building_name):
     # when the total file has already been created, open the file and add one row at the end
     else:
         row = bia_to_write.iloc[0].tolist()     # list of content to append
+        row_hundredth = [round(float(num), 2) for num in row[1:]]
+        row_hundredth.insert(0, row[0])
 
         with open(bia_path, 'a') as f_object:
 
             writer_object = writer(f_object)
-            writer_object.writerow(row)
+            writer_object.writerow(row_hundredth)
             f_object.close()   # Close the file object
 
 

@@ -2285,7 +2285,6 @@ get_dli_building:
         min: 0.0
   used_by: []
 
-
 get_metric_building:
   created_by:
   - bia-metric
