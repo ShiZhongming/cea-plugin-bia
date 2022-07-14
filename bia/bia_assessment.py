@@ -158,13 +158,13 @@ def main(config):
     num_process = config.get_number_of_processes()
     n = len(building_names)
 
-    # # DLI calculations for each surface of each building
-    # cea.utilities.parallel.vectorize(calc_DLI, num_process)\
-    #     (repeat(locator, n), repeat(config, n), building_names)
-    #
-    # # BIA metrics for each surface of each building
-    # cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
-    #     (repeat(locator, n), repeat(config, n), building_names)
+    # DLI calculations for each surface of each building
+    cea.utilities.parallel.vectorize(calc_DLI, num_process)\
+        (repeat(locator, n), repeat(config, n), building_names)
+
+    # BIA metrics for each surface of each building
+    cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
+        (repeat(locator, n), repeat(config, n), building_names)
 
     # aggregate the results of each building as a 'total' file and write to disk
     # if the file exists, delete it
