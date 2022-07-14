@@ -6,7 +6,6 @@ Urban agriculture:
     module: bia.bia_assessment
     parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free', 'agriculture:type-crop',
-                 'agriculture:annual-radiation-threshold-bia',
                  'agriculture:crop-on-roof',
                  'agriculture:crop-on-window',
                  'agriculture:crop-on-wall-under-window', 'agriculture:crop-on-wall-between-window'
