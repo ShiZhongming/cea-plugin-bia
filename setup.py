@@ -19,7 +19,7 @@ setup(name='cea_plugin_bia',
       author_email='zhongming.shi@ucalgary.ca',
       url='https://github.com/shizhongming/cea-plugin-bia',
       long_description="A plugin for the City Energy Analyst: building-integrated agriculture (BIA) extensions."
-                       "Calculates crop yields (kg), environmental impacts including GHG Emissions (kg CO2-eq), "
+                       "Calculates crop yields (kg), environmental impacts including GHG emissions (kg CO2-eq), "
                        "energy (kWh) and water use (litre), costs including capital and operational expenditures (USD) "
                        "for the selected crop type on the selected building envelope surface. As of July 14, 2022,"
                        "this plugin works the best for Singapore or its adjacent regions as the planting data have"
