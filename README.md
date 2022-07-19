@@ -18,5 +18,3 @@ In the CEA console, enter the following command to enable the plugin in CEA:
 Now you should be able to enter the following command to run the plugin:
 
 ```cea bia-assessment```
-
-NOTE: When installing multiple plugins, add them as a comma separated list in the `cea-config write --general:plugins ...` command.
