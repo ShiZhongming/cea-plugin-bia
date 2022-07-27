@@ -14,3 +14,21 @@ Urban agriculture:
       - [get_radiation_metadata, building_name]
       - [get_zone_geometry]
       - [get_radiation_building, building_name]
+
+
+  - name: bia-crop-profiling
+    label: BIA Crop Profiling
+    description: Creates the crop profiles using the selected crop types on the selected building envelope surface.
+    interfaces: [cli, dashboard]
+    module: bia.bia_crop_profiling
+    parameters: ['general:scenario', 'general:multiprocessing',
+                 'general:number-of-cpus-to-keep-free', 'crop-profile:types-crop',
+                 'crop-profile:bia-assessment-metric',
+                 'crop-profile:crop-on-roof',
+                 'crop-profile:crop-on-window',
+                 'crop-profile:crop-on-wall-under-window', 'crop-profile:crop-on-wall-between-window'
+                ]
+    input-files:
+      - [get_radiation_metadata, building_name]
+      - [get_zone_geometry]
+      - [get_radiation_building, building_name]

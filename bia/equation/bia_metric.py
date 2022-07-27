@@ -43,7 +43,7 @@ __status__ = "Production"
 
 
 # calculate the BIA metrics and write to disk
-def calc_bia_metric(locator, config, building_name):
+def calc_bia_metric(locator, config, building_name, type_crop):
 
     """
     This function calculates the three categories of BIA metrics and write the results to disk.
@@ -53,6 +53,9 @@ def calc_bia_metric(locator, config, building_name):
 
     :param building_name: list of building names in the case study
     :type building_name: Series
+
+    :param type_crop: the calculated(selected) crop type
+    :type type_crop: string
 
     :return: no return; write the results to disc
 
@@ -72,21 +75,21 @@ def calc_bia_metric(locator, config, building_name):
     # activate the function that calculates
     # the yields [kg/year] for the selected crop type on each building envelope surface
     # plus yields per square metre [kg/sqm/year] building surface area
-    print('Calculating yields (kg) for {type_crop}.'.format(type_crop=config.agriculture.type_crop))
+    print('Calculating yields (kg) for {type_crop}.'.format(type_crop=type_crop))
     yield_srf_df = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf)
 
     # activate the function that calculates
     # the environmental impacts (ghg emissions, energy consumption, water consumption)
     # for the selected crop type on each building envelope surface
     print('Calculating GHG emissions (kg CO2-equ), energy consumption (kWh), water consumption (L)) for {type_crop}'
-          .format(type_crop=config.agriculture.type_crop))
+          .format(type_crop=type_crop))
     env_impacts_srf_df = calc_crop_environmental_impact(locator, config, building_name,
                                                         cea_dli_results, date_srf, yield_srf_df)
 
     # activate the function that calculates
     # the CAPEX (USD per kg vegetable), OPEX (USD per kg vegetable) in USD
     # for the selected crop type on each building envelope surface
-    print('Calculating capital operational costs (USD) for {type_crop}'.format(type_crop=config.agriculture.type_crop))
+    print('Calculating capital operational costs (USD) for {type_crop}'.format(type_crop=type_crop))
     costs_srf_df = calc_crop_cost(locator, config, building_name,
                                   cea_dli_results, cycl_srf, cycl_i_srf, yield_srf_df, env_impacts_srf_df)
 
@@ -94,8 +97,10 @@ def calc_bia_metric(locator, config, building_name):
     bia_metric_srf_df = pd.concat([yield_srf_df, env_impacts_srf_df, costs_srf_df], axis=1)
 
     # write the BIA results (all non-filtered surface)
-    output_path = config.scenario + \
-                  "/outputs/data/potentials/agriculture/{building}_BIA_metrics.csv".format(building=building_name)
+    dir = config.scenario + "/outputs/data/potentials/agriculture/surface"
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+    output_path = dir + "/{building}_BIA_metrics_{type_crop}.csv".format(building=building_name, type_crop=type_crop)
     bia_metric_srf_df.to_csv(output_path, index=True, float_format='%.2f', na_rep=0)
 
     print('BIA assessments for each surface on Building', building_name,
@@ -703,6 +708,114 @@ def calc_crop_cost(locator, config, building_name,
 
     return costs_srf_df
 
+
+# filter by crop on wall/roof/window user-defined in config.file
+def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
+    """
+    This function filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
+
+    :param locator: An InputLocator to locate input files
+    :type locator: cea.inputlocator.InputLocator
+
+    :param building_name: list of building names in the case study
+    :type building_name: Series
+
+    :return: DataFrame with BIA metrics for each surfaces intended to have BIA.
+
+    """
+
+    # get the user inputs
+    bool_roof = config.agriculture.crop_on_roof
+    bool_window = config.agriculture.crop_on_window
+    bool_wall_u = config.agriculture.crop_on_wall_under_window
+    bool_wall_b = config.agriculture.crop_on_wall_between_window
+
+    # create the mask based the user input
+    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window',
+                                    'mask_wall_upper', 'mask_wall_lower',
+                                    'mask_wall_b', 'mask'])
+    mask_df['mask_roof'] = [bool_roof if x == 'roofs' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_window'] = [bool_window if x == 'windows' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_wall_upper'] = [bool_wall_u if x == 'upper' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask_wall_lower'] = [bool_wall_u if x == 'lower' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask_wall_b'] = [bool_wall_b if x == 'side' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask'] = [True if a == True or b == True or c == True or d == True or e == True else False
+                       for a, b, c, d, e in zip(mask_df['mask_roof'],
+                                                mask_df['mask_window'],
+                                                mask_df['mask_wall_upper'],
+                                                mask_df['mask_wall_lower'],
+                                                mask_df['mask_wall_b'])]
+
+    # remove the unwanted surfaces
+    bia_metric_srf_df_filterred = bia_metric_srf_df[mask_df['mask']]
+
+    return bia_metric_srf_df_filterred
+
+
+# create aggregated results for each building in one .csv file
+def bia_result_aggregate_write(locator, config, building_name, type_crop):
+    """
+    This function aggregates the results of each building as a 'total' file and write to disk.
+
+    :param locator: An InputLocator to locate input files
+    :type locator: cea.inputlocator.InputLocator
+
+    :param building_name: list of building names in the case study
+    :type building_name: Series
+
+    :param type_crop: the calculated(selected) crop type
+    :type type_crop: string
+
+    :return: write to disk: aggregated BIA metrics for each surfaces intended (defined by users) to have BIA.
+
+    """
+
+    # read the daily DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+        .format(building=building_name)
+    cea_dli_results = pd.read_csv(dli_path)
+
+    # read the calculated BIA metrics results
+    metric_path = config.scenario + "/outputs/data/potentials/agriculture/surface/{building}_BIA_metrics_{type_crop}" \
+                                    ".csv".format(building=building_name, type_crop=type_crop)
+    cea_metric_results = pd.read_csv(metric_path)
+
+    # merge the two results
+    info_srf_df = cea_dli_results.loc[:, ['AREA_m2', 'total_rad_Whm2', 'TYPE', 'wall_type']]
+    bia_metric_srf_df_all = pd.concat([info_srf_df, cea_metric_results], axis=1)
+
+    # filter the ones not wanted by the user
+    bia_to_write = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all) \
+        .drop(['TYPE', 'wall_type', 'Unnamed: 0', 'yield_kg_per_sqm_per_year', 'total_rad_Whm2'], axis=1) \
+        .sum(axis=0) \
+        .to_frame() \
+        .T
+
+    # recalculate the yield per square metre
+    yield_kg_per_sqm_per_year = bia_to_write['yield_kg_per_year'] / bia_to_write['AREA_m2']
+
+    # aggregate each metric for the entire building
+    bia_to_write.insert(loc=0, column='BUILDING', value=building_name)
+    bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year', value=yield_kg_per_sqm_per_year)
+
+    # write to disk
+    bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv" \
+        .format(type_crop=type_crop)
+    # when the total file has not been created yet, create the file and export the DataFrame
+    if not os.path.exists(bia_path):
+        bia_to_write.to_csv(bia_path, index=False, float_format='%.2f', na_rep=0)
+
+    # when the total file has already been created, open the file and add one row at the end
+    else:
+        row = bia_to_write.iloc[0].tolist()  # list of content to append
+        row_hundredth = [round(float(num), 2) for num in row[1:]]
+        row_hundredth.insert(0, row[0])
+
+        with open(bia_path, 'a') as f_object:
+
+            writer_object = writer(f_object)
+            writer_object.writerow(row_hundredth)
+            f_object.close()  # Close the file object
 
 
 

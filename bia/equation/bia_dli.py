@@ -90,7 +90,8 @@ def calc_DLI(locator, config, building_name):
                                     float_format='%.2f',
                                     na_rep=0)  # write sensors metadata and daily DLI
 
-        print('Calculations of DLI for each sensor on Building', building_name, 'done - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
+        print('Calculations of DLI for each sensor on Building', building_name, 'done - time elapsed: %.2f seconds'
+              % (time.perf_counter() - t0))
 
     else:  # This loop is activated when a building has not sufficient solar potential
         print("Unfortunately, Building", building_name, "has no BIA potential.")
