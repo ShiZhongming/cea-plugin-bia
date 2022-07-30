@@ -70,7 +70,7 @@ def calc_bia_metric(locator, config, building_name, type_crop):
 
     # activate the function that calculates
     # the eligible dates, seasons, and cycles for the selected crop type on each building surface
-    season_srf, cycl_srf, date_srf, cycl_i_srf, cycl_s_srf = calc_crop_cycle(config, building_name)
+    season_srf, cycl_srf, date_srf, cycl_i_srf, cycl_s_srf = calc_crop_cycle(config, building_name, type_crop)
 
     # activate the function that calculates
     # the yields [kg/year] for the selected crop type on each building envelope surface
@@ -333,7 +333,7 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     type_crop = config.agriculture.type_crop
 
     # read crop properties in the BIA database for the selected crop type
-    crop_properties = calc_properties_crop_db(config)
+    crop_properties = calc_properties_crop_db(type_crop)
     print("Gathering the properties of {type_crop}.".format(type_crop=type_crop))
 
     # the total number of cycles of an entire year
@@ -710,9 +710,10 @@ def calc_crop_cost(locator, config, building_name,
 
 
 # filter by crop on wall/roof/window user-defined in config.file
-def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
+def filter_crop_srf(locator, config, building_name, bia_matrix_srf_df_to_filter):
     """
-    This function filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
+    This function links the BIA metrics with surface info,
+    then filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
 
     :param locator: An InputLocator to locate input files
     :type locator: cea.inputlocator.InputLocator
@@ -723,6 +724,7 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
     :return: DataFrame with BIA metrics for each surfaces intended to have BIA.
 
     """
+
 
     # get the user inputs
     bool_roof = config.agriculture.crop_on_roof
@@ -744,12 +746,13 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
                                                 mask_df['mask_window'],
                                                 mask_df['mask_wall_upper'],
                                                 mask_df['mask_wall_lower'],
-                                                mask_df['mask_wall_b'])]
+                                                mask_df['mask_wall_b']
+                                                )]
 
     # remove the unwanted surfaces
-    bia_metric_srf_df_filterred = bia_metric_srf_df[mask_df['mask']]
+    bia_metric_srf_df_filtered = bia_metric_srf_df_all[mask_df['mask']]
 
-    return bia_metric_srf_df_filterred
+    return bia_metric_srf_df_filtered
 
 
 # create aggregated results for each building in one .csv file
@@ -780,23 +783,29 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
                                     ".csv".format(building=building_name, type_crop=type_crop)
     cea_metric_results = pd.read_csv(metric_path)
 
-    # merge the two results
+    # merge the two results (DLI + BIA metrics)
     info_srf_df = cea_dli_results.loc[:, ['AREA_m2', 'total_rad_Whm2', 'TYPE', 'wall_type']]
-    bia_metric_srf_df_all = pd.concat([info_srf_df, cea_metric_results], axis=1)
+    bia_metrics_matrix_srf_df_to_filter = pd.concat([info_srf_df, cea_metric_results], axis=1)
 
     # filter the ones not wanted by the user
-    bia_to_write = filter_crop_srf(locator, config, building_name, bia_metric_srf_df_all) \
+    bia_metric_srf_df_filtered = filter_crop_srf(locator, config, building_name, bia_metrics_matrix_srf_df_to_filter)
+    bia_to_write = bia_metric_srf_df_filtered\
         .drop(['TYPE', 'wall_type', 'Unnamed: 0', 'yield_kg_per_sqm_per_year', 'total_rad_Whm2'], axis=1) \
         .sum(axis=0) \
         .to_frame() \
         .T
 
-    # recalculate the yield per square metre
-    yield_kg_per_sqm_per_year = bia_to_write['yield_kg_per_year'] / bia_to_write['AREA_m2']
+    # recalculate the yield per square metre surface area selected by the user
+    yield_kg_per_sqm_per_year_a = bia_to_write['yield_kg_per_year'] / bia_to_write['AREA_m2']
+
+    # recalculate the yield per square metre installed surface area
+    area_installed = bia_metric_srf_df_filtered[bia_metric_srf_df_filtered['yield_kg_per_year'] != 0].sum(axis=0)
+    yield_kg_per_sqm_per_year_i = bia_to_write['yield_kg_per_year'] / area_installed
 
     # aggregate each metric for the entire building
     bia_to_write.insert(loc=0, column='BUILDING', value=building_name)
-    bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year', value=yield_kg_per_sqm_per_year)
+    bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year_a', value=yield_kg_per_sqm_per_year_a)
+    bia_to_write.insert(loc=4, column='yield_kg_per_sqm_per_year_i', value=yield_kg_per_sqm_per_year_i)
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv" \

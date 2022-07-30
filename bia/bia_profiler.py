@@ -37,7 +37,7 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-class BiaCropSelectPlugin(cea.plugin.CeaPlugin):
+class BiaCropProfilePlugin(cea.plugin.CeaPlugin):
 
     pass
 
@@ -47,13 +47,9 @@ def main(config):
     assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
     locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
 
-    # # BIA assessment
-    # print('Executing CEA Building-Integrated Agriculture (BIA) crop-profiling using {type_crop}.'
-    #       .format(type_crop=config.crop_profile.types_crop))
-
-    # List of crop types considered for the building-integrate agriculture (BIA) crop profiling.
-    # At least two types.
-    l_type_crop = config.crop_profile.types_crop
+    # List of crop types considered for the building-integrate agriculture (BIA) crop profiling
+    # At least two types
+    types_crop = config.crop_profile.types_crop
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
@@ -61,12 +57,12 @@ def main(config):
     # activate the function that calculates
     # the BIA metrics for each building surface for each candidate crop type
     # all the results are stored in the folder "agriculture\surface\"
-    for type_crop in range(len(l_type_crop)):
+    for type_crop in range(len(types_crop)):
         # activate the bia metric equations for every surface
         cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
             (repeat(locator, n), repeat(config, n), building_names, type_crop[type_crop])
 
-    # Create the crop profiles for each surface and write to disk
+    # Create the crop profiles for each building's surface and write to disk
     cea.utilities.parallel.vectorize(calc_bia_crop_profile, num_process)\
         (repeat(locator, n), repeat(config, n), building_names)
 

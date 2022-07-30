@@ -35,7 +35,7 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-def calc_properties_crop_db(config):
+def calc_properties_crop_db(type_crop):
     """
     To retrieve the crop properties stored in the BIA database for the selected crop type.
 
@@ -49,7 +49,6 @@ def calc_properties_crop_db(config):
     dir = os.path.dirname(__file__)
     database_path = os.path.join(dir, "bia_data.xlsx")
 
-    type_crop = config.agriculture.type_crop
     data = pd.read_excel(database_path, sheet_name="crop")
     crop_properties = data[data['type_crop'] == type_crop].reset_index().T.to_dict()[0]
 
@@ -127,7 +126,7 @@ def calc_chunk_day_crop(data):
     yield consecutive_list
 
 
-def calc_crop_cycle(config, building_name):
+def calc_crop_cycle(config, building_name, type_crop):
 
     """
      To spot the days that are suitable for the selected crop type based on its crop property for each building
@@ -159,10 +158,11 @@ def calc_crop_cycle(config, building_name):
 
     """
 
-    print("Calculating the number of crop cycles for Building {building}.".format(building=building_name))
+    print("Calculating the crop growing information for {type_crop} on Building {building}."
+          .format(type_crop=type_crop, building=building_name))
 
     # get the properties of the selected crop
-    crop_properties = calc_properties_crop_db(config)
+    crop_properties = calc_properties_crop_db(type_crop)
 
     # unpack the properties of the selected crop type: cycle days
     cycl_i_day = int(crop_properties.get('cycl_i_day'))  # growth cycle in days: initial
@@ -200,7 +200,7 @@ def calc_crop_cycle(config, building_name):
         bool_df = pd.concat([bool_df, bool], axis=1)
 
     day_365 = pd.DataFrame(columns=range(365))
-    day_365.loc[0] = range(365)
+    # day_365.loc[0] = range(365)
     surface_day_365 = pd.concat([day_365] * n_surface, ignore_index=True)  # Ignores the index
 
     first_day = surface_day_365[bool_df].values.tolist()    # using bool_df as a mask; from dataframe to lists of a list

@@ -16,7 +16,7 @@ Urban agriculture:
       - [get_radiation_building, building_name]
 
 
-  - name: bia-crop-profiling
+  - name: bia-crop-profiler
     label: BIA Crop Profiling
     description: Creates the crop profiles using the selected crop types on the selected building envelope surface.
     interfaces: [cli, dashboard]

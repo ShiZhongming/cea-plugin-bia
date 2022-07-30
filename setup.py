@@ -5,7 +5,7 @@ __copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zuric
                 "University of Calgary, Alberta, Canada"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
-__version__ = "1.1"
+__version__ = "1.2"
 __maintainer__ = "Zhongming Shi"
 __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
@@ -19,12 +19,14 @@ setup(name='cea_plugin_bia',
       author_email='zhongming.shi@ucalgary.ca',
       url='https://github.com/shizhongming/cea-plugin-bia',
       long_description="A plugin for the City Energy Analyst: building-integrated agriculture (BIA) extensions."
-                       "Calculates crop yields (kg), environmental impacts including GHG emissions (kg CO2-eq), "
-                       "energy (kWh) and water use (litre), costs including capital and operational expenditures (USD) "
-                       "for the selected crop type on the selected building envelope surface. As of July 14, 2022,"
-                       "this plugin works the best for Singapore or its adjacent regions as the planting data have"
-                       "been acquired from the Tropical Technologies (T2) Laboratory affiliated to the National"
-                       "University of Singapore in Clementi, Singapore.",
+                       "It has two main functions. One calculates crop yields (kg), environmental impacts "
+                       "including GHG emissions (kg CO2-eq), energy (kWh) and water use (litre), costs including "
+                       "capital and operational expenditures (USD) for the selected crop type on the selected "
+                       "building envelope surface. The other one produces the crop profile (crop type selection for "
+                       "on each day of a year) for each building surface, based on one of the user-defined objectives."
+                       "As of July 14, 2022, this plugin works the best for Singapore or its adjacent regions "
+                       "as the planting data have been acquired from the Tropical Technologies (T2) Laboratory "
+                       "affiliated to the National University of Singapore in Clementi, Singapore.",
       py_modules=[''],
       packages=find_packages(),
       package_data={},
