@@ -51,6 +51,7 @@ def calc_properties_crop_db(type_crop):
 
     data = pd.read_excel(database_path, sheet_name="crop")
     crop_properties = data[data['type_crop'] == type_crop].reset_index().T.to_dict()[0]
+    print('mmm',crop_properties)
 
     return crop_properties
 
@@ -171,10 +172,10 @@ def calc_crop_cycle(config, building_name, type_crop):
 
     # unpack the properties of the selected crop type: DLI
     dli_l = float(crop_properties.get('dli_l'))    # DLI requirement: lower bound
-    dli_u = float(crop_properties.get('dli_u'))    # DLI requirement: upper bound
+    # dli_u = float(crop_properties.get('dli_u'))    # DLI requirement: upper bound
 
     # inputs to select the surface and calculate the number of growth cycles
-    dli_criteria = (dli_l + dli_u) / 2   # DLI requirement for the selected crop
+    dli_criteria = dli_l   # DLI requirement for the selected crop
 
     # read the daily DLI results
     dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
@@ -200,7 +201,7 @@ def calc_crop_cycle(config, building_name, type_crop):
         bool_df = pd.concat([bool_df, bool], axis=1)
 
     day_365 = pd.DataFrame(columns=range(365))
-    # day_365.loc[0] = range(365)
+    day_365.loc[0] = range(365)
     surface_day_365 = pd.concat([day_365] * n_surface, ignore_index=True)  # Ignores the index
 
     first_day = surface_day_365[bool_df].values.tolist()    # using bool_df as a mask; from dataframe to lists of a list

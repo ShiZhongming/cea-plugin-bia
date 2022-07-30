@@ -25,6 +25,7 @@ from cea.resources.radiation_daysim import daysim_main, geometry_generator
 from bia.equation.bia_dli import calc_DLI
 from bia.equation.bia_crop_cycle import calc_crop_cycle
 from bia.equation.bia_metric import calc_bia_metric
+from bia.equation.bia_select import calc_bia_crop_profile
 
 __author__ = "Zhongming Shi"
 __copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
@@ -37,7 +38,7 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-class BiaCropProfilePlugin(cea.plugin.CeaPlugin):
+class BiaProfilerPlugin(cea.plugin.CeaPlugin):
 
     pass
 
@@ -57,10 +58,11 @@ def main(config):
     # activate the function that calculates
     # the BIA metrics for each building surface for each candidate crop type
     # all the results are stored in the folder "agriculture\surface\"
+    print('lennnn', len(types_crop))
     for type_crop in range(len(types_crop)):
         # activate the bia metric equations for every surface
         cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
-            (repeat(locator, n), repeat(config, n), building_names, type_crop[type_crop])
+            (repeat(locator, n), repeat(config, n), building_names, repeat(types_crop[type_crop], n))
 
     # Create the crop profiles for each building's surface and write to disk
     cea.utilities.parallel.vectorize(calc_bia_crop_profile, num_process)\

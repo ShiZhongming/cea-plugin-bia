@@ -26,6 +26,8 @@ from multiprocessing import Pool
 import pandas as pd
 from geopandas import GeoDataFrame as gdf
 import numpy as np
+from csv import writer
+
 
 from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
     calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db, calc_n_cycle_season
@@ -76,7 +78,7 @@ def calc_bia_metric(locator, config, building_name, type_crop):
     # the yields [kg/year] for the selected crop type on each building envelope surface
     # plus yields per square metre [kg/sqm/year] building surface area
     print('Calculating yields (kg) for {type_crop}.'.format(type_crop=type_crop))
-    yield_srf_df = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf)
+    yield_srf_df = calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf, type_crop)
 
     # activate the function that calculates
     # the environmental impacts (ghg emissions, energy consumption, water consumption)
@@ -304,7 +306,7 @@ def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
 
 
 # Calculate the crop yields (kg) for the selected crop type on each building envelope surface
-def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf):
+def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf, type_crop):
 
     """
     This function calculates crop yield in kg for each building envelope surface.
@@ -328,9 +330,6 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     and yield per square metre surface area (kg/sqm/year)
     :type yield_srf_df: DataFrame
     """
-
-    # the selected crop type
-    type_crop = config.agriculture.type_crop
 
     # read crop properties in the BIA database for the selected crop type
     crop_properties = calc_properties_crop_db(type_crop)
@@ -710,7 +709,7 @@ def calc_crop_cost(locator, config, building_name,
 
 
 # filter by crop on wall/roof/window user-defined in config.file
-def filter_crop_srf(locator, config, building_name, bia_matrix_srf_df_to_filter):
+def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
     """
     This function links the BIA metrics with surface info,
     then filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
@@ -750,7 +749,7 @@ def filter_crop_srf(locator, config, building_name, bia_matrix_srf_df_to_filter)
                                                 )]
 
     # remove the unwanted surfaces
-    bia_metric_srf_df_filtered = bia_metric_srf_df_all[mask_df['mask']]
+    bia_metric_srf_df_filtered = bia_metric_srf_df[mask_df['mask']]
 
     return bia_metric_srf_df_filtered
 
@@ -799,7 +798,8 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
     yield_kg_per_sqm_per_year_a = bia_to_write['yield_kg_per_year'] / bia_to_write['AREA_m2']
 
     # recalculate the yield per square metre installed surface area
-    area_installed = bia_metric_srf_df_filtered[bia_metric_srf_df_filtered['yield_kg_per_year'] != 0].sum(axis=0)
+    area_installed = bia_metric_srf_df_filtered[bia_metric_srf_df_filtered['yield_kg_per_year'] != 0]['AREA_m2']\
+        .sum(axis=0)
     yield_kg_per_sqm_per_year_i = bia_to_write['yield_kg_per_year'] / area_installed
 
     # aggregate each metric for the entire building

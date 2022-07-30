@@ -65,7 +65,8 @@ def main(config):
 
     # aggregate the results of each building as a 'total' file and write to disk
     # if the file exists, delete it
-    bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total.csv"
+    bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv" \
+        .format(type_crop=type_crop)
     if os.path.exists(bia_path):
         os.remove(bia_path)
     cea.utilities.parallel.vectorize(bia_result_aggregate_write, num_process)\

@@ -3,7 +3,7 @@ This script creates:
 the crop profile for each building surface, based on one of the following user-defined objectives:
 
 environmental impacts including GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre),
-costs including capital and oeprational expenditures (USD)
+costs including capital and operational expenditures (USD)
 for the selected crop type on each building envelope surface.
 """
 
@@ -28,7 +28,7 @@ import pandas as pd
 from geopandas import GeoDataFrame as gdf
 import numpy as np
 
-from bia.equation.bia_metric import calc_bia_metric, bia_result_aggregate_write, filter_crop_srf
+from bia.equation.bia_metric import calc_bia_metric, filter_crop_srf
 from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
     calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db, calc_n_cycle_season
 
@@ -109,7 +109,7 @@ def calc_crop_rank(locator, config, building_name):
         # read the BIA metrics results for each building surface and each crop type
         bia_metrics_path = config.scenario + \
                            "/outputs/data/potentials/agriculture/surface/{building}_BIA_metrics_{type_crop}.csv"\
-                               .format(building=building_name, type_crop=type_crop)
+                               .format(building=building_name, type_crop=types_crop[type_crop])
         bia_metrics_srf = pd.read_csv(bia_metrics_path)
 
         # for each surface
@@ -180,7 +180,8 @@ def calc_crop_rank(locator, config, building_name):
     else:   # ascending (for BIA metrics that min is preferred)
         crop_rank_i_srf = np.argsort(bia_metric_obj_matrix_df.to_numpy() * 1, axis=1).tolist()
     # second, create a new DataFrame
-    bia_crop_matrix_df = pd.DataFrame(bia_metric_obj_matrix_df.columns[i], columns=range(1, i.shape[1] + 1))
+    bia_crop_matrix_df = pd.DataFrame(bia_metric_obj_matrix_df.columns[crop_rank_i_srf],
+                                      columns=range(1, crop_rank_i_srf.shape[1] + 1))
     # bia_crop_matrix_df.add_prefix('Rank')
     crop_rank_type_srf = bia_crop_matrix_df.values.tolist()
 
@@ -207,7 +208,7 @@ def calc_crop_calendar(locator, config, building_name):
     # get the user-defined list of crop types
     types_crop = config.crop_profile.types_crop
     # get the user-defined objective of bia-metric
-    bia_metric_obj = config.crop_profile.bia_assessment_metric_objective
+    # bia_metric_obj = config.crop_profile.bia_assessment_metric_objective
 
     # to create the ranking crop types
     # for each surface based on the user-defined BIA objective
