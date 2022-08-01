@@ -22,9 +22,9 @@ setup(name='cea_plugin_bia',
                        "It has two main functions. One calculates crop yields (kg), environmental impacts "
                        "including GHG emissions (kg CO2-eq), energy (kWh) and water use (litre), costs including "
                        "capital and operational expenditures (USD) for the selected crop type on the selected "
-                       "building envelope surface. The other one produces the crop profile (crop type selection for "
-                       "on each day of a year) for each building surface, based on one of the user-defined objectives."
-                       "As of July 14, 2022, this plugin works the best for Singapore or its adjacent regions "
+                       "building envelope surface. The other one produces the crop profile and planting calendar"
+                       " for each building surface, based on one of the user-defined objectives."
+                       "As of August 1, 2022, this plugin works the best for Singapore or its adjacent regions "
                        "as the planting data have been acquired from the Tropical Technologies (T2) Laboratory "
                        "affiliated to the National University of Singapore in Clementi, Singapore.",
       py_modules=[''],
