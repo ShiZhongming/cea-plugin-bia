@@ -69,6 +69,7 @@ def calc_bia_metric(locator, config, building_name, type_crop):
     dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
+    info_srf_df = cea_dli_results.loc[:, ['srf_index']]
 
     # activate the function that calculates
     # the eligible dates, seasons, and cycles for the selected crop type on each building surface
@@ -96,14 +97,14 @@ def calc_bia_metric(locator, config, building_name, type_crop):
                                   cea_dli_results, cycl_srf, cycl_i_srf, yield_srf_df, env_impacts_srf_df)
 
     # merge the results as a DataFrame
-    bia_metric_srf_df = pd.concat([yield_srf_df, env_impacts_srf_df, costs_srf_df], axis=1)
+    bia_metric_srf_df = pd.concat([info_srf_df, yield_srf_df, env_impacts_srf_df, costs_srf_df], axis=1)
 
     # write the BIA results (all non-filtered surface)
     dir = config.scenario + "/outputs/data/potentials/agriculture/surface"
     if not os.path.exists(dir):
         os.mkdir(dir)
     output_path = dir + "/{building}_BIA_metrics_{type_crop}.csv".format(building=building_name, type_crop=type_crop)
-    bia_metric_srf_df.to_csv(output_path, index=True, float_format='%.2f', na_rep=0)
+    bia_metric_srf_df.to_csv(output_path, index=False, float_format='%.2f', na_rep=0)
 
     print('BIA assessments for each surface on Building', building_name,
           'done - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
@@ -709,7 +710,7 @@ def calc_crop_cost(locator, config, building_name,
 
 
 # filter by crop on wall/roof/window user-defined in config.file
-def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
+def filter_crop_srf_assessment(locator, config, building_name, bia_metric_srf_df):
     """
     This function links the BIA metrics with surface info,
     then filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
@@ -720,7 +721,7 @@ def filter_crop_srf(locator, config, building_name, bia_metric_srf_df):
     :param building_name: list of building names in the case study
     :type building_name: Series
 
-    :return: DataFrame with BIA metrics for each surfaces intended to have BIA.
+    :return: DataFrame with BIA metrics for each surface intended to have BIA.
 
     """
 
@@ -783,13 +784,14 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
     cea_metric_results = pd.read_csv(metric_path)
 
     # merge the two results (DLI + BIA metrics)
-    info_srf_df = cea_dli_results.loc[:, ['AREA_m2', 'total_rad_Whm2', 'TYPE', 'wall_type']]
+    info_srf_df = cea_dli_results.loc[:, ['srf_index', 'AREA_m2', 'total_rad_Whm2', 'TYPE', 'wall_type']]
     bia_metrics_matrix_srf_df_to_filter = pd.concat([info_srf_df, cea_metric_results], axis=1)
 
     # filter the ones not wanted by the user
-    bia_metric_srf_df_filtered = filter_crop_srf(locator, config, building_name, bia_metrics_matrix_srf_df_to_filter)
+    bia_metric_srf_df_filtered = filter_crop_srf_assessment(locator, config, building_name,
+                                                            bia_metrics_matrix_srf_df_to_filter)
     bia_to_write = bia_metric_srf_df_filtered\
-        .drop(['TYPE', 'wall_type', 'Unnamed: 0', 'yield_kg_per_sqm_per_year', 'total_rad_Whm2'], axis=1) \
+        .drop(['TYPE', 'wall_type', 'yield_kg_per_sqm_per_year', 'total_rad_Whm2'], axis=1) \
         .sum(axis=0) \
         .to_frame() \
         .T
@@ -806,6 +808,7 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
     bia_to_write.insert(loc=0, column='BUILDING', value=building_name)
     bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year_a', value=yield_kg_per_sqm_per_year_a)
     bia_to_write.insert(loc=4, column='yield_kg_per_sqm_per_year_i', value=yield_kg_per_sqm_per_year_i)
+    bia_to_write.pop('srf_index')
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv" \

@@ -51,7 +51,6 @@ def calc_properties_crop_db(type_crop):
 
     data = pd.read_excel(database_path, sheet_name="crop")
     crop_properties = data[data['type_crop'] == type_crop].reset_index().T.to_dict()[0]
-    print('mmm',crop_properties)
 
     return crop_properties
 
@@ -159,7 +158,7 @@ def calc_crop_cycle(config, building_name, type_crop):
 
     """
 
-    print("Calculating the crop growing information for {type_crop} on Building {building}."
+    print("Calculating the planting information for {type_crop} on Building {building}."
           .format(type_crop=type_crop, building=building_name))
 
     # get the properties of the selected crop

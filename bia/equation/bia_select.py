@@ -1,6 +1,6 @@
 """
 This script creates:
-the crop profile for each building surface, based on one of the following user-defined objectives:
+the crop profile and planting calendar for each building surface, based on one of the following user-defined objectives:
 
 environmental impacts including GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre),
 costs including capital and operational expenditures (USD)
@@ -28,7 +28,7 @@ import pandas as pd
 from geopandas import GeoDataFrame as gdf
 import numpy as np
 
-from bia.equation.bia_metric import calc_bia_metric, filter_crop_srf
+from bia.equation.bia_metric import calc_bia_metric
 from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
     calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db, calc_n_cycle_season
 
@@ -67,13 +67,15 @@ def calc_bia_crop_profile(locator, config, building_name):
     bia_calendar_srf_df_to_filter = calc_crop_calendar(locator, config, building_name)
 
     # filter out the unwanted surfaces
-    bia_calendar_srf_df_filtered = filter_crop_srf(locator, config, building_name, bia_calendar_srf_df_to_filter)
+    bia_calendar_srf_df_filtered = filter_crop_srf_profiler(locator, config, building_name,
+                                                            bia_calendar_srf_df_to_filter)
 
     # write the results to disk
     # write to disk
-    output_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_BIA_crop_profile.csv" \
+    output_path = config.scenario + \
+                  "/outputs/data/potentials/agriculture/{building}_BIA_crop_profile and planting calendar.csv" \
         .format(building=building_name)
-    bia_calendar_srf_df_filtered.to_csv(output_path, index=True, na_rep=0)
+    bia_calendar_srf_df_filtered.to_csv(output_path, index=False, na_rep=0)
 
     print('BIA crop profiles for each surface on Building', building_name,
           'have been created - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
@@ -176,14 +178,14 @@ def calc_crop_rank(locator, config, building_name):
     # create the rank of crop types for each surface
     # first, get the indices i that would sort the genres in descending (for BIA metrics that max is preferred)
     if bia_metric_obj == 'CropYield':
-        crop_rank_i_srf = np.argsort(bia_metric_obj_matrix_df.to_numpy() * -1, axis=1).tolist()
+        i = np.argsort(bia_metric_obj_matrix_df.to_numpy() * -1, axis=1)
     else:   # ascending (for BIA metrics that min is preferred)
-        crop_rank_i_srf = np.argsort(bia_metric_obj_matrix_df.to_numpy() * 1, axis=1).tolist()
+        i = np.argsort(bia_metric_obj_matrix_df.to_numpy() * 1, axis=1)
     # second, create a new DataFrame
-    bia_crop_matrix_df = pd.DataFrame(bia_metric_obj_matrix_df.columns[crop_rank_i_srf],
-                                      columns=range(1, crop_rank_i_srf.shape[1] + 1))
+    bia_crop_matrix_df = pd.DataFrame(bia_metric_obj_matrix_df.columns[i], columns=range(1, i.shape[1] + 1))
     # bia_crop_matrix_df.add_prefix('Rank')
     crop_rank_type_srf = bia_crop_matrix_df.values.tolist()
+    crop_rank_i_srf = i.tolist()
 
     return crop_rank_i_srf, crop_rank_type_srf
 
@@ -199,11 +201,13 @@ def calc_crop_calendar(locator, config, building_name):
     :param building_name: list of building names in the case study
     :type building_name: Series
 
-    :return: bia_calendar_srf_df: calendars of 365 days with each day specified the crop type to grow
+    :return: bia_profile_srf_df: calendars of 365 days with each day specified the crop type to grow
     for (all) each building surface
-    :type bia_calendar_srf_df: DataFrame
+    :type bia_profile_srf_df: DataFrame
 
     """
+
+    print('Creating the crop profiles and planting calendars...')
 
     # get the user-defined list of crop types
     types_crop = config.crop_profile.types_crop
@@ -249,12 +253,76 @@ def calc_crop_calendar(locator, config, building_name):
         calendar_to_fill.insert(loc=0, column='srf', value=range(n_surface))
 
         for surface in range(n_surface):
-            calendar_to_fill.iat[surface, crop_profile_srf_ranked[surface][n]] = types_crop[n]
-            calendar_to_merge.append(calendar_to_fill)  # a list
+
+            calendar_to_fill.at[surface, crop_profile_srf_ranked[surface][n]] = types_crop[n]
+            calendar_to_fill.fillna('', inplace=True)
+
+
+        calendar_to_merge.append(calendar_to_fill)  # a list
 
     # merge the calendars into a single DataFrame (calendar)
     # if a day is eligible for more than one crop type, the crop types are linked with a comma in the preferred rank
     bia_calendar_srf_df = pd.concat(calendar_to_merge, axis=0)
-    bia_calendar_srf_df.groupby(["srf"], as_index=False).agg(",".join).pop('srf')
+    bia_calendar_srf_df = bia_calendar_srf_df.groupby('srf')\
+        .agg(lambda x: '/'.join(x.astype(str)))\
+        .reset_index(drop=True)
 
-    return bia_calendar_srf_df
+    # indicate the no planting day/surface
+    to_replace = '/' * (n_crops_type - 1)
+    bia_calendar_srf_df = bia_calendar_srf_df.replace(to_replace, 'no planting')
+
+    # get building surface info and join with the planting calendar
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+        .format(building=building_name)
+    cea_dli_results = pd.read_csv(dli_path)
+    info_srf_df = cea_dli_results.loc[:, ['srf_index', 'AREA_m2', 'TYPE', 'wall_type']]
+    bia_profile_srf_df = pd.concat([info_srf_df, bia_calendar_srf_df], axis=1)
+
+
+    return bia_profile_srf_df
+
+
+# filter by crop on wall/roof/window user-defined in config.file
+def filter_crop_srf_profiler(locator, config, building_name, bia_metric_srf_df):
+    """
+    This function links the BIA metrics with surface info,
+    then filters out the calculate metrics of the surfaces that are not intended by the user to have BIA.
+
+    :param locator: An InputLocator to locate input files
+    :type locator: cea.inputlocator.InputLocator
+
+    :param building_name: list of building names in the case study
+    :type building_name: Series
+
+    :return: DataFrame with BIA crop profiles and planting calendar for each surface intended to have BIA.
+
+    """
+
+
+    # get the user inputs
+    bool_roof = config.crop_profile.crop_on_roof
+    bool_window = config.crop_profile.crop_on_window
+    bool_wall_u = config.crop_profile.crop_on_wall_under_window
+    bool_wall_b = config.crop_profile.crop_on_wall_between_window
+
+    # create the mask based the user input
+    mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window',
+                                    'mask_wall_upper', 'mask_wall_lower',
+                                    'mask_wall_b', 'mask'])
+    mask_df['mask_roof'] = [bool_roof if x == 'roofs' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_window'] = [bool_window if x == 'windows' else 0 for x in bia_metric_srf_df['TYPE'].tolist()]
+    mask_df['mask_wall_upper'] = [bool_wall_u if x == 'upper' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask_wall_lower'] = [bool_wall_u if x == 'lower' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask_wall_b'] = [bool_wall_b if x == 'side' else 0 for x in bia_metric_srf_df['wall_type'].tolist()]
+    mask_df['mask'] = [True if a == True or b == True or c == True or d == True or e == True else False
+                       for a, b, c, d, e in zip(mask_df['mask_roof'],
+                                                mask_df['mask_window'],
+                                                mask_df['mask_wall_upper'],
+                                                mask_df['mask_wall_lower'],
+                                                mask_df['mask_wall_b']
+                                                )]
+
+    # remove the unwanted surfaces
+    bia_metric_srf_df_filtered = bia_metric_srf_df[mask_df['mask']]
+
+    return bia_metric_srf_df_filtered
