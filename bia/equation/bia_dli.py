@@ -80,17 +80,20 @@ def calc_DLI(locator, config, building_name):
         # merge the calculated results
         sensors_metadata_clean_DLI_daily = pd.merge(sensors_metadata_clean, sensors_DLI_daily, left_index=True,
                                                     right_index=True, how="left")
+        sensors_metadata_clean_DLI_daily.reset_index(inplace=True)
+        sensors_metadata_clean_DLI_daily = sensors_metadata_clean_DLI_daily.rename(columns={'index': 'srf_index'})
 
         # write the daily DLI results
         dir = config.scenario + "/outputs/data/potentials/agriculture"
         if not os.path.exists(dir):
             os.mkdir(dir)
         output_path = dir + "/{building}_DLI_daily.csv".format(building=building_name)
-        sensors_metadata_clean_DLI_daily.to_csv(output_path, index=True,
+        sensors_metadata_clean_DLI_daily.to_csv(output_path, index=False,
                                     float_format='%.2f',
                                     na_rep=0)  # write sensors metadata and daily DLI
 
-        print('Calculations of DLI for each sensor on Building', building_name, 'done - time elapsed: %.2f seconds' % (time.perf_counter() - t0))
+        print('Calculations of DLI for each sensor on Building', building_name, 'done - time elapsed: %.2f seconds'
+              % (time.perf_counter() - t0))
 
     else:  # This loop is activated when a building has not sufficient solar potential
         print("Unfortunately, Building", building_name, "has no BIA potential.")
@@ -311,7 +314,8 @@ def filter_low_potential(radiation_json_path, metadata_csv_path, config):
     # set min yearly radiation threshold for sensor selection
     # keep sensors above min production in sensors_rad
     max_annual_radiation = sensors_rad_sum.max().values[0]
-    annual_radiation_threshold_Whperm2 = float(config.agriculture.annual_radiation_threshold_BIA)*1000
+    annual_radiation_threshold_Whperm2 = 0
+    # annual_radiation_threshold_Whperm2 = float(config.agriculture.annual_radiation_threshold_BIA)*1000
     sensors_metadata_clean = sensors_metadata[sensors_metadata.total_rad_Whm2 >= annual_radiation_threshold_Whperm2]
     sensors_rad_clean = sensors_rad[sensors_metadata_clean.index.tolist()]  # keep sensors above min radiation
 

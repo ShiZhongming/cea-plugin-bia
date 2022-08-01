@@ -35,7 +35,7 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-def calc_properties_crop_db(config):
+def calc_properties_crop_db(type_crop):
     """
     To retrieve the crop properties stored in the BIA database for the selected crop type.
 
@@ -49,7 +49,6 @@ def calc_properties_crop_db(config):
     dir = os.path.dirname(__file__)
     database_path = os.path.join(dir, "bia_data.xlsx")
 
-    type_crop = config.agriculture.type_crop
     data = pd.read_excel(database_path, sheet_name="crop")
     crop_properties = data[data['type_crop'] == type_crop].reset_index().T.to_dict()[0]
 
@@ -127,7 +126,7 @@ def calc_chunk_day_crop(data):
     yield consecutive_list
 
 
-def calc_crop_cycle(config, building_name):
+def calc_crop_cycle(config, building_name, type_crop):
 
     """
      To spot the days that are suitable for the selected crop type based on its crop property for each building
@@ -159,10 +158,11 @@ def calc_crop_cycle(config, building_name):
 
     """
 
-    print("Calculating the number of crop cycles for Building {building}.".format(building=building_name))
+    print("Calculating the planting information for {type_crop} on Building {building}."
+          .format(type_crop=type_crop, building=building_name))
 
     # get the properties of the selected crop
-    crop_properties = calc_properties_crop_db(config)
+    crop_properties = calc_properties_crop_db(type_crop)
 
     # unpack the properties of the selected crop type: cycle days
     cycl_i_day = int(crop_properties.get('cycl_i_day'))  # growth cycle in days: initial
@@ -171,10 +171,10 @@ def calc_crop_cycle(config, building_name):
 
     # unpack the properties of the selected crop type: DLI
     dli_l = float(crop_properties.get('dli_l'))    # DLI requirement: lower bound
-    dli_u = float(crop_properties.get('dli_u'))    # DLI requirement: upper bound
+    # dli_u = float(crop_properties.get('dli_u'))    # DLI requirement: upper bound
 
     # inputs to select the surface and calculate the number of growth cycles
-    dli_criteria = (dli_l + dli_u) / 2   # DLI requirement for the selected crop
+    dli_criteria = dli_l   # DLI requirement for the selected crop
 
     # read the daily DLI results
     dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
