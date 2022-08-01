@@ -11,9 +11,13 @@ Open CEA console and enter the following command to install the plugin to CEA:
 ```pip install -e /Users/your_name/Documents/GitHub/cea-plugin-bia```
 
 
-In the CEA console, enter the following command to enable the plugin in CEA:
+In the CEA console, enter the following command to enable the BIA-assessment plugin in CEA:
 
 ```cea-config write --general:plugins bia.bia_assessment.BiaAssessmentPlugin```
+
+In the CEA console, enter the following command to enable the BIA-profiler plugin in CEA:
+
+```cea-config write --general:plugins bia.bia_profiler.BiaProfilerPlugin```
 
 Now you should be able to enter the following command to run the plugin:
 
