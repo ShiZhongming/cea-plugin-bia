@@ -84,6 +84,10 @@ def calc_DLI(locator, config, building_name):
         sensors_metadata_clean_DLI_daily = sensors_metadata_clean_DLI_daily.rename(columns={'index': 'srf_index'})
 
         # write the daily DLI results
+        dir_potentials = config.scenario + "/outputs/data/potentials"
+        if not os.path.exists(dir_potentials):
+            os.mkdir(dir_potentials)
+
         dir = config.scenario + "/outputs/data/potentials/agriculture"
         if not os.path.exists(dir):
             os.mkdir(dir)

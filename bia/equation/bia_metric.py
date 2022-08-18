@@ -425,7 +425,14 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
                     yield_g = yield_g_f + yield_g_b
 
             yield_srf.append(yield_g/1000)  # record the results and convert to kilograms
-            yield_srf_per_sqm.append(yield_g/1000/area)
+
+            if area == 0:
+                yield_srf_per_sqm.append(0)     # to avoid the error that some surface area may equal to 0
+                print("Please check the surface area of Srf{surface} of Building {building}."
+                      .format(surface=surface, building=building_name))
+
+            else:
+                yield_srf_per_sqm.append(yield_g / 1000 / area)
 
         # merged the results for each surface in DataFrame
         data = np.array_split(yield_srf + yield_srf_per_sqm, 2)
@@ -441,6 +448,7 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
         pass
 
     return yield_srf_df
+
 
 # calculate the three environmental impacts
 def calc_crop_environmental_impact(locator, config, building_name, cea_dli_results, date_srf, yield_srf_df):

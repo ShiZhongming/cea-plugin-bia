@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/plugin.config" beforeDir="false" afterPath="$PROJECT_DIR$/bia/plugin.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_dli.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_dli.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_metric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/~$bia_data.xlsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
