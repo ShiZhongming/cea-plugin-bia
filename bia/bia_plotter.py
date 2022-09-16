@@ -1,6 +1,6 @@
 """
 This script calculates:
-the main script to activate all crop profiling equations.
+the main script to activate all equations for preparing the data for visualisation.
 """
 
 from __future__ import division
@@ -18,14 +18,12 @@ from multiprocessing import Pool
 from csv import writer
 
 import pandas as pd
-
 import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
-from bia.equation.bia_dli import calc_DLI
-from bia.equation.bia_crop_cycle import calc_crop_cycle
-from bia.equation.bia_metric import calc_bia_metric
-from bia.equation.bia_select import calc_bia_crop_profile
+
+from bia.equation.bia_visual import calc_bia_visual_each
+from bia.equation.bia_visual import calc_bia_visual_all
+
+
 
 __author__ = "Zhongming Shi"
 __copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
@@ -38,7 +36,7 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-class BiaProfilerPlugin(cea.plugin.CeaPlugin):
+class BiaPlotterPlugin(cea.plugin.CeaPlugin):
 
     pass
 
@@ -48,24 +46,30 @@ def main(config):
     assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
     locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
 
-    # List of crop types considered for the building-integrate agriculture (BIA) crop profiling
+    # List of crop types included for the building-integrate agriculture (BIA) visualisation
     # At least two types
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.crop_plot.types_crop
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
 
-    # activate the function that calculates
-    # the BIA metrics for each building surface for each candidate crop type
-    # all the results are stored in the folder "agriculture\surface\"
+    # activate the function that generates
+    # .csv files to be used as the input for bia visualisation
+    # all the results are stored in the folder "agriculture\plots\"
 
     for type_crop in range(len(types_crop)):
-        # activate the bia metric equations for every surface
-        cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
+        # activate the equations for generating .csv files to be used as the input for bia visualisation
+        # for each building
+        # for each crop type
+        # and write to disk
+        cea.utilities.parallel.vectorize(calc_bia_visual_each, num_process)\
             (repeat(locator, n), repeat(config, n), building_names, repeat(types_crop[type_crop], n))
 
-    # Create the crop profiles for each building's surface and write to disk
-    cea.utilities.parallel.vectorize(calc_bia_crop_profile, num_process)\
+    # Generate .csv files to be used as the input for bia visualisation
+    # for each building
+    # for all crop types combined
+    # and write to disk
+    cea.utilities.parallel.vectorize(calc_bia_visual_all, num_process)\
         (repeat(locator, n), repeat(config, n), building_names)
 
 if __name__ == '__main__':
