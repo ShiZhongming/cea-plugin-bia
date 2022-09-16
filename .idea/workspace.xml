@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/plugin.config" beforeDir="false" afterPath="$PROJECT_DIR$/bia/plugin.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_select.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_select.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,6 +93,7 @@
       <workItem from="1657110778054" duration="517000" />
       <workItem from="1657146375630" duration="59867000" />
       <workItem from="1657810430784" duration="1235000" />
+      <workItem from="1662994205678" duration="2468000" />
     </task>
     <servers />
   </component>
