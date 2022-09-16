@@ -176,7 +176,7 @@ def calc_crop_rank(locator, config, building_name):
     bia_metric_obj_matrix_df = bia_metric_obj_matrix_df.reset_index(drop=True)
 
     # create the rank of crop types for each surface
-    # first, get the indices i that would sort the genres in descending (for BIA metrics that max is preferred)
+    # first, get the indices i that would sort the crop types in descending (for BIA metrics that max is preferred)
     if bia_metric_obj == 'CropYield':
         i = np.argsort(bia_metric_obj_matrix_df.to_numpy() * -1, axis=1)
     else:   # ascending (for BIA metrics that min is preferred)
@@ -190,7 +190,7 @@ def calc_crop_rank(locator, config, building_name):
     return crop_rank_i_srf, crop_rank_type_srf
 
 
-# rank the crop types for each surface based on the user-defined BIA objective
+# create the crop calendar
 def calc_crop_calendar(locator, config, building_name):
     """
     This function ranks the crop types for each surface based on the user-defined BIA objective.
