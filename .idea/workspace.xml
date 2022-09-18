@@ -4,8 +4,10 @@
     <list default="true" id="2860034e-422b-4d57-ae17-ff467bfb08f8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/bia_plotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_plotter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/bia_profiler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/bia_profiler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/equation/bia_select.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_select.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bia/equation/bia_visual.py" beforeDir="false" afterPath="$PROJECT_DIR$/bia/equation/bia_visual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bia/plugin.config" beforeDir="false" afterPath="$PROJECT_DIR$/bia/plugin.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bia/scripts.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bia/scripts.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,9 +113,10 @@
     </state>
     <state x="253" y="395" key="com.intellij.ide.util.TipDialog/45.25.1395.875@45.25.1395.875" timestamp="1657185766806" />
     <state x="420" y="471" key="com.intellij.ide.util.TipDialog/577.1105.1440.875/45.25.2515.1055@45.25.2515.1055" timestamp="1655191032796" />
-    <state x="499" y="219" width="670" height="561" key="search.everywhere.popup" timestamp="1659191419915">
-      <screen x="45" y="25" width="1395" height="875" />
+    <state x="655" y="259" width="901" height="677" key="search.everywhere.popup" timestamp="1663480248190">
+      <screen x="45" y="25" width="1875" height="1055" />
     </state>
+    <state x="655" y="259" width="901" height="677" key="search.everywhere.popup/286.1105.1440.875/45.25.1875.1055@45.25.1875.1055" timestamp="1663480248190" />
     <state x="498" y="219" width="671" height="561" key="search.everywhere.popup/44.25.1396.875@44.25.1396.875" timestamp="1658937523725" />
     <state x="499" y="219" width="670" height="561" key="search.everywhere.popup/45.25.1395.875@45.25.1395.875" timestamp="1659191419915" />
   </component>

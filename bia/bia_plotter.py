@@ -57,19 +57,13 @@ def main(config):
     # .csv files to be used as the input for bia visualisation
     # all the results are stored in the folder "agriculture\plots\"
 
-    for type_crop in range(len(types_crop)):
-        # activate the equations for generating .csv files to be used as the input for bia visualisation
-        # for each building
-        # for each crop type
-        # and write to disk
-        cea.utilities.parallel.vectorize(calc_bia_visual_each, num_process)\
-            (repeat(locator, n), repeat(config, n), building_names, repeat(types_crop[type_crop], n))
-
-    # Generate .csv files to be used as the input for bia visualisation
+    # activate the equations for generating .csv files to be used as the input for bia visualisation
     # for each building
-    # for all crop types combined
+    # for each crop type's planting calendar
+    # for all crop types combined's planting calendar
+    # for all information to be included in the dashboard
     # and write to disk
-    cea.utilities.parallel.vectorize(calc_bia_visual_all, num_process)\
+    cea.utilities.parallel.vectorize(calc_bia_visual, num_process)\
         (repeat(locator, n), repeat(config, n), building_names)
 
 if __name__ == '__main__':

@@ -71,7 +71,6 @@ def calc_bia_crop_profile(locator, config, building_name):
                                                             bia_calendar_srf_df_to_filter)
 
     # write the results to disk
-    # write to disk
     output_path = config.scenario + \
                   "/outputs/data/potentials/agriculture/{building}_BIA_crop_profile and planting calendar.csv" \
         .format(building=building_name)

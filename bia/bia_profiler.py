@@ -43,7 +43,6 @@ class BiaProfilerPlugin(cea.plugin.CeaPlugin):
     pass
 
 
-
 def main(config):
     assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
     locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
