@@ -299,7 +299,6 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
     formatted_all_flor_df.to_csv(output_path, index=False, na_rep=0)
 
 
-
 # generate each crop type's BIA assessment and write to disk
 def visualise_crop_assessment_by_orie_floo(locator, config, building_name):
 
