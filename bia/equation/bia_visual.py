@@ -112,15 +112,23 @@ def check_bia_exist(locator, config, building_name):
     :param building_name: list of building names in the case study
     :type building_name: Series
 
-    :return exist_test: 0 if all the required files are in place;
+    :return exist_test: Integer
+    0 if all the required files are in place;
     1 if not all the required files are in place (missing BIA profiler's only);
     2 if not all the required files are in place (missing BIA assessment's only);
     3 if not all the required files are in place (missing both BIA profiler's and BIA assessment's)
 
     :type exist_test: Integer
     """
+    # all the crop types to be plotted
+    types_crop = config.crop_profile.types_crop
 
-    # check through the files created by BIA profiler or
+    # the path to the overall planting calendar
+    crop_profile_path = config.scenario + \
+                  "/outputs/data/potentials/agriculture/{building}_BIA_crop_profile and planting calendar.csv" \
+        .format(building=building_name)
+
+    # check through the files created by BIA Profiler/BIA Assessment
     test_list = []
     for type_crop in range(len(types_crop)):
         # the path to the BIA assessment results created by BIA profiler
@@ -184,6 +192,10 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
 
     # read the overall planting calendar
     crop_profile_df = pd.read_csv(crop_profile_path)
+    crop_calendar_df = pd.merge(info_srf_df, crop_profile_df, how='left',
+                               left_on=['srf_index'],
+                               right_on=['srf_index']
+                               )
 
     # create an empty list to store the calendars for each crop type
     calendar_list = []
@@ -199,17 +211,22 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
         # all surfaces are grouped by floor number and orientation
         flor_df = info_srf_df \
             .groupby(['orientation', 'n_floor']) \
-            .agg({"srf_all": "sum"}).reset_index()
+            .agg({"srf_index": "sum"}).reset_index()
 
         for day in range(365):
+            # list of eligible crops for each srf
+            crops_list = crop_calendar_df[str(day)].tolist()
+
             # label the days that are suitable to grow such crop type
-            srf_all_df[day] = [1 if type_crop in x else 0 for x in crop_profile_df[day]]
+            srf_all_df[str(day)] = [1 if types_crop[type_crop] in str(x) else 0 for x in crops_list]
 
             # create the DataFrame of eligible surfaces
             # grouped by floor number and orientation
-            srf_eligible_df = srf_all_df[srf_all_df[day] == 1] \
+            # calculate the number of surfaces the surfaces that are suitable to grow such crop type
+            # for the same floor number and orientation
+            srf_eligible_df = srf_all_df[srf_all_df[str(day)] == 1] \
                 .groupby(['orientation', 'n_floor']) \
-                .agg({"srf_eligible": "sum"}).reset_index()
+                .agg({str(day): "sum"}).reset_index()
 
             # add the column of eligible surfaces grouped by floor number and orientation
             flor_df = pd.merge(flor_df, srf_eligible_df, how='left',
@@ -217,32 +234,28 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
                                right_on=['orientation', 'n_floor']
                                )
 
-            # calculate the number of surfaces the surfaces that are suitable to grow such crop type
-            # for the same floor number and orientation
-            flor_df['suit'] = srf_all_df[day] \
-                .groupby(['orientation', 'n_floor']) \
-                .sum()
-
             # calculate the number of surfaces
             # for the same floor number and orientation
-            flor_df['count'] = srf_all_df[day] \
+            flor_df['count'] = srf_all_df \
                 .groupby(['orientation', 'n_floor']) \
                 .count()
+                .reset_index()[str(day)]
 
             # calculate the percentage of surfaces suitable to grow such crop type
             # for the same floor number and orientation
-            flor_df[day] = flor_df['suit'] / flor_df['count']
+            flor_df[str(day)] = flor_df[str(day)] / flor_df['count']
 
             # drop the 'suit' and 'count' columns
-            flor_df = flor_df.drop(columns=['suit', 'count'])
+            flor_df = flor_df.drop(columns=['count'])
 
         # append each crop type's calendar into a list
         calendar_list.append(srf_all_df)
 
         # process the DataFrame (each crop type) to the needed format
         date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
+        handle = ['orientation','n_floor','srf_index'] + date
         formatted_flor_df = flor_df.T.reset_index(drop=True)
-        formatted_flor_df.insert(0, 'date', date)
+        formatted_flor_df.insert(0, 'date', handle)
 
         # write the outcome (each crop type) to disk
         output_path = config.scenario + \
@@ -251,7 +264,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
         formatted_flor_df.to_csv(output_path, index=False, na_rep=0)
 
     # create a combined calendar DataFrame
-    srf_all_df = pd.concat(calendar_list).groupby('srf_index')[range(365)].sum().reset_index()
+    srf_all_df = pd.concat(calendar_list).groupby('srf_index')[str(range(365))].sum().reset_index()
 
     # calculate the number of surfaces the surfaces that are suitable to grow such crop type
     # for the same floor number and orientation
@@ -307,7 +320,7 @@ def visualise_crop_assessment_by_orie_floo(locator, config, building_name):
     info_srf_df = cea_dli_results.loc[:, ['srf_index', 'orientation', 'n_floor', 'wall_type', 'AREA_m2']]
 
     # all the crop types to be plotted
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.crop_plot.types_crop
 
     # loop for each crop type
     for type_crop in range(len(types_crop)):

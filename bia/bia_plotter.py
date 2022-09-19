@@ -20,8 +20,7 @@ from csv import writer
 import pandas as pd
 import cea.utilities.parallel
 
-from bia.equation.bia_visual import calc_bia_visual_each
-from bia.equation.bia_visual import calc_bia_visual_all
+from bia.equation.bia_visual import calc_bia_visual
 
 
 
@@ -48,7 +47,6 @@ def main(config):
 
     # List of crop types included for the building-integrate agriculture (BIA) visualisation
     # At least two types
-    types_crop = config.crop_plot.types_crop
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
