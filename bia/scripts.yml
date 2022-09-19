@@ -36,5 +36,5 @@ Urban agriculture:
     interfaces: [cli, dashboard]
     module: bia.bia_plotter
     parameters: ['general:scenario', 'general:multiprocessing',
-                 'general:number-of-cpus-to-keep-free', 'crop-profile:types-crop'
+                 'general:number-of-cpus-to-keep-free', 'crop-plot:types-crop'
                 ]

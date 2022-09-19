@@ -121,7 +121,7 @@ def check_bia_exist(locator, config, building_name):
     :type exist_test: Integer
     """
     # all the crop types to be plotted
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.crop_plot.types_crop
 
     # the path to the overall planting calendar
     crop_profile_path = config.scenario + \
@@ -188,7 +188,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
         .format(building=building_name)
 
     # all the crop types to be plotted
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.crop_plot.types_crop
 
     # read the overall planting calendar
     crop_profile_df = pd.read_csv(crop_profile_path)
@@ -238,8 +238,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
             # for the same floor number and orientation
             flor_df['count'] = srf_all_df \
                 .groupby(['orientation', 'n_floor']) \
-                .count()
-                .reset_index()[str(day)]
+                .count().reset_index()[str(day)]
 
             # calculate the percentage of surfaces suitable to grow such crop type
             # for the same floor number and orientation
@@ -249,7 +248,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
             flor_df = flor_df.drop(columns=['count'])
 
         # append each crop type's calendar into a list
-        calendar_list.append(srf_all_df)
+        calendar_list.append(srf_all_df.iloc[:, 4:])
 
         # process the DataFrame (each crop type) to the needed format
         date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
@@ -264,28 +263,34 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
         formatted_flor_df.to_csv(output_path, index=False, na_rep=0)
 
     # create a combined calendar DataFrame
-    srf_all_df = pd.concat(calendar_list).groupby('srf_index')[str(range(365))].sum().reset_index()
+    srf_all_df = sum(calendar_list)
+    srf_all_df = pd.concat([info_srf_df.loc[:, ['orientation', 'n_floor']], srf_all_df], axis=1)
 
     # calculate the number of surfaces the surfaces that are suitable to grow such crop type
     # for the same floor number and orientation
-    srf_all_df_suit = srf_all_df \
+    flor_all_df_suit = srf_all_df \
         .groupby(['orientation', 'n_floor']) \
-        .sum()
+        .sum().reset_index()
 
     # calculate the number of surfaces
     # for the same floor number and orientation
     flor_all_df_count = srf_all_df \
         .groupby(['orientation', 'n_floor']) \
-        .count()
+        .count().reset_index()
+
+    # get the info after grouping
+    flor_all_df_info = flor_all_df_suit.loc[:, ['orientation', 'n_floor']]
 
     # calculate the percentage of surfaces suitable to grow such crop type
     # for the same floor number and orientation
-    flor_all_df = flor_all_df_suit.div(srf_all_df_count)
+    flor_all_df_day = flor_all_df_suit.iloc[:, 2:].div(flor_all_df_count.iloc[:, 4:])
+    flor_all_df = pd.concat([flor_all_df_info, flor_all_df_day], axis=1)
 
     # process the DataFrame (all crop types) to the needed format
     date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
+    handle = ['orientation', 'n_floor'] + date
     formatted_all_flor_df = flor_all_df.T.reset_index(drop=True)
-    formatted_all_flor_df.insert(0, 'date', date)
+    formatted_all_flor_df.insert(0, 'date', handle)
 
     # write the outcome (all crop types) to disk
     output_path = config.scenario + \
@@ -336,15 +341,15 @@ def visualise_crop_assessment_by_orie_floo(locator, config, building_name):
 
         # merge the info DataFrame and BIA assessment DataFrame
         srf_df = pd.merge(info_srf_df, crop_assessment_df, how='left',
-                          left_on=['orientation', 'n_floor'],
-                          right_on=['orientation', 'n_floor']
+                          left_on=['srf_index'],
+                          right_on=['srf_index']
                           )
 
         # create a DataFrame to store the outcome
         # all surfaces are grouped by floor number and orientation
         flor_df = info_srf_df \
             .groupby(['orientation', 'n_floor']) \
-            .agg({"srf_all": "sum"}).reset_index()
+            .agg({"srf_index": "sum"}).reset_index()
 
         #### Calculations
 
@@ -415,12 +420,15 @@ def visualise_crop_assessment_by_orie_floo(locator, config, building_name):
             .groupby(['orientation', 'n_floor']) \
             .agg({"opex_sell_USD_per_year": "sum"}).reset_index()['opex_sell_USD_per_year'].tolist()
         flor_revenue_sqm = [x / y for x, y in zip(flor_revenue, flor_area)] # per sqm surface area
+        flor_revenue_sqm_cr = [i * -1 for i in flor_revenue_sqm]
 
         # net annual revenue in USD by floor number and orientation
         flor_revenue_net = srf_df \
             .groupby(['orientation', 'n_floor']) \
-            .agg({"opex_all_USD_per_year": "sum"}).reset_index()['opex_all_USD_per_year'].tolist() * (-1)
+            .agg({"opex_all_USD_per_year": "sum"}).reset_index()['opex_all_USD_per_year'].tolist()
+
         flor_revenue_net_sqm = [x / y for x, y in zip(flor_revenue_net, flor_area)] # per sqm surface area
+        flor_revenue_net_sqm_cr = [i * -1 for i in flor_revenue_net_sqm]
 
         #### compile the results into one DataFrame
         flor_df['yield_kg_per_sqm_surface_area_per_year'] = flor_yield_sqm
@@ -431,8 +439,8 @@ def visualise_crop_assessment_by_orie_floo(locator, config, building_name):
         flor_df['water_l_per_sqm_bia'] = flor_water_sqm
         flor_df['water_l_per_sqm_saving'] = flor_water_saving_sqm
         flor_df['capex_per_sqm_USD'] = flor_capex_sqm
-        flor_df['revenue_per_sqm_USD_per_year'] = flor_revenue_sqm
-        flor_df['net_revenue_per_sqm_USD_per_year'] = flor_revenue_net_sqm
+        flor_df['revenue_per_sqm_USD_per_year'] = flor_revenue_sqm_cr
+        flor_df['net_revenue_per_sqm_USD_per_year'] = flor_revenue_net_sqm_cr
 
         # process the DataFrame (all crop types) to the needed format
         formatted_flor_df = flor_df
