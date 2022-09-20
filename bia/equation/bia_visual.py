@@ -180,7 +180,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
     cea_dli_results = pd.read_csv(dli_path)
 
     # gather the floor number and orientation information [e(ast), w(est), s(outh), n(orth)] for each building surface
-    info_srf_df = cea_dli_results.loc[:, ['srf_index', 'orientation', 'n_floor', 'wall_type']]
+    info_srf_df = cea_dli_results.loc[:, ['srf_index', 'orientation', 'n_floor']]
 
     # the path to the overall planting calendar
     crop_profile_path = config.scenario + \
@@ -264,7 +264,13 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
 
     # create a combined calendar DataFrame
     srf_all_df = sum(calendar_list)
-    srf_all_df = pd.concat([info_srf_df.loc[:, ['orientation', 'n_floor']], srf_all_df], axis=1)
+    srf_all_df = pd.concat([info_srf_df.loc[:, ['srf_index', 'orientation', 'n_floor']], srf_all_df], axis=1)
+
+    # create a DataFrame to store the outcome
+    # all surfaces are grouped by floor number and orientation
+    flor_all_df_info = info_srf_df \
+        .groupby(['orientation', 'n_floor']) \
+        .agg({"srf_index": "sum"}).reset_index()
 
     # calculate the number of surfaces the surfaces that are suitable to grow such crop type
     # for the same floor number and orientation
@@ -278,17 +284,14 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
         .groupby(['orientation', 'n_floor']) \
         .count().reset_index()
 
-    # get the info after grouping
-    flor_all_df_info = flor_all_df_suit.loc[:, ['orientation', 'n_floor']]
-
     # calculate the percentage of surfaces suitable to grow such crop type
     # for the same floor number and orientation
-    flor_all_df_day = flor_all_df_suit.iloc[:, 2:].div(flor_all_df_count.iloc[:, 4:])
+    flor_all_df_day = flor_all_df_suit.iloc[:, 2:].div(flor_all_df_count.iloc[:, 2:])
     flor_all_df = pd.concat([flor_all_df_info, flor_all_df_day], axis=1)
 
     # process the DataFrame (all crop types) to the needed format
     date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
-    handle = ['orientation', 'n_floor'] + date
+    handle = ['orientation', 'n_floor', 'srf_index'] + date
     formatted_all_flor_df = flor_all_df.T.reset_index(drop=True)
     formatted_all_flor_df.insert(0, 'date', handle)
 
