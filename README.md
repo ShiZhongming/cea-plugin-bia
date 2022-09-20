@@ -19,6 +19,13 @@ In the CEA console, enter the following command to enable the BIA-profiler plugi
 
 ```cea-config write --general:plugins bia.bia_profiler.BiaProfilerPlugin```
 
+In the CEA console, enter the following command to enable the BIA-plotter plugin in CEA:
+
+```cea-config write --general:plugins bia.bia_plotter.BiaPlotterPlugin```
+
+
 Now you should be able to enter the following command to run the plugin:
 
 ```cea bia-assessment```
+```cea bia-profiler```
+```cea bia-plotter```
