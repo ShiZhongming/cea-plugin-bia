@@ -252,7 +252,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
 
         # process the DataFrame (each crop type) to the needed format
         date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
-        handle = ['orientation','n_floor','srf_index'] + date
+        handle = ['orientation', 'n_floor', 'srf_index'] + date
         formatted_flor_df = flor_df.T.reset_index(drop=True)
         formatted_flor_df.insert(0, 'date', handle)
 
