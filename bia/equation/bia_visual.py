@@ -248,7 +248,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
             flor_df = flor_df.drop(columns=['count'])
 
         # append each crop type's calendar into a list
-        calendar_list.append(srf_all_df.iloc[:, 4:])
+        calendar_list.append(srf_all_df.iloc[:, 3:])
 
         # process the DataFrame (each crop type) to the needed format
         date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
@@ -286,7 +286,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
 
     # calculate the percentage of surfaces suitable to grow such crop type
     # for the same floor number and orientation
-    flor_all_df_day = flor_all_df_suit.iloc[:, 2:].div(flor_all_df_count.iloc[:, 2:])
+    flor_all_df_day = flor_all_df_suit.iloc[:, 2:].div(flor_all_df_count.iloc[:, 3:])
     flor_all_df = pd.concat([flor_all_df_info, flor_all_df_day], axis=1)
 
     # process the DataFrame (all crop types) to the needed format
