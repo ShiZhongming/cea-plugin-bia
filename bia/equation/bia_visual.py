@@ -258,7 +258,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
 
         # write the outcome (each crop type) to disk
         output_path = config.scenario + \
-                      "/outputs/data/potentials/agriculture/plot/{building}_BIA_visual_{type_crop}.csv" \
+                      "/outputs/data/potentials/agriculture/plot/{building}_BIA_planting_calendar_{type_crop}.csv" \
                           .format(building=building_name, type_crop=types_crop[type_crop])
         formatted_flor_df.to_csv(output_path, index=False, na_rep=0)
 
@@ -297,7 +297,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
 
     # write the outcome (all crop types) to disk
     output_path = config.scenario + \
-                  "/outputs/data/potentials/agriculture/plot/{building}_BIA_visual_all_crop_types.csv" \
+                  "/outputs/data/potentials/agriculture/plot/{building}_BIA_planting_calendar_all_crop_types.csv" \
                       .format(building=building_name)
     formatted_all_flor_df.to_csv(output_path, index=False, na_rep=0)
 
