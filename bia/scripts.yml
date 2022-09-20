@@ -32,3 +32,11 @@ Urban agriculture:
       - [get_radiation_metadata, building_name]
       - [get_zone_geometry]
       - [get_radiation_building, building_name]
+
+  - name: bia-plotter
+    label: BIA Plotter
+    description: Generates the csv files for BIA visualisation based on the results of previous two steps (BIA Assessment and BIA Profiler).
+    interfaces: [cli, dashboard]
+    module: bia.bia_plotter
+    parameters: ['general:scenario', 'general:multiprocessing',
+                 'general:number-of-cpus-to-keep-free', 'crop-plot:types-crop'
