@@ -40,3 +40,4 @@ Urban agriculture:
     module: bia.bia_plotter
     parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free', 'crop-plot:types-crop'
+                ]
