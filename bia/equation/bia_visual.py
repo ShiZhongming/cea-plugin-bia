@@ -253,14 +253,13 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
         # process the DataFrame (each crop type) to the needed format
         date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
         handle = ['orientation', 'n_floor', 'srf_index'] + date
-        formatted_flor_df = flor_df.T.reset_index(drop=True)
-        formatted_flor_df.insert(0, 'date', handle)
+        flor_df.columns = handle
 
         # write the outcome (each crop type) to disk
         output_path = config.scenario + \
                       "/outputs/data/potentials/agriculture/plot/{building}_BIA_planting_calendar_{type_crop}.csv" \
                           .format(building=building_name, type_crop=types_crop[type_crop])
-        formatted_flor_df.to_csv(output_path, index=False, na_rep=0)
+        flor_df.to_csv(output_path, index=False, na_rep=0)
 
     # create a combined calendar DataFrame
     srf_all_df = sum(calendar_list)
@@ -292,14 +291,14 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
     # process the DataFrame (all crop types) to the needed format
     date = pd.date_range('1/1/2022', periods=365, freq='D').strftime("%Y-%m-%d").tolist()
     handle = ['orientation', 'n_floor', 'srf_index'] + date
-    formatted_all_flor_df = flor_all_df.T.reset_index(drop=True)
-    formatted_all_flor_df.insert(0, 'date', handle)
+    flor_all_df.columns = handle
+
 
     # write the outcome (all crop types) to disk
     output_path = config.scenario + \
                   "/outputs/data/potentials/agriculture/plot/{building}_BIA_planting_calendar_all_crop_types.csv" \
                       .format(building=building_name)
-    formatted_all_flor_df.to_csv(output_path, index=False, na_rep=0)
+    flor_all_df.to_csv(output_path, index=False, na_rep=0)
 
 
 # generate each crop type's BIA assessment and write to disk
