@@ -699,7 +699,7 @@ def calc_crop_cost(locator, config, building_name,
 
     # merged the results for each surface in DataFrame
     data = np.array_split(capex_infrastructure_srf + capex_soil_srf +
-                          capex_all_a_srf + capex_all_a_srf +
+                          capex_all_srf + capex_all_a_srf +
                           opex_seed_a_srf + opex_pesticide_a_srf + opex_fertilizer_a_srf + opex_water_a_srf +
                           opex_sell_a_srf +
                           opex_all_a_srf,
