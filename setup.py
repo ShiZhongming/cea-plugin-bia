@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
+__copyright__ = "Copyright 2023, Future Cities Laboratory, Singapore - ETH Zurich; " \
                 "University of Calgary, Alberta, Canada"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
-__version__ = "1.3"
+__version__ = "1.4"
 __maintainer__ = "Zhongming Shi"
-__email__ = "cea@arch.ethz.ch"
+__email__ = "shi@arch.ethz.ch"
 __status__ = "Production"
 
 
@@ -16,7 +16,7 @@ setup(name='cea_plugin_bia',
       description="A plugin for the City Energy Analyst: building-integrated agriculture extensions",
       license='MIT',
       author='Zhongming Shi',
-      author_email='zhongming.shi@ucalgary.ca',
+      author_email='shi@arch.ethz.ch',
       url='https://github.com/shizhongming/cea-plugin-bia',
       long_description="A plugin for the City Energy Analyst: building-integrated agriculture (BIA) extensions."
                        "It has two main functions. One calculates crop yields (kg), environmental impacts "

@@ -21,7 +21,7 @@ import pandas as pd
 
 import cea.utilities.parallel
 from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
+from cea.resources.radiation import main, geometry_generator
 from bia.equation.bia_dli import calc_DLI
 from bia.equation.bia_crop_cycle import calc_crop_cycle
 from bia.equation.bia_metric import calc_bia_metric, bia_result_aggregate_write
@@ -47,7 +47,6 @@ def main(config):
     locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
 
     # BIA assessment
-
     type_crop = config.agriculture.type_crop
     print('Executing CEA Building-Integrated Agriculture (BIA) assessment for {type_crop}.'
           .format(type_crop=type_crop))
@@ -58,6 +57,16 @@ def main(config):
     # DLI calculations for each surface of each building
     cea.utilities.parallel.vectorize(calc_DLI, num_process)\
         (repeat(locator, n), repeat(config, n), building_names)
+
+    # exit the script when the entire scenario has no BIA potentials
+    dir_dli = config.scenario + "/outputs/data/potentials/agriculture/dli"     # path of the directory
+    dli_file = os.listdir(dir_dli)  # Getting the list of directories
+
+    if len(dli_file) ==0:      # if the directory is empty
+        print("Unfortunately, the entire scenario has no BIA potential.")
+        exit()
+    else:       # if the directory is not empty
+        pass
 
     # BIA metrics for each surface of each building
     cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\

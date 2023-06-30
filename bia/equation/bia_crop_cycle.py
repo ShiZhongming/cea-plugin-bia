@@ -12,7 +12,7 @@ import cea.inputlocator
 import cea.plugin
 import cea.utilities.parallel
 from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
+from cea.resources.radiation import main, geometry_generator
 
 import math
 import os

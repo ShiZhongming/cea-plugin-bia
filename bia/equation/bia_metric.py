@@ -14,7 +14,7 @@ import cea.inputlocator
 import cea.plugin
 import cea.utilities.parallel
 from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
+from cea.resources.radiation import main, geometry_generator
 from cea.utilities.standardize_coordinates import get_lat_lon_projected_shapefile
 from cea.analysis.costs.equations import calc_capex_annualized, calc_opex_annualized
 
