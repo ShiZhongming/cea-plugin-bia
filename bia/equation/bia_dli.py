@@ -15,12 +15,13 @@ import time
 from itertools import repeat
 from math import *
 from multiprocessing import Pool
+import pyarrow.feather as feather
 
 import pandas as pd
 
 import cea.utilities.parallel
 from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
+from cea.resources.radiation import main, geometry_generator
 
 
 __author__ = "Zhongming Shi"
@@ -84,14 +85,11 @@ def calc_DLI(locator, config, building_name):
         sensors_metadata_clean_DLI_daily = sensors_metadata_clean_DLI_daily.rename(columns={'index': 'srf_index'})
 
         # write the daily DLI results
-        dir_potentials = config.scenario + "/outputs/data/potentials"
-        if not os.path.exists(dir_potentials):
-            os.mkdir(dir_potentials)
-
-        dir = config.scenario + "/outputs/data/potentials/agriculture"
+        dir = config.scenario + "/outputs/data/potentials/agriculture/dli"
         if not os.path.exists(dir):
             os.mkdir(dir)
         output_path = dir + "/{building}_DLI_daily.csv".format(building=building_name)
+        print(sensors_metadata_clean_DLI_daily)
         sensors_metadata_clean_DLI_daily.to_csv(output_path, index=False,
                                     float_format='%.2f',
                                     na_rep=0)  # write sensors metadata and daily DLI
@@ -101,6 +99,10 @@ def calc_DLI(locator, config, building_name):
 
     else:  # This loop is activated when a building has not sufficient solar potential
         print("Unfortunately, Building", building_name, "has no BIA potential.")
+        dir = config.scenario + "/outputs/data/potentials/agriculture/dli"
+        if not os.path.exists(dir):
+            os.mkdir(dir)
+
         pass
 
 
@@ -268,7 +270,7 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
     return sensors_wall_type
 
 
-def filter_low_potential(radiation_json_path, metadata_csv_path, config):
+def filter_low_potential(radiation_path, metadata_csv_path, config):
     """
     To filter the sensor points/hours with low radiation potential.
 
@@ -299,7 +301,7 @@ def filter_low_potential(radiation_json_path, metadata_csv_path, config):
     """
 
     # read radiation file
-    sensors_rad = pd.read_json(radiation_json_path)
+    sensors_rad = feather.read_feather(radiation_path)
     sensors_metadata = pd.read_csv(metadata_csv_path)
 
     # join total radiation to sensor_metadata
