@@ -5,21 +5,12 @@ the main script to activate all equations for preparing the data for visualisati
 
 from __future__ import division
 from __future__ import print_function
-
 import cea.config
 import cea.inputlocator
 import cea.plugin
-
 import os
-import time
 from itertools import repeat
-from math import *
-from multiprocessing import Pool
-from csv import writer
-
-import pandas as pd
 import cea.utilities.parallel
-
 from bia.equation.bia_visual import calc_bia_visual
 
 
@@ -31,7 +22,7 @@ __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
 __maintainer__ = "Zhongming Shi"
-__email__ = "cea@arch.ethz.ch"
+__email__ = "shi@arch.ethz.ch"
 __status__ = "Production"
 
 

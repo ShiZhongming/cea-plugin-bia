@@ -5,23 +5,11 @@ the Daily Light Integral (DLI) in [mol/m2/day] for each building envelope surfac
 
 from __future__ import division
 from __future__ import print_function
-
-import cea.config
-import cea.inputlocator
-import cea.plugin
-
 import os
 import time
-from itertools import repeat
-from math import *
-from multiprocessing import Pool
 import pyarrow.feather as feather
-
 import pandas as pd
-
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation import main, geometry_generator
+from cea.resources.radiation import geometry_generator
 
 
 __author__ = "Zhongming Shi"
@@ -72,27 +60,27 @@ def calc_DLI(locator, config, building_name):
 
     if not sensors_metadata_clean.empty:
         # convert solar radiation to DLI
-        sensors_DLI_daily = calc_Whperm2_molperm2(sensors_rad_clean).T
+        sensors_DLI = calc_Whperm2_molperm2(sensors_rad_clean).T
 
         # label the sensors by their #floor and wall type (lower, upper, and sideX2)
         sensors_wall_type = calc_sensor_wall_type(locator, sensors_metadata_clean, building_name)
         sensors_metadata_clean['wall_type'] = sensors_wall_type
 
         # merge the calculated results
-        sensors_metadata_clean_DLI_daily = pd.merge(sensors_metadata_clean, sensors_DLI_daily, left_index=True,
+        sensors_metadata_clean_DLI = pd.merge(sensors_metadata_clean, sensors_DLI, left_index=True,
                                                     right_index=True, how="left")
-        sensors_metadata_clean_DLI_daily.reset_index(inplace=True)
-        sensors_metadata_clean_DLI_daily = sensors_metadata_clean_DLI_daily.rename(columns={'index': 'srf_index'})
+        sensors_metadata_clean_DLI.reset_index(inplace=True)
+        sensors_metadata_clean_DLI = sensors_metadata_clean_DLI.rename(columns={'index': 'srf_index'})
 
-        # write the daily DLI results
+        # write the DLI results
         dir = config.scenario + "/outputs/data/potentials/agriculture/dli"
         if not os.path.exists(dir):
             os.mkdir(dir)
-        output_path = dir + "/{building}_DLI_daily.csv".format(building=building_name)
-        print(sensors_metadata_clean_DLI_daily)
-        sensors_metadata_clean_DLI_daily.to_csv(output_path, index=False,
-                                    float_format='%.2f',
-                                    na_rep=0)  # write sensors metadata and daily DLI
+        output_path = dir + "/{building}_DLI.csv".format(building=building_name)
+        print(sensors_metadata_clean_DLI)
+        sensors_metadata_clean_DLI.to_csv(output_path, index=False,
+                                          float_format='%.2f',
+                                          na_rep=0)  # write sensors metadata and DLI
 
         print('Calculations of DLI for each sensor on Building', building_name, 'done - time elapsed: %.2f seconds'
               % (time.perf_counter() - t0))
@@ -129,7 +117,7 @@ def calc_Whperm2_molperm2(radiation_Whperm2):
     hour_to_day = day.repeat(24).reset_index().pop('index')
     dli_output_mol_h = pd.merge(dli_output_mol_h, hour_to_day, left_index=True, right_index=True, how="left")
 
-    # calculate from hourly dli to daily dli
+    # calculate from hourly dli to dli
     dli_output_mol_day = dli_output_mol_h.groupby(['index']).sum().reset_index()
     del dli_output_mol_day['index']
 
@@ -321,7 +309,6 @@ def filter_low_potential(radiation_path, metadata_csv_path, config):
     # keep sensors above min production in sensors_rad
     max_annual_radiation = sensors_rad_sum.max().values[0]
     annual_radiation_threshold_Whperm2 = 0
-    # annual_radiation_threshold_Whperm2 = float(config.agriculture.annual_radiation_threshold_BIA)*1000
     sensors_metadata_clean = sensors_metadata[sensors_metadata.total_rad_Whm2 >= annual_radiation_threshold_Whperm2]
     sensors_rad_clean = sensors_rad[sensors_metadata_clean.index.tolist()]  # keep sensors above min radiation
 

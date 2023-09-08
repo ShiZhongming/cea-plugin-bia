@@ -6,27 +6,10 @@ This script creates:
 
 from __future__ import division
 from __future__ import print_function
-
-import cea.config
-import cea.inputlocator
-import cea.plugin
-
 import os
 import time
-from itertools import repeat
-from math import *
-from multiprocessing import Pool
-from csv import writer
-
 import pandas as pd
 
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
-from bia.equation.bia_dli import calc_DLI
-from bia.equation.bia_crop_cycle import calc_crop_cycle
-from bia.equation.bia_metric import calc_bia_metric
-from bia.equation.bia_select import calc_bia_crop_profile
 
 __author__ = "Zhongming Shi"
 __copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
@@ -175,7 +158,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
     """
 
     # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI.csv" \
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
 

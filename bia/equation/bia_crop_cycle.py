@@ -6,20 +6,7 @@ for the selected crop type on each building envelope surface.
 
 from __future__ import division
 from __future__ import print_function
-
-import cea.config
-import cea.inputlocator
-import cea.plugin
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation import main, geometry_generator
-
-import math
 import os
-import time
-from itertools import repeat
-from math import *
-from multiprocessing import Pool
 import pandas as pd
 import numpy as np
 
@@ -176,8 +163,8 @@ def calc_crop_cycle(config, building_name, type_crop):
     # inputs to select the surface and calculate the number of growth cycles
     dli_criteria = dli_l   # DLI requirement for the selected crop
 
-    # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
+    # read the DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI.csv"\
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
 

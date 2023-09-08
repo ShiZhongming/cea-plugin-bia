@@ -9,28 +9,10 @@ for the selected crop type on each building envelope surface.
 
 from __future__ import division
 from __future__ import print_function
-
-import cea.config
-import cea.inputlocator
-import cea.plugin
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation_daysim import daysim_main, geometry_generator
-from cea.utilities.standardize_coordinates import get_lat_lon_projected_shapefile
-from cea.analysis.costs.equations import calc_capex_annualized, calc_opex_annualized
-
-import os
 import time
-from itertools import repeat
-from math import *
-from multiprocessing import Pool
 import pandas as pd
-from geopandas import GeoDataFrame as gdf
 import numpy as np
-
-from bia.equation.bia_metric import calc_bia_metric
-from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
-    calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db, calc_n_cycle_season
+from bia.equation.bia_crop_cycle import calc_crop_cycle
 
 
 __author__ = "Zhongming Shi"
@@ -272,7 +254,7 @@ def calc_crop_calendar(locator, config, building_name):
     bia_calendar_srf_df = bia_calendar_srf_df.replace(to_replace, 'no planting')
 
     # get building surface info and join with the planting calendar
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI.csv" \
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
     info_srf_df = cea_dli_results.loc[:, ['srf_index', 'AREA_m2', 'TYPE', 'wall_type']]
