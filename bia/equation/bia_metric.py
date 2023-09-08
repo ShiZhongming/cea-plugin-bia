@@ -53,7 +53,7 @@ def calc_bia_metric(locator, config, building_name, type_crop):
     t0 = time.perf_counter()
 
     # read the DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI.csv"\
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"\
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
     info_srf_df = cea_dli_results.loc[:, ['srf_index']]
@@ -305,7 +305,7 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     :param building_name: list of building names in the case study
     :type building_name: Series
     :param cea_dli_results: dli results stored in the csv file via
-    "/outputs/data/potentials/agriculture/{building}_DLI.csv"
+    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
     :type cea_dli_results: DataFrame
     :param cycl_srf: number of cycles, including both initial and subsequent ones,
     for each building surface of a whole year
@@ -461,7 +461,7 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     :param building_name: list of building names in the case study
     :type building_name: Series
     :param cea_dli_results: dli results stored in the csv file via
-    "/outputs/data/potentials/agriculture/{building}_DLI.csv"
+    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
     :type cea_dli_results: DataFrame
     :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
     selected crop type
@@ -592,7 +592,7 @@ def calc_crop_cost(locator, config, building_name,
     :param building_name: list of building names in the case study
     :type building_name: Series
     :param cea_dli_results: dli results stored in the csv file via
-    "/outputs/data/potentials/agriculture/{building}_DLI.csv"
+    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
     :type cea_dli_results: DataFrame
     :param cycl_srf: number of cycles, including both initial and subsequent ones,
     for each building surface of a whole year
@@ -769,7 +769,7 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
     """
 
     # read the DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI.csv" \
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv" \
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
 

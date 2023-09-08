@@ -157,8 +157,8 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
     :return:n/a
     """
 
-    # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI.csv" \
+    # read the DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv" \
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
 
@@ -301,8 +301,8 @@ def visualise_crop_assessment_by_orie_floo(locator, config, building_name):
     :return:n/a
     """
 
-    # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+    # read the DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv" \
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
 

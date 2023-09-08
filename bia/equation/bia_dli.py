@@ -9,7 +9,7 @@ import os
 import time
 import pyarrow.feather as feather
 import pandas as pd
-from cea.resources.radiation import geometry_generator
+import geopandas as gpd
 
 
 __author__ = "Zhongming Shi"
@@ -77,7 +77,6 @@ def calc_DLI(locator, config, building_name):
         if not os.path.exists(dir):
             os.mkdir(dir)
         output_path = dir + "/{building}_DLI.csv".format(building=building_name)
-        print(sensors_metadata_clean_DLI)
         sensors_metadata_clean_DLI.to_csv(output_path, index=False,
                                           float_format='%.2f',
                                           na_rep=0)  # write sensors metadata and DLI
@@ -138,7 +137,8 @@ def calc_building_height_info(locator):
 
     """
 
-    zone_df, surroundings_df, terrain_raster = geometry_generator.standardize_coordinate_systems(locator)
+    zone_path = locator.get_zone_geometry()
+    zone_df = gpd.GeoDataFrame.from_file(zone_path)
 
     height = zone_df['height_ag'].astype(float)
     nfloors = zone_df['floors_ag'].astype(int)

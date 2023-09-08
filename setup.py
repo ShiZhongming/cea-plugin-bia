@@ -5,7 +5,7 @@ __copyright__ = "Copyright 2023, Future Cities Laboratory, Singapore - ETH Zuric
                 "University of Calgary, Alberta, Canada"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
-__version__ = "1.4"
+__version__ = "1.5"
 __maintainer__ = "Zhongming Shi"
 __email__ = "shi@arch.ethz.ch"
 __status__ = "Production"

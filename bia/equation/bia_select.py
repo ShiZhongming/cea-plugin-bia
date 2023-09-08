@@ -231,14 +231,18 @@ def calc_crop_calendar(locator, config, building_name):
     for n in range(n_crops_type):
 
         # create an empty DataFrame (calendar)
-        calendar_to_fill = pd.DataFrame(columns=range(365))
-        calendar_to_fill.insert(loc=0, column='srf', value=range(n_surface))
+        calendar_to_fill = pd.DataFrame(columns=['srf'] + [*range(365)])
 
         for surface in range(n_surface):
+            days = [int(x) for x in crop_profile_srf_ranked[surface][n]]
+            srf_crop = ['srf' + str(surface)] + [''] * 365
 
-            calendar_to_fill.at[surface, crop_profile_srf_ranked[surface][n]] = types_crop[n]
-            calendar_to_fill.fillna('', inplace=True)
-
+            # fill crop type to the eligible days
+            if days:
+                for day in range(len(days)):
+                    srf_crop[days[day]+1] = crop_rank_type_srf[surface][n]
+            # add a row for each surface
+            calendar_to_fill.loc[len(calendar_to_fill)] = srf_crop
 
         calendar_to_merge.append(calendar_to_fill)  # a list
 
@@ -254,7 +258,7 @@ def calc_crop_calendar(locator, config, building_name):
     bia_calendar_srf_df = bia_calendar_srf_df.replace(to_replace, 'no planting')
 
     # get building surface info and join with the planting calendar
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI.csv" \
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv" \
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
     info_srf_df = cea_dli_results.loc[:, ['srf_index', 'AREA_m2', 'TYPE', 'wall_type']]
@@ -279,7 +283,6 @@ def filter_crop_srf_profiler(locator, config, building_name, bia_metric_srf_df):
     :return: DataFrame with BIA crop profiles and planting calendar for each surface intended to have BIA.
 
     """
-
 
     # get the user inputs
     bool_roof = config.crop_profile.crop_on_roof
