@@ -6,20 +6,7 @@ for the selected crop type on each building envelope surface.
 
 from __future__ import division
 from __future__ import print_function
-
-import cea.config
-import cea.inputlocator
-import cea.plugin
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation import main, geometry_generator
-
-import math
 import os
-import time
-from itertools import repeat
-from math import *
-from multiprocessing import Pool
 import pandas as pd
 import numpy as np
 
@@ -176,8 +163,8 @@ def calc_crop_cycle(config, building_name, type_crop):
     # inputs to select the surface and calculate the number of growth cycles
     dli_criteria = dli_l   # DLI requirement for the selected crop
 
-    # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
+    # read the DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"\
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
 
@@ -223,13 +210,17 @@ def calc_crop_cycle(config, building_name, type_crop):
         day_srf.sort()  # sort the days if they are not in an ascending order
 
         if day_srf:
-            excess_day = day_srf[-1] - 364
+            excess_day = int(day_srf[-1]) - 364
             # this will be greater or equal to 0 if there are day numbers beyond 365 days of a year (non-leap year)
 
             # when the beginning and the end of a year need to be connected as one season
-            if day_srf[0] == 0 and excess_day >= 0:
+            if excess_day >= 0:
                 # update the eligible days at the beginning of the year based on the excessive days
                 day_srf = list(range(excess_day)) + day_srf
+
+                # remove the dates that are equal or larger than 365
+                day_srf = [x for x in day_srf if x < 365]
+
                 day_srf = list(set(day_srf))    # remove the repeated days, if any
                 season_crop = calc_chunk_day_crop(day_srf)
                 len_season = [365 if len(x) > 365 else len(x) for x in season_crop]
@@ -240,9 +231,6 @@ def calc_crop_cycle(config, building_name, type_crop):
                     len_season.pop(-1)  # remove the original last season
                     len_season.pop(0)   # remove the original first season
                     len_season.append(merged_season)    # add the newly merged season at the end of the seasons
-
-                # remove the dates that are equal or larger than 365
-                day_srf = day_srf[: len(day_srf) - excess_day]
 
             else:
                 season_crop = calc_chunk_day_crop(day_srf)

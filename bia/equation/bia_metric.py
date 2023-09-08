@@ -8,27 +8,14 @@ for the selected crop type on each building envelope surface.
 
 from __future__ import division
 from __future__ import print_function
-
-import cea.config
-import cea.inputlocator
-import cea.plugin
-import cea.utilities.parallel
-from cea.constants import HOURS_IN_YEAR
-from cea.resources.radiation import main, geometry_generator
 from cea.utilities.standardize_coordinates import get_lat_lon_projected_shapefile
 from cea.analysis.costs.equations import calc_capex_annualized, calc_opex_annualized
-
 import os
 import time
-from itertools import repeat
-from math import *
-from multiprocessing import Pool
 import pandas as pd
 from geopandas import GeoDataFrame as gdf
 import numpy as np
 from csv import writer
-
-
 from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_crop, \
     calc_crop_cycle, calc_properties_env_db, calc_properties_cost_db, calc_n_cycle_season
 
@@ -65,8 +52,8 @@ def calc_bia_metric(locator, config, building_name, type_crop):
 
     t0 = time.perf_counter()
 
-    # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"\
+    # read the DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"\
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
     info_srf_df = cea_dli_results.loc[:, ['srf_index']]
@@ -318,7 +305,7 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     :param building_name: list of building names in the case study
     :type building_name: Series
     :param cea_dli_results: dli results stored in the csv file via
-    "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"
+    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
     :type cea_dli_results: DataFrame
     :param cycl_srf: number of cycles, including both initial and subsequent ones,
     for each building surface of a whole year
@@ -474,7 +461,7 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
     :param building_name: list of building names in the case study
     :type building_name: Series
     :param cea_dli_results: dli results stored in the csv file via
-    "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"
+    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
     :type cea_dli_results: DataFrame
     :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
     selected crop type
@@ -605,7 +592,7 @@ def calc_crop_cost(locator, config, building_name,
     :param building_name: list of building names in the case study
     :type building_name: Series
     :param cea_dli_results: dli results stored in the csv file via
-    "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv"
+    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
     :type cea_dli_results: DataFrame
     :param cycl_srf: number of cycles, including both initial and subsequent ones,
     for each building surface of a whole year
@@ -781,8 +768,8 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
 
     """
 
-    # read the daily DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/{building}_DLI_daily.csv" \
+    # read the DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv" \
         .format(building=building_name)
     cea_dli_results = pd.read_csv(dli_path)
 
