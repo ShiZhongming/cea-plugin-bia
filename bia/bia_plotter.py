@@ -40,6 +40,12 @@ def main(config):
     building_names = config.agriculture.buildings
     num_process = config.get_number_of_processes()
     n = len(building_names)
+    
+    dir_dli = config.scenario + "/outputs/data/potentials/agriculture/dli"     # path of the directory
+    dli_file = os.listdir(dir_dli)  # Getting the list of directories
+    if len(dli_file) != n:      # if some or all the DLI results are not in-place
+        print("(HINT: cancel, delete Folder outputs>data>potentials>agriculture, and start with DLI Calculation again)")
+        exit()
 
     # activate the function that generates
     # .csv files to be used as the input for bia visualisation

@@ -18,7 +18,7 @@ Urban agriculture:
     interfaces: [cli, dashboard]
     module: bia.bia_assessment
     parameters: ['general:scenario', 'general:multiprocessing',
-                 'general:number-of-cpus-to-keep-free', 'agriculture:buildings',
+                 'general:number-of-cpus-to-keep-free',
                  'agriculture:type-crop',
                  'agriculture:crop-on-roof',
                  'agriculture:crop-on-window',
@@ -35,7 +35,7 @@ Urban agriculture:
     interfaces: [cli, dashboard]
     module: bia.bia_profiler
     parameters: ['general:scenario', 'general:multiprocessing',
-                 'general:number-of-cpus-to-keep-free',  'agriculture:buildings',
+                 'general:number-of-cpus-to-keep-free',
                  'crop-profile:types-crop',
                  'crop-profile:bia-assessment-metric-objective',
                  'crop-profile:crop-on-roof',
@@ -50,7 +50,7 @@ Urban agriculture:
     description: Generates the csv files for BIA visualisation based on the results of BIA Assessment and BIA Profiler.
     interfaces: [cli, dashboard]
     module: bia.bia_plotter
-    parameters: ['general:scenario', 'general:multiprocessing', 'crop-plot:buildings',
+    parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free',
                  'crop-plot:types-crop'
                 ]

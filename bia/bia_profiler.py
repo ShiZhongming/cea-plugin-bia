@@ -36,10 +36,16 @@ def main(config):
 
     # List of crop types considered for the building-integrate agriculture (BIA) crop profiling
     # At least two types
-    types_crop = config.agriculture.buildings
-    building_names = locator.get_zone_building_names()
+    types_crop = config.crop_profile.types_crop
+    building_names =config.agriculture.buildings
     num_process = config.get_number_of_processes()
     n = len(building_names)
+
+    dir_dli = config.scenario + "/outputs/data/potentials/agriculture/dli"     # path of the directory
+    dli_file = os.listdir(dir_dli)  # Getting the list of directories
+    if len(dli_file) != n:      # if some or all the DLI results are not in-place
+        print("(HINT: cancel, delete Folder outputs>data>potentials>agriculture, and start with DLI Calculation again)")
+        exit()
 
     # activate the function that calculates
     # the BIA metrics for each building surface for each candidate crop type

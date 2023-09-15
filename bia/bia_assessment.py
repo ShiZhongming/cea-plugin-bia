@@ -40,12 +40,9 @@ def main(config):
 
     dir_dli = config.scenario + "/outputs/data/potentials/agriculture/dli"     # path of the directory
     dli_file = os.listdir(dir_dli)  # Getting the list of directories
-
-    if len(dli_file) != n:      # if all the DLI results are in-place
-        print("(HINT: try (re)running bia_dli)")
+    if len(dli_file) != n:      # if some or all the DLI results are not in-place
+        print("(HINT: cancel, delete Folder outputs>data>potentials>agriculture, and start with DLI Calculation again)")
         exit()
-    else:       # if the directory is not empty
-        pass
 
     # BIA assessment
     type_crop = config.agriculture.type_crop
