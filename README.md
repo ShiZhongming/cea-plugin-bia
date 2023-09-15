@@ -9,7 +9,9 @@ To install, clone this repo to a desired path (you would need to have `git` inst
 Open CEA console and enter the following command to install the plugin to CEA:
 
 ```pip install -e /Users/your_name/Documents/GitHub/cea-plugin-bia```
+In the CEA console, enter the following command to enable the Calc-Dli plugin in CEA:
 
+```cea-config write --general:plugins bia.calc_dli.CalcDliPlugin```
 
 In the CEA console, enter the following command to enable the BIA-assessment plugin in CEA:
 
@@ -23,9 +25,11 @@ In the CEA console, enter the following command to enable the BIA-plotter plugin
 
 ```cea-config write --general:plugins bia.bia_plotter.BiaPlotterPlugin```
 
+(Following the steps and ignore warnings, if any.)
 
 Now you should be able to enter the following command to run the plugin:
 
+```cea calc-dli```
 ```cea bia-assessment```
 ```cea bia-profiler```
 ```cea bia-plotter```
