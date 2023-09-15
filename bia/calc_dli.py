@@ -24,7 +24,7 @@ __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
-class BiaDliPlugin(cea.plugin.CeaPlugin):
+class CalcDliPlugin(cea.plugin.CeaPlugin):
 
     pass
 

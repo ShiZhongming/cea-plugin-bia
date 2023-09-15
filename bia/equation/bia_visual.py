@@ -214,7 +214,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
             flor_df = pd.merge(flor_df, srf_eligible_df, how='left',
                                left_on=['orientation', 'n_floor'],
                                right_on=['orientation', 'n_floor']
-                               )
+                               ).copy()
 
             # calculate the number of surfaces
             # for the same floor number and orientation
