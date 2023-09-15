@@ -37,7 +37,7 @@ def main(config):
 
     # List of crop types included for the building-integrate agriculture (BIA) visualisation
     # At least two types
-    building_names = config.crop_plot.buildings
+    building_names = config.agriculture.buildings
     num_process = config.get_number_of_processes()
     n = len(building_names)
 
