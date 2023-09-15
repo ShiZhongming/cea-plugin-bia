@@ -228,8 +228,8 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
 
         for j in range(1, int(n_floors)+1):
             # separate sensors on the walls and the windows of this floor
-            walls = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'walls')]
-            windows = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'windows')]
+            walls = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'walls')].copy()
+            windows = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'windows')].copy()
 
             if not windows.empty:
                 # get the z-coordinates of window sensors
