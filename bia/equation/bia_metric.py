@@ -88,7 +88,7 @@ def calc_bia_metric(locator, config, building_name, type_crop):
     # write the BIA results (all non-filtered surface)
     dir = config.scenario + "/outputs/data/potentials/agriculture/surface"
     if not os.path.exists(dir):
-        os.mkdir(dir)
+        os.makedirs(dir)
     output_path = dir + "/{building}_BIA_metrics_{type_crop}.csv".format(building=building_name, type_crop=type_crop)
     bia_metric_srf_df.to_csv(output_path, index=False, float_format='%.2f', na_rep=0)
 

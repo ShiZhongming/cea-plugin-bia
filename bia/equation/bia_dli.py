@@ -74,7 +74,7 @@ def calc_DLI(locator, config, building_name):
         # write the DLI results
         dir = config.scenario + "/outputs/data/potentials/agriculture/dli"
         if not os.path.exists(dir):
-            os.mkdir(dir)
+            os.makedirs(dir)
         output_path = dir + "/{building}_DLI.csv".format(building=building_name)
         sensors_metadata_clean_DLI.to_csv(output_path, index=False,
                                           float_format='%.2f',
