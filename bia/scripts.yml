@@ -1,11 +1,24 @@
 Urban agriculture:
+  - name: bia-dli
+    label: BIA DLI Calculation
+    description: Calculates the Daily Light Integral (DLI) in [mol/m2/day] for each building envelope surface. This is the fundamental step for all BIA simulations.
+    interfaces: [cli, dashboard]
+    module: bia.bia_dli
+    parameters: ['general:scenario', 'general:multiprocessing',
+                 'general:number-of-cpus-to-keep-free',
+                 'agriculture:buildings'
+                ]
+    input-files:
+      - [get_radiation_metadata, building_name]
+      - [get_radiation_building, building_name]
+
   - name: bia-assessment
     label: BIA Assessment
     description: Calculates crop yields (kg), environmental impacts including GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre), costs including capital and operational expenditures (USD) for the selected crop type on the selected building envelope surface.
     interfaces: [cli, dashboard]
     module: bia.bia_assessment
     parameters: ['general:scenario', 'general:multiprocessing',
-                 'general:number-of-cpus-to-keep-free',
+                 'general:number-of-cpus-to-keep-free', 'agriculture:buildings',
                  'agriculture:type-crop',
                  'agriculture:crop-on-roof',
                  'agriculture:crop-on-window',
@@ -16,14 +29,13 @@ Urban agriculture:
       - [get_zone_geometry]
       - [get_radiation_building, building_name]
 
-
   - name: bia-profiler
     label: BIA Profiler
     description: Creates the crop profiles and planting calendars for the selected crop types on the selected building envelope surface.
     interfaces: [cli, dashboard]
     module: bia.bia_profiler
     parameters: ['general:scenario', 'general:multiprocessing',
-                 'general:number-of-cpus-to-keep-free',
+                 'general:number-of-cpus-to-keep-free',  'crop-profile:buildings',
                  'crop-profile:types-crop',
                  'crop-profile:bia-assessment-metric-objective',
                  'crop-profile:crop-on-roof',
@@ -31,16 +43,14 @@ Urban agriculture:
                  'crop-profile:crop-on-wall-under-window', 'crop-profile:crop-on-wall-between-window'
                 ]
     input-files:
-      - [get_radiation_metadata, building_name]
-      - [get_zone_geometry]
-      - [get_radiation_building, building_name]
+      - [get_dli_building, building_name]
 
   - name: bia-plotter
     label: BIA Plotter
-    description: Generates the csv files for BIA visualisation based on the results of previous two steps (BIA Assessment and BIA Profiler).
+    description: Generates the csv files for BIA visualisation based on the results of BIA Assessment and BIA Profiler.
     interfaces: [cli, dashboard]
     module: bia.bia_plotter
-    parameters: ['general:scenario', 'general:multiprocessing',
+    parameters: ['general:scenario', 'general:multiprocessing', 'crop-plot:buildings',
                  'general:number-of-cpus-to-keep-free',
                  'crop-plot:types-crop'
                 ]

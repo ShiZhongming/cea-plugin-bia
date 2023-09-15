@@ -15,13 +15,12 @@ from bia.equation.bia_dli import calc_DLI
 from bia.equation.bia_metric import calc_bia_metric, bia_result_aggregate_write
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
-                "University of Calgary, Alberta, Canada"
+__copyright__ = "Copyright 2023, A/S Group, ITA, ETH Zurich"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
 __maintainer__ = "Zhongming Shi"
-__email__ = "shi@arch.ethz.ch"
+__email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
@@ -34,27 +33,24 @@ def main(config):
     assert os.path.exists(config.scenario), 'Scenario not found: %s' % config.scenario
     locator = cea.inputlocator.InputLocator(config.scenario, config.plugins)
 
+    # Check if the DLI calculations had been executed before proceeding to BIA Assessment
+    building_names = config.agriculture.buildings
+    num_process = config.get_number_of_processes()
+    n = len(building_names)
+
+    dir_dli = config.scenario + "/outputs/data/potentials/agriculture/dli"     # path of the directory
+    dli_file = os.listdir(dir_dli)  # Getting the list of directories
+
+    if len(dli_file) != n:      # if all the DLI results are in-place
+        print("(HINT: try (re)running bia_dli)")
+        exit()
+    else:       # if the directory is not empty
+        pass
+
     # BIA assessment
     type_crop = config.agriculture.type_crop
     print('Executing CEA Building-Integrated Agriculture (BIA) assessment for {type_crop}.'
           .format(type_crop=type_crop))
-    building_names = locator.get_zone_building_names()
-    num_process = config.get_number_of_processes()
-    n = len(building_names)
-
-    # DLI calculations for each surface of each building
-    cea.utilities.parallel.vectorize(calc_DLI, num_process)\
-        (repeat(locator, n), repeat(config, n), building_names)
-
-    # exit the script when the entire scenario has no BIA potentials
-    dir_dli = config.scenario + "/outputs/data/potentials/agriculture/dli"     # path of the directory
-    dli_file = os.listdir(dir_dli)  # Getting the list of directories
-
-    if len(dli_file) ==0:      # if the directory is empty
-        print("Unfortunately, the entire scenario has no BIA potential.")
-        exit()
-    else:       # if the directory is not empty
-        pass
 
     # BIA metrics for each surface of each building
     cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\

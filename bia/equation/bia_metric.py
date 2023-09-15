@@ -21,8 +21,7 @@ from bia.equation.bia_crop_cycle import calc_properties_crop_db, calc_chunk_day_
 
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
-                "University of Calgary, Alberta, Canada"
+__copyright__ = "Copyright 2023, A/S Group, ITA, ETH Zurich"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
@@ -89,7 +88,7 @@ def calc_bia_metric(locator, config, building_name, type_crop):
     # write the BIA results (all non-filtered surface)
     dir = config.scenario + "/outputs/data/potentials/agriculture/surface"
     if not os.path.exists(dir):
-        os.mkdir(dir)
+        os.makedirs(dir)
     output_path = dir + "/{building}_BIA_metrics_{type_crop}.csv".format(building=building_name, type_crop=type_crop)
     bia_metric_srf_df.to_csv(output_path, index=False, float_format='%.2f', na_rep=0)
 

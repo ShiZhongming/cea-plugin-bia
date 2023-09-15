@@ -12,8 +12,7 @@ import numpy as np
 
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
-                "University of Calgary, Alberta, Canada"
+__copyright__ = "Copyright 2023, A/S Group, ITA, ETH Zurich"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"

@@ -13,8 +13,7 @@ import geopandas as gpd
 
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
-                "University of Calgary, Alberta, Canada"
+__copyright__ = "Copyright 2023, A/S Group, ITA, ETH Zurich"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
@@ -75,7 +74,7 @@ def calc_DLI(locator, config, building_name):
         # write the DLI results
         dir = config.scenario + "/outputs/data/potentials/agriculture/dli"
         if not os.path.exists(dir):
-            os.mkdir(dir)
+            os.makedirs(dir)
         output_path = dir + "/{building}_DLI.csv".format(building=building_name)
         sensors_metadata_clean_DLI.to_csv(output_path, index=False,
                                           float_format='%.2f',

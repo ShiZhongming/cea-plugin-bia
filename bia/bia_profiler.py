@@ -15,13 +15,12 @@ from bia.equation.bia_metric import calc_bia_metric
 from bia.equation.bia_select import calc_bia_crop_profile
 
 __author__ = "Zhongming Shi"
-__copyright__ = "Copyright 2022, Future Cities Laboratory, Singapore - ETH Zurich; " \
-                "University of Calgary, Alberta, Canada"
+__copyright__ = "Copyright 2023, A/S Group, ITA, ETH Zurich"
 __credits__ = ["Zhongming Shi"]
 __license__ = "MIT"
 __version__ = "0.1"
 __maintainer__ = "Zhongming Shi"
-__email__ = "shi@arch.ethz.ch"
+__email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
 
@@ -37,7 +36,7 @@ def main(config):
 
     # List of crop types considered for the building-integrate agriculture (BIA) crop profiling
     # At least two types
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.agriculture.buildings
     building_names = locator.get_zone_building_names()
     num_process = config.get_number_of_processes()
     n = len(building_names)
