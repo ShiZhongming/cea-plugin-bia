@@ -1,9 +1,9 @@
 Urban agriculture:
-  - name: bia-dli
-    label: BIA DLI Calculation
+  - name: calc-dli
+    label: DLI Calculation
     description: Calculates the Daily Light Integral (DLI) in [mol/m2/day] for each building envelope surface. This is the fundamental step for all BIA simulations.
     interfaces: [cli, dashboard]
-    module: bia.bia_dli
+    module: bia.calc_dli
     parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free',
                  'agriculture:buildings'

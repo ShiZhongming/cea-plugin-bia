@@ -220,29 +220,31 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
         # filter out surfaces that are not the selected orientation
         surfaces = sensors_metadata_clean[sensors_metadata_clean['orientation'] == i]
 
-        # get the total number of floors and number of surfaces
-        n_floors = max(sensors_metadata_clean['n_floor'])  # roof top is labeled as total floor number + 1
-
-        # label surface type by the floor numbers
         results_n = []
+        merged_results_n_df = pd.DataFrame()
+        # check if this building contains surfaces for this orientation;
+        # a building not necessarily contains surfaces facing all four orientations
+        if not surfaces.empty:
+            # get the total number of floors and number of surfaces
+            n_floors = max(surfaces['n_floor'])  # rooftop is labeled as total floor number + 1
 
-        for j in range(1, int(n_floors)+1):
-            # separate sensors on the walls and the windows of this floor
-            walls = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'walls')].copy()
-            windows = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'windows')].copy()
+            # label surface type by the floor numbers
+            for j in range(1, int(n_floors)+1):
+                # separate sensors on the walls and the windows of this floor
+                walls = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'walls')].copy()
+                windows = surfaces[(surfaces['n_floor'] == j) & (surfaces['TYPE'] == 'windows')].copy()
 
-            if not windows.empty:
-                # get the z-coordinates of window sensors
-                sensors_windows_Zcoor = windows['Zcoor'].median()
-                # label wall sensors by comparing their z-coordinates with that of the window sensors
+                if not windows.empty:
+                    # get the z-coordinates of window sensors
+                    sensors_windows_Zcoor = windows['Zcoor'].median()
 
-                walls.loc[walls['Zcoor'] > sensors_windows_Zcoor, 'wall_type'] = 'upper'
-                walls.loc[walls['Zcoor'] < sensors_windows_Zcoor, 'wall_type'] = 'lower'
-                walls['wall_type'].fillna('side', inplace=True)
+                    # label wall sensors by comparing their z-coordinates with that of the window sensors
+                    walls.loc[walls['Zcoor'] > sensors_windows_Zcoor, 'wall_type'] = 'upper'
+                    walls.loc[walls['Zcoor'] < sensors_windows_Zcoor, 'wall_type'] = 'lower'
+                    walls['wall_type'].fillna('side', inplace=True)
 
-                results_n.append(walls)
-
-        merged_results_n_df = pd.concat(results_n)
+                    results_n.append(walls)
+            merged_results_n_df = pd.concat(results_n) #store all surfaces for one orientation
         results.append(merged_results_n_df)
 
     merged_results_df = pd.concat(results)
