@@ -163,7 +163,7 @@ def calc_crop_rank(locator, config, building_name):
     else:   # ascending (for BIA metrics that min is preferred)
         i = np.argsort(bia_metric_obj_matrix_df.to_numpy() * 1, axis=1)
     # second, create a new DataFrame
-    bia_crop_matrix_df = pd.DataFrame(bia_metric_obj_matrix_df.columns[i], columns=range(1, i.shape[1] + 1))
+    bia_crop_matrix_df = pd.DataFrame(bia_metric_obj_matrix_df.columns.to_numpy()[i], columns=range(1, i.shape[1] + 1))
     # bia_crop_matrix_df.add_prefix('Rank')
     crop_rank_type_srf = bia_crop_matrix_df.values.tolist()
     crop_rank_i_srf = i.tolist()
