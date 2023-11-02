@@ -19,6 +19,7 @@ Urban agriculture:
     module: bia.bia_assessment
     parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free',
+                 'agriculture:buildings',
                  'agriculture:type-crop',
                  'agriculture:crop-on-roof',
                  'agriculture:crop-on-window',
@@ -36,14 +37,14 @@ Urban agriculture:
     module: bia.bia_profiler
     parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free',
+                 'agriculture:buildings',
                  'crop-profile:types-crop',
                  'crop-profile:bia-assessment-metric-objective',
                  'crop-profile:crop-on-roof',
                  'crop-profile:crop-on-window',
                  'crop-profile:crop-on-wall-under-window', 'crop-profile:crop-on-wall-between-window'
                 ]
-    input-files:
-      - [get_dli_building, building_name]
+
 
   - name: bia-plotter
     label: BIA Plotter
@@ -52,5 +53,6 @@ Urban agriculture:
     module: bia.bia_plotter
     parameters: ['general:scenario', 'general:multiprocessing',
                  'general:number-of-cpus-to-keep-free',
+                 'agriculture:buildings',
                  'crop-plot:types-crop'
                 ]
