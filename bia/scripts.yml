@@ -44,8 +44,7 @@ Urban agriculture:
                  'crop-profile:crop-on-window',
                  'crop-profile:crop-on-wall-under-window', 'crop-profile:crop-on-wall-between-window'
                 ]
-    input-files:
-      - [get_dli_building, building_name]
+
 
   - name: bia-plotter
     label: BIA Plotter
