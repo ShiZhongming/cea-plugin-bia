@@ -204,7 +204,7 @@ def calc_crop_cycle(config, building_name, type_crop):
         # true if the average temp_C is below the upper bound of preferred temp
         bool_temp_u = temp_c_365_add_one_cycl.iloc[:, i:(i + cycl_i_day)].sum(axis=1) <= temp_criteria_u * cycl_i_day
         # merge criteria
-        mask = [all(tup) for tup in zip(bool_dli, bool_temp_l, bool_temp_u)]
+        mask = [all(tup) for tup in zip(bool_dli, bool_dli, bool_dli)]
         bool = pd.DataFrame(mask, columns=['{i}'.format(i=i)])
 
         # record the boolean values for each day of all surfaces

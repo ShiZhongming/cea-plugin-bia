@@ -168,7 +168,8 @@ def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, 
     else:  # No surface meets the minimum DLI requirement of the selected crop type
         print("Unfortunately, {type_crop} is unlikely to grow on any of the surfaces "
               "of Building {building_name}".format(type_crop=type_crop, building_name=building_name))
-        pass
+        yield_srf_df = pd.DataFrame(0, index=np.arange(len(orie_srf)),
+                                    columns=['yield_kg_per_year', 'yield_kg_per_sqm_per_year'])
 
     return yield_srf_df
 
