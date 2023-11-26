@@ -29,6 +29,148 @@ __maintainer__ = "Zhongming Shi"
 __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
+# Calculate the crop yields (kg) for the selected crop type on each building envelope surface
+def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf, type_crop):
+
+    """
+    This function calculates crop yield in kg for each building envelope surface.
+    At the moment, no pest harm is considered.
+
+    :param locator: An InputLocator to locate input files
+    :type locator: cea.inputlocator.InputLocator
+    :param building_name: list of building names in the case study
+    :type building_name: Series
+    :param cea_dli_results: dli results stored in the csv file via
+    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
+    :type cea_dli_results: DataFrame
+    :param cycl_srf: number of cycles, including both initial and subsequent ones,
+    for each building surface of a whole year
+    :type cycl_srf: list
+    :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
+    selected crop type
+    :type date_srf: list
+
+    :return: yield_srf_df: each building surface's annual yield (kg/year)
+    and yield per square metre surface area (kg/sqm/year)
+    :type yield_srf_df: DataFrame
+    """
+
+    # read crop properties in the BIA database for the selected crop type
+    crop_properties = calc_properties_crop_db(type_crop)
+    print("Gathering the properties of {type_crop}.".format(type_crop=type_crop))
+
+    # the total number of cycles of an entire year
+    cycl_bld_annual = sum([j for i in cycl_srf for j in i])
+
+    # gather the orientation information [e(ast), w(est), s(outh), n(orth)] for each building surface
+    orie_srf = cea_dli_results['orientation'].tolist()      # west, east, north, south
+    type_srf = cea_dli_results['TYPE'].tolist()     #walls, windows, roofs
+    wall_srf = cea_dli_results['wall_type'].tolist()        #upper, lower, side, non_wall
+    area_srf = cea_dli_results['AREA_m2'].tolist()
+
+    # read the T2 crop yield results from the database
+    yld_bia_e_g_sqm_cycl = crop_properties.get('yld_bia_e_g_sqm_cycl')  # BIA yield in grams: east
+    yld_bia_w_g_sqm_cycl = crop_properties.get('yld_bia_w_g_sqm_cycl')  # BIA yield in grams: west
+    yld_bia_f_g_sqm_cycl = crop_properties.get('yld_bia_f_g_sqm_cycl')  # BIA yield in grams: facing the sun (north, south)
+    yld_bia_b_g_sqm_cycl = crop_properties.get('yld_bia_b_g_sqm_cycl')  # BIA yield in grams: back from the sun (north, south)
+
+    # get the zone of the scenario
+    # One of the four zones: North, Tropic of Cancer, Tropic of Cancer, and South
+    zone_geometry_df = gdf.from_file(locator.get_zone_geometry())  # filepath to this scenario's zone.shp
+    latitude, longitude = get_lat_lon_projected_shapefile(zone_geometry_df)     # get the lat and lon
+    zone_sce = locate_sce(latitude, longitude)   # determine the location of the scenario (one of the four zones)
+    print('The scenario is located in {zone_sce}.'.format(zone_sce=zone_sce))
+
+    # differentiate the cycles as facing and back from the sun for south/north building surfaces
+    # when they are located in the tropics of cancer and capricorn
+    cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties)
+
+    yield_srf = []
+    yield_srf_per_sqm = []
+    # at least 1 surface is eligible to grow the selected crop type
+
+    if not cycl_bld_annual == 0:
+
+        # annual yield of the selected crops in grams for each building surface
+        for surface in range(len(orie_srf)):
+
+            cycl = cycl_srf[surface]
+            orie = orie_srf[surface]
+            area = area_srf[surface]
+
+            # when the surface is located north to the Tropic of Cancer
+            if zone_sce == 'zone_north':
+                if orie == 'east':
+                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'west':
+                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'south':
+                    yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
+
+                else:
+                    yield_g = yld_bia_b_g_sqm_cycl * area * sum(cycl)
+
+            # when the surface is located south to the Tropic of Capricorn
+            elif zone_sce == 'zone_south':
+                if orie == 'east':
+                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'west':
+                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'south':
+                    yield_g = yld_bia_b_g_sqm_cycl * area * sum(cycl)
+
+                else:
+                    yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
+
+            # when the surface is located between the Tropic of Cancer and the Tropic of Capricorn
+            else:
+                cycl_i = cycl_i_srf[surface]
+                cycl_o = cycl_o_srf[surface]
+
+                if orie == 'east':
+                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'west':
+                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
+
+                elif orie == 'south':
+                    yield_g_f = yld_bia_f_g_sqm_cycl * area * sum(cycl_o)
+                    yield_g_b = yld_bia_b_g_sqm_cycl * area * sum(cycl_i)
+                    yield_g = yield_g_f + yield_g_b
+
+                else:
+                    yield_g_f = yld_bia_f_g_sqm_cycl * area * sum(cycl_i)
+                    yield_g_b = yld_bia_b_g_sqm_cycl * area * sum(cycl_o)
+                    yield_g = yield_g_f + yield_g_b
+
+            yield_srf.append(yield_g/1000)  # record the results and convert to kilograms
+
+            if area == 0:
+                yield_srf_per_sqm.append(0)     # to avoid the error that some surface area may equal to 0
+                print("Please check the surface area of Srf{surface} of Building {building}."
+                      .format(surface=surface, building=building_name))
+
+            else:
+                yield_srf_per_sqm.append(yield_g / 1000 / area)
+
+        # merged the results for each surface in DataFrame
+        data = np.array_split(yield_srf + yield_srf_per_sqm, 2)
+
+        yield_srf_df = pd.DataFrame(data).T.fillna(0)
+        column_name = ['yield_kg_per_year', 'yield_kg_per_sqm_per_year']
+        yield_srf_df.columns = column_name
+
+    # no surface is eligible to grow the selected crop type
+    else:  # No surface meets the minimum DLI requirement of the selected crop type
+        print("Unfortunately, {type_crop} is unlikely to grow on any of the surfaces "
+              "of Building {building_name}".format(type_crop=type_crop, building_name=building_name))
+        pass
+
+    return yield_srf_df
 
 # calculate the BIA metrics and write to disk
 def calc_bia_metric(locator, config, building_name, type_crop):
@@ -291,149 +433,6 @@ def day_counts_srf_wet_dry_sgp(latitude, longitude, date_srf):
 
     return n_day_wet_srf, n_day_dry_srf
 
-
-# Calculate the crop yields (kg) for the selected crop type on each building envelope surface
-def calc_crop_yields(locator, config, building_name, cea_dli_results, cycl_srf, date_srf, type_crop):
-
-    """
-    This function calculates crop yield in kg for each building envelope surface.
-    At the moment, no pest harm is considered.
-
-    :param locator: An InputLocator to locate input files
-    :type locator: cea.inputlocator.InputLocator
-    :param building_name: list of building names in the case study
-    :type building_name: Series
-    :param cea_dli_results: dli results stored in the csv file via
-    "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
-    :type cea_dli_results: DataFrame
-    :param cycl_srf: number of cycles, including both initial and subsequent ones,
-    for each building surface of a whole year
-    :type cycl_srf: list
-    :param date_srf: the days (0 to 364, in total 365 days in a non-leap year) that are eligible for growing the
-    selected crop type
-    :type date_srf: list
-
-    :return: yield_srf_df: each building surface's annual yield (kg/year)
-    and yield per square metre surface area (kg/sqm/year)
-    :type yield_srf_df: DataFrame
-    """
-
-    # read crop properties in the BIA database for the selected crop type
-    crop_properties = calc_properties_crop_db(type_crop)
-    print("Gathering the properties of {type_crop}.".format(type_crop=type_crop))
-
-    # the total number of cycles of an entire year
-    cycl_bld_annual = sum([j for i in cycl_srf for j in i])
-
-    # gather the orientation information [e(ast), w(est), s(outh), n(orth)] for each building surface
-    orie_srf = cea_dli_results['orientation'].tolist()      # west, east, north, south
-    type_srf = cea_dli_results['TYPE'].tolist()     #walls, windows, roofs
-    wall_srf = cea_dli_results['wall_type'].tolist()        #upper, lower, side, non_wall
-    area_srf = cea_dli_results['AREA_m2'].tolist()
-
-    # read the T2 crop yield results from the database
-    yld_bia_e_g_sqm_cycl = crop_properties.get('yld_bia_e_g_sqm_cycl')  # BIA yield in grams: east
-    yld_bia_w_g_sqm_cycl = crop_properties.get('yld_bia_w_g_sqm_cycl')  # BIA yield in grams: west
-    yld_bia_f_g_sqm_cycl = crop_properties.get('yld_bia_f_g_sqm_cycl')  # BIA yield in grams: facing the sun (north, south)
-    yld_bia_b_g_sqm_cycl = crop_properties.get('yld_bia_b_g_sqm_cycl')  # BIA yield in grams: back from the sun (north, south)
-
-    # get the zone of the scenario
-    # One of the four zones: North, Tropic of Cancer, Tropic of Cancer, and South
-    zone_geometry_df = gdf.from_file(locator.get_zone_geometry())  # filepath to this scenario's zone.shp
-    latitude, longitude = get_lat_lon_projected_shapefile(zone_geometry_df)     # get the lat and lon
-    zone_sce = locate_sce(latitude, longitude)   # determine the location of the scenario (one of the four zones)
-    print('The scenario is located in {zone_sce}.'.format(zone_sce=zone_sce))
-
-    # differentiate the cycles as facing and back from the sun for south/north building surfaces
-    # when they are located in the tropics of cancer and capricorn
-    cycl_i_srf, cycl_o_srf = differentiate_cycl_srf_sun(latitude, longitude, date_srf, crop_properties)
-
-    yield_srf = []
-    yield_srf_per_sqm = []
-    # at least 1 surface is eligible to grow the selected crop type
-
-    if not cycl_bld_annual == 0:
-
-        # annual yield of the selected crops in grams for each building surface
-        for surface in range(len(orie_srf)):
-
-            cycl = cycl_srf[surface]
-            orie = orie_srf[surface]
-            area = area_srf[surface]
-
-            # when the surface is located north to the Tropic of Cancer
-            if zone_sce == 'zone_north':
-                if orie == 'east':
-                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
-
-                elif orie == 'west':
-                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
-
-                elif orie == 'south':
-                    yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
-
-                else:
-                    yield_g = yld_bia_b_g_sqm_cycl * area * sum(cycl)
-
-            # when the surface is located south to the Tropic of Capricorn
-            elif zone_sce == 'zone_south':
-                if orie == 'east':
-                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
-
-                elif orie == 'west':
-                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
-
-                elif orie == 'south':
-                    yield_g = yld_bia_b_g_sqm_cycl * area * sum(cycl)
-
-                else:
-                    yield_g = yld_bia_f_g_sqm_cycl * area * sum(cycl)
-
-            # when the surface is located between the Tropic of Cancer and the Tropic of Capricorn
-            else:
-                cycl_i = cycl_i_srf[surface]
-                cycl_o = cycl_o_srf[surface]
-
-                if orie == 'east':
-                    yield_g = yld_bia_e_g_sqm_cycl * area * sum(cycl)
-
-                elif orie == 'west':
-                    yield_g = yld_bia_w_g_sqm_cycl * area * sum(cycl)
-
-                elif orie == 'south':
-                    yield_g_f = yld_bia_f_g_sqm_cycl * area * sum(cycl_o)
-                    yield_g_b = yld_bia_b_g_sqm_cycl * area * sum(cycl_i)
-                    yield_g = yield_g_f + yield_g_b
-
-                else:
-                    yield_g_f = yld_bia_f_g_sqm_cycl * area * sum(cycl_i)
-                    yield_g_b = yld_bia_b_g_sqm_cycl * area * sum(cycl_o)
-                    yield_g = yield_g_f + yield_g_b
-
-            yield_srf.append(yield_g/1000)  # record the results and convert to kilograms
-
-            if area == 0:
-                yield_srf_per_sqm.append(0)     # to avoid the error that some surface area may equal to 0
-                print("Please check the surface area of Srf{surface} of Building {building}."
-                      .format(surface=surface, building=building_name))
-
-            else:
-                yield_srf_per_sqm.append(yield_g / 1000 / area)
-
-        # merged the results for each surface in DataFrame
-        data = np.array_split(yield_srf + yield_srf_per_sqm, 2)
-
-        yield_srf_df = pd.DataFrame(data).T.fillna(0)
-        column_name = ['yield_kg_per_year', 'yield_kg_per_sqm_per_year']
-        yield_srf_df.columns = column_name
-
-    # no surface is eligible to grow the selected crop type
-    else:  # No surface meets the minimum DLI requirement of the selected crop type
-        print("Unfortunately, {type_crop} is unlikely to grow on any of the surfaces "
-              "of Building {building_name}".format(type_crop=type_crop, building_name=building_name))
-        pass
-
-    return yield_srf_df
 
 
 # calculate the three environmental impacts
