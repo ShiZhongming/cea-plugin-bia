@@ -273,6 +273,7 @@ def filter_low_potential(radiation_path, metadata_csv_path, config):
     :type metadata_csv: .csv
 
     :return max_annual_radiation: yearly horizontal radiation [Wh/m2/year]
+    :return max_annual_radiation: yearly horizontal radiation [Wh/m2/year]
     :rtype max_annual_radiation: float
     :return annual_radiation_threshold: minimum yearly radiation threshold for sensor selection [Wh/m2/year]
     :rtype annual_radiation_threshold: float
