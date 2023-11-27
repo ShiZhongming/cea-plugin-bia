@@ -23,7 +23,8 @@ Urban agriculture:
                  'agriculture:type-crop',
                  'agriculture:crop-on-roof',
                  'agriculture:crop-on-window',
-                 'agriculture:crop-on-wall-under-window', 'agriculture:crop-on-wall-between-window'
+                 'agriculture:crop-on-wall-under-window', 'agriculture:crop-on-wall-between-window',
+                 'agriculture:greenhouse', 'agriculture:temperature-tolerance'
                 ]
     input-files:
       - [get_radiation_metadata, building_name]
