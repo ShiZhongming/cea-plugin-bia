@@ -14,7 +14,7 @@ Urban agriculture:
 
   - name: bia-assessment
     label: BIA Assessment
-    description: Calculates crop yields (kg), environmental impacts including GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre), costs including capital and operational expenditures (USD) for the selected crop type on the selected building envelope surface.
+    description: Calculates crop yields (kg) as well as environmental impacts (more accurate for buildings in Singapore or where similar) including GHG Emissions (kg CO2-eq), energy (kWh) and water use (litre), costs including capital and operational expenditures (USD) for the selected crop type on the selected building envelope surface.
     interfaces: [cli, dashboard]
     module: bia.bia_assessment
     parameters: ['general:scenario', 'general:multiprocessing',
