@@ -45,22 +45,23 @@ def main(config):
         exit()
 
     # BIA assessment
-    type_crop = config.agriculture.type_crop
+    types_crop = config.agriculture.type_crop
     print('Executing CEA Building-Integrated Agriculture (BIA) assessment for {type_crop}.'
-          .format(type_crop=type_crop))
+          .format(type_crop=types_crop))
 
-    # BIA metrics for each surface of each building
-    cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
-        (repeat(locator, n), repeat(config, n), building_names, repeat(type_crop, n))
+    for type_crop in types_crop:
+        # BIA metrics for each surface of each building
+        cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
+            (repeat(locator, n), repeat(config, n), building_names, repeat(type_crop, n))
 
-    # aggregate the results of each building as a 'total' file and write to disk
-    # if the file exists, delete it
-    bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv" \
-        .format(type_crop=type_crop)
-    if os.path.exists(bia_path):
-        os.remove(bia_path)
-    cea.utilities.parallel.vectorize(bia_result_aggregate_write, num_process)\
-        (repeat(locator, n), repeat(config, n), building_names, repeat(type_crop, n))
+        # aggregate the results of each building as a 'total' file and write to disk
+        # if the file exists, delete it
+        bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv"\
+            .format(type_crop=type_crop)
+        if os.path.exists(bia_path):
+            os.remove(bia_path)
+        cea.utilities.parallel.vectorize(bia_result_aggregate_write, num_process)\
+            (repeat(locator, n), repeat(config, n), building_names, repeat(type_crop, n))
 
 if __name__ == '__main__':
     main(cea.config.Configuration())

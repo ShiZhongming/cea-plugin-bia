@@ -65,12 +65,12 @@ def calc_properties_env_db(config):
     return env_properties
 
 
-def calc_properties_cost_db(config):
+def calc_properties_cost_db(type_crop):
     """
     To retrieve the expenditures related the selected crop type stored in the BIA database.
 
-    :param database_path: the selected crop type
-    :type database_path: string
+    :param type_crop: the selected crop type
+    :type type_crop: string
 
     :return: DataFrame with properties of expenditures related to the selected crop type retrieved form the database
     """
@@ -79,7 +79,6 @@ def calc_properties_cost_db(config):
     dir = os.path.dirname(__file__)
     database_path = os.path.join(dir, "bia_data.xlsx")
 
-    type_crop = config.agriculture.type_crop
     data = pd.read_excel(database_path, sheet_name="cost")
     cost_properties = data[data['type_crop'] == type_crop]
 
