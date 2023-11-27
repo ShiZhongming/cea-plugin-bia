@@ -222,7 +222,7 @@ def calc_bia_metric(locator, config, building_name, type_crop):
     # the CAPEX (USD per kg vegetable), OPEX (USD per kg vegetable) in USD
     # for the selected crop type on each building envelope surface
     print('Calculating capital operational costs (USD) for {type_crop}'.format(type_crop=type_crop))
-    costs_srf_df = calc_crop_cost(locator, config, building_name,
+    costs_srf_df = calc_crop_cost(type_crop,
                                   cea_dli_results, cycl_srf, cycl_i_srf, yield_srf_df, env_impacts_srf_df)
 
     # merge the results as a DataFrame
@@ -581,15 +581,13 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
 
 
 # calculate the costs (CAPEX, OPEX, market price of the yields) for each surface
-def calc_crop_cost(locator, config, building_name,
+def calc_crop_cost(type_crop,
                    cea_dli_results, cycl_srf, cycl_i_srf, yield_srf_df, env_impacts_srf_df):
     """
     This function calculates the CAPEX in USD (infrastructure) for each surface.
 
-    :param locator: An InputLocator to locate input files
-    :type locator: cea.inputlocator.InputLocator
-    :param building_name: list of building names in the case study
-    :type building_name: Series
+    :param type_crop: the selected crop type
+    :type type_crop: string
     :param cea_dli_results: dli results stored in the csv file via
     "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"
     :type cea_dli_results: DataFrame
@@ -611,9 +609,6 @@ def calc_crop_cost(locator, config, building_name,
 
     """
 
-    # the selected crop type
-    type_crop = config.agriculture.type_crop
-
     # gather the orientation information for each building surface
     area_srf = cea_dli_results['AREA_m2'].tolist()
 
@@ -624,7 +619,7 @@ def calc_crop_cost(locator, config, building_name,
     water_price_USD_per_l = (3.69 / 1000) / ex_sgd_usd  # https://www.pub.gov.sg/watersupply/waterprice
 
     # read cost properties in the BIA database for the selected crop type
-    cost_properties = calc_properties_cost_db(config)
+    cost_properties = calc_properties_cost_db(type_crop)
     Inv_IR_perc = cost_properties.get('IR_%').values[0]      # interest rate
     Inv_LT = cost_properties.get('LT_yr').values[0]      # lifetime in years
     shelf_USD_per_sqm = cost_properties.get(
