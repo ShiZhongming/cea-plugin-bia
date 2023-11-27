@@ -217,9 +217,6 @@ def calc_crop_cycle(config, building_name, type_crop):
     day_365.loc[0] = range(365)
     surface_day_365 = pd.concat([day_365] * n_surface, ignore_index=True)  # Ignores the index
 
-    surface_day_365.to_excel(r'/Users/zshi/Dropbox/CEA2/batch/1/outputs/data/potentials/agriculture/surface_day_365.xlsx')
-    bool_df.to_excel(r'/Users/zshi/Dropbox/CEA2/batch/1/outputs/data/potentials/agriculture/bool_df.xlsx')
-
     first_day = surface_day_365[bool_df].values.tolist()    # using bool_df as a mask; from dataframe to lists of a list
     first_day = [[x for x in y if not np.isnan(x)] for y in first_day]  # remove the nan in each list
 
