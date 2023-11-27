@@ -145,6 +145,15 @@ def calc_crop_cycle(config, building_name, type_crop):
     :type cycl_s_srf: list
 
     """
+    # read the DLI results
+    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"\
+        .format(building=building_name)
+    cea_dli_results = pd.read_csv(dli_path)
+    # number of this building's surfaces
+    n_surface = len(cea_dli_results.index)
+    # slice the DLIs/temps of the 365 days
+    dli_365 = cea_dli_results.loc[:, "0": "364"]
+
     print("Reading and analysing the weather data.")
     locator = InputLocator(scenario=config.scenario)
     weather_data = epwreader.epw_reader(locator.get_weather_file())
@@ -156,6 +165,7 @@ def calc_crop_cycle(config, building_name, type_crop):
     temp_C_h = pd.merge(temp_C_h, hour_to_day, left_index=True, right_index=True, how="left")
     temp_C_d = temp_C_h.groupby(['index']).sum().reset_index() / 24
     del temp_C_d['index']       # average Temperature_C per 365 days
+    temp_C_d = pd.DataFrame(np.repeat(temp_C_d.T.values, n_surface, axis=0), columns=dli_365.columns)
 
     print("Calculating the planting information for {type_crop} on Building {building}."
           .format(type_crop=type_crop, building=building_name))
@@ -164,11 +174,12 @@ def calc_crop_cycle(config, building_name, type_crop):
     crop_properties = calc_properties_crop_db(type_crop)
 
     # unpack the properties of the selected crop type: cycle days
+    TOLERANCE_TEMP = 5 # set the tolerance of the preferred temperature against the bounds in bia_data.xlsx
     cycl_i_day = int(crop_properties.get('cycl_i_day'))  # growth cycle in days: initial
     cycl_s_day = int(crop_properties.get('cycl_s_day'))  # growth cycle in days: subsequent
     n_cycl = int(crop_properties.get('n_cycl'))  # number of growth cycles: both initial and subsequent
-    temp_opt_gro_l_c = int(crop_properties.get('temp_opt_gro_l_c'))     # preferred temperature for growth: lower bound
-    temp_opt_gro_u_c = int(crop_properties.get('temp_opt_gro_u_c'))     # preferred temperature for growth: upper bound
+    temp_opt_gro_l_c = int(crop_properties.get('temp_opt_gro_l_c')) - TOLERANCE_TEMP   # preferred temperature for growth: lower bound
+    temp_opt_gro_u_c = int(crop_properties.get('temp_opt_gro_u_c')) + TOLERANCE_TEMP    # preferred temperature for growth: upper bound
 
     # unpack the properties of the selected crop type: DLI
     dli_l = float(crop_properties.get('dli_l'))    # DLI requirement: lower bound
@@ -179,18 +190,9 @@ def calc_crop_cycle(config, building_name, type_crop):
     temp_criteria_l = temp_opt_gro_l_c      # temperature requirement: lower bound
     temp_criteria_u = temp_opt_gro_u_c      # temperature requirement: upper bound
 
-    # read the DLI results
-    dli_path = config.scenario + "/outputs/data/potentials/agriculture/dli/{building}_DLI.csv"\
-        .format(building=building_name)
-    cea_dli_results = pd.read_csv(dli_path)
-
-    # slice the DLIs/temps of the 365 days
-    dli_365 = cea_dli_results.loc[:, "0": "364"]
+    # add one cycle at the end of the year, to be linked with Jan 1 plus one cycle
     dli_365_add_one_cycl = pd.concat([dli_365, dli_365.iloc[:, 0:(cycl_i_day - 1)]], axis=1)
     temp_c_365_add_one_cycl = pd.concat([temp_C_d, temp_C_d.iloc[:, 0:(cycl_i_day - 1)]], axis=1)
-
-    # number of this building's surfaces
-    n_surface = len(dli_365.index)
 
     # spot the first days of potential growth cycles, for the growth of at least one initial cycle only
     day = []    # to store the first days of potential cycles
@@ -205,7 +207,7 @@ def calc_crop_cycle(config, building_name, type_crop):
         bool_temp_u = temp_c_365_add_one_cycl.iloc[:, i:(i + cycl_i_day)].sum(axis=1) <= temp_criteria_u * cycl_i_day
         # merge criteria
         mask = [all(tup) for tup in zip(bool_dli, bool_temp_l, bool_temp_u)]
-        bool = pd.DataFrame(bool_dli, columns=['{i}'.format(i=i)])
+        bool = pd.DataFrame(mask, columns=['{i}'.format(i=i)])
 
         # record the boolean values for each day of all surfaces
         bool_df = pd.concat([bool_df, bool], axis=1)
@@ -213,6 +215,9 @@ def calc_crop_cycle(config, building_name, type_crop):
     day_365 = pd.DataFrame(columns=range(365))
     day_365.loc[0] = range(365)
     surface_day_365 = pd.concat([day_365] * n_surface, ignore_index=True)  # Ignores the index
+
+    surface_day_365.to_excel(r'/Users/zshi/Dropbox/CEA2/batch/1/outputs/data/potentials/agriculture/surface_day_365.xlsx')
+    bool_df.to_excel(r'/Users/zshi/Dropbox/CEA2/batch/1/outputs/data/potentials/agriculture/bool_df.xlsx')
 
     first_day = surface_day_365[bool_df].values.tolist()    # using bool_df as a mask; from dataframe to lists of a list
     first_day = [[x for x in y if not np.isnan(x)] for y in first_day]  # remove the nan in each list
@@ -298,7 +303,7 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
     :type cycl_s_srf: list
     """
 
-    tolerance_cycl = 0.05  # this tolerance allows some of the growth cycles a bit shorter than in the database
+    TOLERANCE_CYCL = 0.05  # this tolerance allows some of the growth cycles a bit shorter than in the database
     crop_life = cycl_i_day + cycl_s_day * (n_cycl - 1)  # days of the full life of the selected crop
     n_season_srf = [len(x) for x in season_srf]     # number of seasons on each surface
 
@@ -321,8 +326,8 @@ def calc_n_cycle_season(cycl_i_day, cycl_s_day, n_cycl, season_srf):
 
         for n in range(1, n_cycl):
             for season in range(n_season):
-                if day_non_full_life[season] >= (cycl_i_day + (n - 1) * cycl_s_day)/crop_life/(1 + tolerance_cycl) \
-                        and day_non_full_life[season] < (cycl_i_day + n * cycl_s_day)/crop_life/(1 + tolerance_cycl):
+                if day_non_full_life[season] >= (cycl_i_day + (n - 1) * cycl_s_day)/crop_life/(1 + TOLERANCE_CYCL) \
+                        and day_non_full_life[season] < (cycl_i_day + n * cycl_s_day)/crop_life/(1 + TOLERANCE_CYCL):
                     n_cycl_season[season] = n_cycl_season[season] + n
 
         cycl_srf.append(n_cycl_season)
