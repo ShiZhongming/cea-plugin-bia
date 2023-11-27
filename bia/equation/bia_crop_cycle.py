@@ -174,7 +174,7 @@ def calc_crop_cycle(config, building_name, type_crop):
     crop_properties = calc_properties_crop_db(type_crop)
 
     # unpack the properties of the selected crop type: cycle days
-    TOLERANCE_TEMP = 5 # set the tolerance of the preferred temperature against the bounds in bia_data.xlsx
+    TOLERANCE_TEMP = 5      # set the tolerance of the preferred temperature against the bounds in bia_data.xlsx
     cycl_i_day = int(crop_properties.get('cycl_i_day'))  # growth cycle in days: initial
     cycl_s_day = int(crop_properties.get('cycl_s_day'))  # growth cycle in days: subsequent
     n_cycl = int(crop_properties.get('n_cycl'))  # number of growth cycles: both initial and subsequent
@@ -207,7 +207,8 @@ def calc_crop_cycle(config, building_name, type_crop):
         bool_temp_u = temp_c_365_add_one_cycl.iloc[:, i:(i + cycl_i_day)].sum(axis=1) <= temp_criteria_u * cycl_i_day
         # merge criteria
         mask = [all(tup) for tup in zip(bool_dli, bool_temp_l, bool_temp_u)]
-        bool = pd.DataFrame(mask, columns=['{i}'.format(i=i)])
+        bool = pd.Series(mask)
+        bool = bool.to_frame(name=i)
 
         # record the boolean values for each day of all surfaces
         bool_df = pd.concat([bool_df, bool], axis=1)

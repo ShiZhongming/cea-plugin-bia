@@ -657,20 +657,38 @@ def calc_crop_cost(locator, config, building_name,
         cycl_i = sum(cycl_i_srf[surface])     # number of initial cycles
         area = area_srf[surface]        # area of the surface in sqm
         yield_bia = yield_srf_df['yield_kg_per_year'].tolist()[surface]
-        water_bia = env_impacts_srf_df['water_l_bia'].tolist()[surface]
 
-        capex_infrastructure = shelf_USD_per_sqm * area
-        capex_soil = soil_USD_per_sqm * area
-        capex_all = capex_infrastructure + capex_soil   # initial capital cost in USD
-        capex_all_a = calc_capex_annualized(capex_all, Inv_IR_perc, Inv_LT)     # annualised capital cost in USD/year
+        # check is bia is activated at all
+        if yield_bia !=0:
 
-        opex_seed_a = seed_USD_per_sqm * area * cycl_i
-        opex_pesticide_a = pesticide_USD_per_sqm * area * cycl
-        opex_fertilizer_a = fertilizer_USD_per_sqm * area * cycl
-        opex_water_a = water_price_USD_per_l * water_bia
-        opex_sell_a = -1 * market_price_USD_per_kg * yield_bia
-        opex_all_a = opex_seed_a + opex_pesticide_a + opex_fertilizer_a + \
+            water_bia = env_impacts_srf_df['water_l_bia'].tolist()[surface]
+
+            capex_infrastructure = shelf_USD_per_sqm * area
+            capex_soil = soil_USD_per_sqm * area
+            capex_all = capex_infrastructure + capex_soil   # initial capital cost in USD
+            capex_all_a = calc_capex_annualized(capex_all, Inv_IR_perc, Inv_LT)     # annualised capital cost in USD/year
+
+            opex_seed_a = seed_USD_per_sqm * area * cycl_i
+            opex_pesticide_a = pesticide_USD_per_sqm * area * cycl
+            opex_fertilizer_a = fertilizer_USD_per_sqm * area * cycl
+            opex_water_a = water_price_USD_per_l * water_bia
+            opex_sell_a = -1 * market_price_USD_per_kg * yield_bia
+            opex_all_a = opex_seed_a + opex_pesticide_a + opex_fertilizer_a + \
                      opex_water_a + opex_sell_a  # annual operational cost in USD/year
+        else:
+            water_bia = 0
+
+            capex_infrastructure = 0
+            capex_soil = 0
+            capex_all = 0   # initial capital cost in USD
+            capex_all_a = 0     # annualised capital cost in USD/year
+
+            opex_seed_a = 0
+            opex_pesticide_a = 0
+            opex_fertilizer_a = 0
+            opex_water_a = 0
+            opex_sell_a = 0
+            opex_all_a = 0
 
         capex_infrastructure_srf.append(capex_infrastructure)
         capex_soil_srf.append(capex_soil)
@@ -796,13 +814,17 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
     # recalculate the yield per square metre installed surface area
     area_installed = bia_metric_srf_df_filtered[bia_metric_srf_df_filtered['yield_kg_per_year'] != 0]['AREA_m2']\
         .sum(axis=0)
-    yield_kg_per_sqm_per_year_i = bia_to_write['yield_kg_per_year'] / area_installed
+    if area_installed !=0:
+        yield_kg_per_sqm_per_year_i = bia_to_write['yield_kg_per_year'] / area_installed
+    else:
+        yield_kg_per_sqm_per_year_i = 0
 
     # aggregate each metric for the entire building
     bia_to_write.insert(loc=0, column='BUILDING', value=building_name)
     bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year_a', value=yield_kg_per_sqm_per_year_a)
     bia_to_write.insert(loc=4, column='yield_kg_per_sqm_per_year_i', value=yield_kg_per_sqm_per_year_i)
     bia_to_write.pop('srf_index')
+
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv" \
