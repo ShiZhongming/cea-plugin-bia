@@ -228,6 +228,12 @@ def calc_bia_metric(locator, config, building_name, type_crop):
     # merge the results as a DataFrame
     bia_metric_srf_df = pd.concat([info_srf_df, yield_srf_df, env_impacts_srf_df, costs_srf_df], axis=1)
 
+    # add info (i.e. orientation and area) of surface results
+    orientation_df = cea_dli_results['orientation'].tolist()  # west, east, north, south
+    bia_metric_srf_df.insert(bia_metric_srf_df.columns.get_loc('yield_kg_per_year'), 'orientation', orientation_df)
+    area_srf = cea_dli_results['AREA_m2'].tolist()
+    bia_metric_srf_df.insert(bia_metric_srf_df.columns.get_loc('orientation'), 'AREA_m2', area_srf)
+
     # write the BIA results (all non-filtered surface)
     dir = config.scenario + "/outputs/data/potentials/agriculture/surface"
     if not os.path.exists(dir):
@@ -791,7 +797,7 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
     cea_metric_results = pd.read_csv(metric_path)
 
     # merge the two results (DLI + BIA metrics)
-    info_srf_df = cea_dli_results.loc[:, ['srf_index', 'AREA_m2', 'total_rad_Whm2', 'TYPE', 'wall_type']]
+    info_srf_df = cea_dli_results.loc[:, ['srf_index', 'total_rad_Whm2', 'TYPE', 'wall_type']]
     bia_metrics_matrix_srf_df_to_filter = pd.concat([info_srf_df, cea_metric_results], axis=1)
 
     # filter the ones not wanted by the user
