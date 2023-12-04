@@ -825,7 +825,7 @@ def bia_result_aggregate_write(locator, config, building_name, type_crop):
     bia_to_write.insert(loc=3, column='yield_kg_per_sqm_per_year_a', value=yield_kg_per_sqm_per_year_a)
     bia_to_write.insert(loc=4, column='yield_kg_per_sqm_per_year_i', value=yield_kg_per_sqm_per_year_i)
     bia_to_write.pop('srf_index')
-
+    bia_to_write.pop('orientation')
 
     # write to disk
     bia_path = config.scenario + "/outputs/data/potentials/agriculture/BIA_assessment_total_{type_crop}.csv" \
