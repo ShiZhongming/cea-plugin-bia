@@ -172,9 +172,8 @@ def calc_sensor_floor_number(locator, sensors_metadata_clean, building_name):
     # Facade sensors include both window and wall sensors.
     facades = sensors_metadata_clean[sensors_metadata_clean['orientation'] != 'top']
 
-
     # get the total floor numbers of the building being calculated
-    n_floors = int(building_height_info['floors_ag'][building_height_info['Name'] == building_name])
+    n_floors = int(building_height_info.loc[building_height_info['Name'] == building_name, 'floors_ag'].iloc[0])
 
     # calculate the number of facade sensors on each floor
     # n_sensors_each_floor = int(len(facades) // n_floors)
@@ -242,9 +241,14 @@ def calc_sensor_wall_type(locator, sensors_metadata_clean, building_name):
                     walls.loc[walls['Zcoor'] > sensors_windows_Zcoor, 'wall_type'] = 'upper'
                     walls.loc[walls['Zcoor'] < sensors_windows_Zcoor, 'wall_type'] = 'lower'
                     walls['wall_type'].fillna('side', inplace=True)
-
                     results_n.append(walls)
-            merged_results_n_df = pd.concat(results_n) #store all surfaces for one orientation
+
+            if results_n:  # Only concatenate if the list is not empty
+                merged_results_n_df = pd.concat(results_n) #store all surfaces for one orientation
+            else:
+                print(f"Warning: No objects to concatenate for building: {building_name}, results_n is empty.")
+                merged_results_n_df = pd.DataFrame()  # Return an empty DataFrame or handle as needed
+
         results.append(merged_results_n_df)
 
     merged_results_df = pd.concat(results)
