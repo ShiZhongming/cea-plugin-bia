@@ -103,7 +103,7 @@ def check_bia_exist(locator, config, building_name):
     :type exist_test: Integer
     """
     # all the crop types to be plotted
-    types_crop = config.crop_plot.types_crop
+    types_crop = config.agriculture.types_crop
 
     # the path to the overall planting calendar
     crop_profile_path = config.scenario + \
@@ -170,7 +170,7 @@ def visualise_crop_calendar_by_orie_floo(locator, config, building_name):
         .format(building=building_name)
 
     # all the crop types to be plotted
-    types_crop = config.crop_plot.types_crop
+    types_crop = config.agriculture.types_crop
 
     # read the overall planting calendar
     crop_profile_df = pd.read_csv(crop_profile_path)

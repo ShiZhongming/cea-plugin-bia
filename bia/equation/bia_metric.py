@@ -481,9 +481,6 @@ def calc_crop_environmental_impact(locator, config, building_name, cea_dli_resul
 
     """
 
-    # the selected crop type
-    type_crop = config.agriculture.type_crop
-
     # read crop properties in the BIA database for the selected crop type
     env_properties = calc_properties_env_db(config)
 

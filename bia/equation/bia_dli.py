@@ -173,7 +173,7 @@ def calc_sensor_floor_number(locator, sensors_metadata_clean, building_name):
     facades = sensors_metadata_clean[sensors_metadata_clean['orientation'] != 'top']
 
     # get the total floor numbers of the building being calculated
-    n_floors = int(building_height_info.loc[building_height_info['Name'] == building_name, 'floors_ag'].iloc[0])
+    n_floors = int(building_height_info.loc[building_height_info['name'] == building_name, 'floors_ag'].iloc[0])
 
     # calculate the number of facade sensors on each floor
     # n_sensors_each_floor = int(len(facades) // n_floors)

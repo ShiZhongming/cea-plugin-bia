@@ -12,7 +12,6 @@ import os
 from itertools import repeat
 import cea.utilities.parallel
 from bia.equation.bia_dli import calc_DLI
-from bia.equation.bia_metric import calc_bia_metric, bia_result_aggregate_write
 
 __author__ = "Zhongming Shi"
 __copyright__ = "Copyright 2023, A/S Group, ITA, ETH Zurich"

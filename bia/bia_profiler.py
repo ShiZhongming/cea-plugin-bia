@@ -23,6 +23,8 @@ __maintainer__ = "Zhongming Shi"
 __email__ = "cea@arch.ethz.ch"
 __status__ = "Production"
 
+from bia.equation.bia_visual import calc_bia_visual
+
 
 class BiaProfilerPlugin(cea.plugin.CeaPlugin):
 
@@ -36,7 +38,7 @@ def main(config):
 
     # List of crop types considered for the building-integrate agriculture (BIA) crop profiling
     # At least two types
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.agriculture.types_crop
     building_names =config.agriculture.buildings
     num_process = config.get_number_of_processes()
     n = len(building_names)
@@ -57,6 +59,16 @@ def main(config):
 
     # Create the crop profiles for each building's surface and write to disk
     cea.utilities.parallel.vectorize(calc_bia_crop_profile, num_process)\
+        (repeat(locator, n), repeat(config, n), building_names)
+
+    # all the results are stored in the folder "agriculture\plots\"
+    # activate the equations for generating .csv files to be used as the input for bia visualisation
+    # for each building
+    # for each crop type's planting calendar
+    # for all crop types combined's planting calendar
+    # for all information to be included in the dashboard
+    # and write to disk
+    cea.utilities.parallel.vectorize(calc_bia_visual, num_process)\
         (repeat(locator, n), repeat(config, n), building_names)
 
 if __name__ == '__main__':

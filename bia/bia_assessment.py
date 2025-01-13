@@ -45,7 +45,7 @@ def main(config):
         exit()
 
     # BIA assessment
-    types_crop = config.agriculture.type_crop
+    types_crop = config.agriculture.types_crop
     print('Executing CEA Building-Integrated Agriculture (BIA) assessment for {type_crop}.'
           .format(type_crop=types_crop))
 

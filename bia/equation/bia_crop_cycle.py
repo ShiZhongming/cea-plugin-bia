@@ -57,7 +57,6 @@ def calc_properties_env_db(config):
     dir = os.path.dirname(__file__)
     database_path = os.path.join(dir, "bia_data.xlsx")
 
-    type_crop = config.agriculture.type_crop
     data = pd.read_excel(database_path, sheet_name="env")
     # baseline scenario now only contains lettuce as an example; more to be added
     env_properties = data[data['type_crop'] == 'lettuce']

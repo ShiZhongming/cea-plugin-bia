@@ -81,9 +81,9 @@ def calc_crop_rank(locator, config, building_name):
 
     """
     # get the user-defined list of crop types
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.agriculture.types_crop
     # get the user-defined objective of bia-metric
-    bia_metric_obj = config.crop_profile.bia_assessment_metric_objective
+    bia_metric_obj = config.agriculture.bia_assessment_metric_objective
 
     # for each user-defined crop type
     bia_metric_obj_matrix = []
@@ -191,9 +191,9 @@ def calc_crop_calendar(locator, config, building_name):
     print('Creating the crop profiles and planting calendars...')
 
     # get the user-defined list of crop types
-    types_crop = config.crop_profile.types_crop
+    types_crop = config.agriculture.types_crop
     # get the user-defined objective of bia-metric
-    # bia_metric_obj = config.crop_profile.bia_assessment_metric_objective
+    # bia_metric_obj = config.agriculture.bia_objective
 
     # to create the ranking crop types
     # for each surface based on the user-defined BIA objective
@@ -284,10 +284,10 @@ def filter_crop_srf_profiler(locator, config, building_name, bia_metric_srf_df):
     """
 
     # get the user inputs
-    bool_roof = config.crop_profile.crop_on_roof
-    bool_window = config.crop_profile.crop_on_window
-    bool_wall_u = config.crop_profile.crop_on_wall_under_window
-    bool_wall_b = config.crop_profile.crop_on_wall_between_window
+    bool_roof = config.agriculture.crop_on_roof
+    bool_window = config.agriculture.crop_on_window
+    bool_wall_u = config.agriculture.crop_on_wall_under_window
+    bool_wall_b = config.agriculture.crop_on_wall_between_window
 
     # create the mask based the user input
     mask_df = pd.DataFrame(columns=['mask_roof', 'mask_window',
