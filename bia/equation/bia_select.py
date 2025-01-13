@@ -83,7 +83,7 @@ def calc_crop_rank(locator, config, building_name):
     # get the user-defined list of crop types
     types_crop = config.agriculture.types_crop
     # get the user-defined objective of bia-metric
-    bia_metric_obj = config.agriculture.bia_assessment_metric_objective
+    bia_metric_obj = config.agriculture.bia_objective
 
     # for each user-defined crop type
     bia_metric_obj_matrix = []

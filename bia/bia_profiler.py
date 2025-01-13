@@ -53,10 +53,10 @@ def main(config):
     # activate the function that calculates
     # the BIA metrics for each building surface for each candidate crop type
     # all the results are stored in the folder "agriculture\surface\"
-    for type_crop in range(len(types_crop)):
+    # for type_crop in range(len(types_crop)):
         # activate the bia metric equations for every surface
-        cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
-            (repeat(locator, n), repeat(config, n), building_names, repeat(types_crop[type_crop], n))
+        # cea.utilities.parallel.vectorize(calc_bia_metric, num_process)\
+        #     (repeat(locator, n), repeat(config, n), building_names, repeat(types_crop[type_crop], n))
 
     # Create the crop profiles for each building's surface and write to disk
     cea.utilities.parallel.vectorize(calc_bia_crop_profile, num_process)\

@@ -43,4 +43,5 @@ Building-Integrated Agriculture (BIA):
                  'agriculture:crop-on-roof',
                  'agriculture:crop-on-window',
                  'agriculture:crop-on-wall-under-window', 'agriculture:crop-on-wall-between-window',
+                 'agriculture:generate-csv-files-for-visualisation'
                 ]
