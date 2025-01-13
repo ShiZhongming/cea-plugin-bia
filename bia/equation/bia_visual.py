@@ -49,18 +49,18 @@ def calc_bia_visual(locator, config, building_name):
     # test if all the required inputs are in place
     # if not all in place, missing BIA profiler's only
     if check_bia_exist(locator, config, building_name) == 1:
-        print("Some or all the input files for BIA plotter is/are missing. "
-              "Consider to check if BIA Profiler has been executed successfully.")
+        print("Some or all the input files for generating the .csv files of visualisation purposes is/are missing. "
+              "Ensure BIA Tool Part III has been executed successfully.")
 
     # if not all in place, missing BIA assessment's only
     elif check_bia_exist(locator, config, building_name) == 2:
-        print("Some or all the input files for BIA plotter is/are missing. "
-              "Consider to check if BIA Assessment has been executed successfully.")
+        print("Some or all the input files for generating the .csv files of visualisation purposes is/are missing. "
+              "Ensure BIA Tool Part II has been executed successfully.")
 
     # if not all in place, missing both BIA profiler's and BIA assessment's
     elif check_bia_exist(locator, config, building_name) == 3:
-        print("Some or all the input files for BIA plotter is/are missing. "
-              "Consider to check if both BIA Profiler and BIA Assessment have been executed successfully.")
+        print("Some or all the input files for generating the .csv files of visualisation purposes is/are missing. "
+              "Ensure both BIA Tool Part I and Part II have been executed successfully.")
 
     # if all in place
     elif check_bia_exist(locator, config, building_name) == 0:

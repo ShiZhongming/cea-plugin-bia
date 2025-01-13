@@ -42,6 +42,7 @@ def main(config):
     building_names =config.agriculture.buildings
     num_process = config.get_number_of_processes()
     n = len(building_names)
+    bool_csv = config.agriculture.generate_csv_files_for_visualisation
 
     dir_dli = config.scenario + "/outputs/data/potentials/agriculture/dli"     # path of the directory
     dli_file = os.listdir(dir_dli)  # Getting the list of directories
@@ -61,15 +62,16 @@ def main(config):
     cea.utilities.parallel.vectorize(calc_bia_crop_profile, num_process)\
         (repeat(locator, n), repeat(config, n), building_names)
 
-    # all the results are stored in the folder "agriculture\plots\"
-    # activate the equations for generating .csv files to be used as the input for bia visualisation
-    # for each building
-    # for each crop type's planting calendar
-    # for all crop types combined's planting calendar
-    # for all information to be included in the dashboard
-    # and write to disk
-    cea.utilities.parallel.vectorize(calc_bia_visual, num_process)\
-        (repeat(locator, n), repeat(config, n), building_names)
+    if bool_csv:
+        # all the results are stored in the folder "agriculture\plots\"
+        # activate the equations for generating .csv files to be used as the input for bia visualisation
+        # for each building
+        # for each crop type's planting calendar
+        # for all crop types combined's planting calendar
+        # for all information to be included in the dashboard
+        # and write to disk
+        cea.utilities.parallel.vectorize(calc_bia_visual, num_process)\
+            (repeat(locator, n), repeat(config, n), building_names)
 
 if __name__ == '__main__':
     main(cea.config.Configuration())
